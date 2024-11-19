@@ -2,6 +2,7 @@ const multer = require('multer');
 const Automacao = require('../models/Automacao');
 const connection = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
+const TipoParametro = require('../models/TipoParametro');
 
 class AutomacaoController {
   async criar(req, res) {
@@ -38,12 +39,16 @@ class AutomacaoController {
           if (parametros) {
             let contador = 0;
 
-            for (const data of parametros) {
+            for await (const data of parametros) {
               const parametro = JSON.parse(data);
 
-              if (!parametro.nome || !parametro.tipo_parametro_id) {
-                break;
-              }
+              if (!parametro.nome || !parametro.tipo_parametro_id) break;
+
+              const tipo = await TipoParametro.findByPk(
+                parametro.tipo_parametro_id
+              );
+
+              if (!tipo) break;
 
               contador++;
             }
@@ -62,11 +67,12 @@ class AutomacaoController {
             }
           );
 
+          let parametrosSalvos = [];
           if (parametros) {
             for await (const data of parametros) {
               const parametro = JSON.parse(data);
 
-              await ParametroAutomacao.create(
+              const parametroSalvo = await ParametroAutomacao.create(
                 {
                   nome: parametro.nome,
                   automacao_id: automacao.id,
@@ -76,10 +82,14 @@ class AutomacaoController {
                   transaction,
                 }
               );
+
+              parametrosSalvos.push(parametroSalvo);
             }
           }
 
-          res.status(201).json(automacao);
+          res
+            .status(201)
+            .json({ ...automacao.dataValues, parametros: parametrosSalvos });
 
           await transaction.commit();
         } catch (error) {

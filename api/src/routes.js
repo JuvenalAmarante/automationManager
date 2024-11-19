@@ -22,6 +22,7 @@ router.post('/automacoes', AutomacaoController.criar);
 // Agendamentos
 router.post('/agendamentos', AgendamentoController.criar);
 router.get('/agendamentos', AgendamentoController.listar);
+router.get('/agendamentos/:id', AgendamentoController.listarDetalhes);
 router.post('/agendamentos/:id/cancelar', AgendamentoController.cancelar);
 
 module.exports = router;

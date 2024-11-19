@@ -4,13 +4,13 @@ class ParametroAgendamento extends Model {
   static init(sequelize) {
     super.init(
       {
-        nome: DataTypes.STRING,
+        valor: DataTypes.STRING,
         agendamento_id: DataTypes.INTEGER,
         parametro_automacao_id: DataTypes.INTEGER,
       },
       {
         sequelize,
-        tableName: 'parametros_automacoes',
+        tableName: 'parametros_agendamentos',
         createdAt: 'criado_em',
         updatedAt: 'atualizado_em',
       }

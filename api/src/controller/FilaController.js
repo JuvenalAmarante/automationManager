@@ -4,9 +4,9 @@ class FilaController {
   filaExecucao = [];
   executando = false;
 
-  adicionarNaFila(script) {
-    this.filaExecucao.push(script);
-    console.log(`Script "${script.nome}" adicionado à fila.`);
+  adicionarNaFila(dados, parametros) {
+    this.filaExecucao.push({ dados, parametros });
+    console.log(`Automacao "${dados.nome}" adicionado à fila.`);
 
     console.log(
       '🚀 ~ FilaController ~ adicionarNaFila ~ this.executando:',
@@ -26,18 +26,25 @@ class FilaController {
       }
 
       this.executando = true;
-      const script = this.filaExecucao.shift();
+      const automacao = this.filaExecucao.shift();
 
-      console.log(`Executando script: ${script.nome}`);
-      const comando = `python3 ./src/public/${script.arquivo}`;
+      console.log(`Executando automação: ${automacao.dados.nome}`);
+      let comando = `python3 ./src/public/${automacao.dados.arquivo}`;
+
+      automacao.parametros.forEach((parametro) => {
+        comando += ` --${parametro.nome} "${parametro.valor}"`;
+      });
 
       exec(comando, (error, stdout, stderr) => {
         if (error) {
-          console.error(`Erro ao executar ${script.nome}:`, error.message);
+          console.error(
+            `Erro ao executar ${automacao.dados.nome}:`,
+            error.message
+          );
         } else if (stderr) {
-          console.error(`Erro no script ${script.nome}:`, stderr);
+          console.error(`Erro no automação ${automacao.dados.nome}:`, stderr);
         } else {
-          console.log(`Saída de ${script.nome}:`, stdout);
+          console.log(`Saída de ${automacao.dados.nome}:`, stdout);
         }
 
         this.processarFila();

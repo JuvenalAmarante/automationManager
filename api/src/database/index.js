@@ -35,6 +35,7 @@ ParametroAutomacao.belongsTo(Automacao, {
   },
 });
 
+Agendamento.hasMany(ParametroAgendamento);
 Agendamento.belongsTo(Automacao, {
   foreignKey: 'automacao_id',
 });
