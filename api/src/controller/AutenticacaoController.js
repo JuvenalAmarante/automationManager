@@ -6,12 +6,12 @@ class AutenticacaoController {
   async login(req, res) {
     const { usuario, senha } = req.body;
 
-    if (!usuario || !senha) res.status(400).json({ error: 'Campos inválidos' });
+    if (!usuario || !senha) return res.status(400).json({ error: 'Campos inválidos' });
 
     try {
       const data = await UsuarioController.buscarUsuarioPorUsuario(usuario);
 
-      if (!data) res.status(400).json({ error: 'Usuário ou senha inválidos' });
+      if (!data) return res.status(400).json({ error: 'Usuário ou senha inválidos' });
 
       res.status(200).json({
         token: jwt.sign(
