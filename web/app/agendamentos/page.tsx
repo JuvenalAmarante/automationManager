@@ -1,22 +1,23 @@
 'use client';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function DetalhesAutomacao({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function Agendamentos() {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<{
-    id: number;
-    nome: string;
-    criado_em: string;
-  }>();
+  const [loading, setLoading] = useState(true);
+  const [list, setList] = useState<
+    {
+      id: number;
+      criado_em: string;
+      Automacao: {
+        nome: string;
+      };
+    }[]
+  >([]);
 
-  const loadData = async () => {
+  const loadList = async () => {
     try {
       setLoading(true);
 
@@ -24,9 +25,7 @@ export default function DetalhesAutomacao({
 
       if (!token) router.replace('/login');
 
-      const { id } = await params;
-
-      const res = await fetch(`http://localhost:3100/automacoes/${id}`, {
+      const res = await fetch('http://localhost:3100/agendamentos', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -36,7 +35,7 @@ export default function DetalhesAutomacao({
       const data = await res.json();
 
       if (res.ok) {
-        setData(data);
+        setList(data);
       }
     } catch (error) {
       console.log(error);
@@ -46,15 +45,22 @@ export default function DetalhesAutomacao({
   };
 
   useEffect(() => {
-    loadData();
+    loadList();
   }, []);
 
   return (
-    <div className='w-full p-4'>
+    <div className='flex flex-col justify-center items-center p-4'>
       <div className='flex justify-center flex-row'>
         <h1 className='font-bold mb-4 text-xl text-center'>
-          Automação {data?.id}
+          Listagem de agendamentos
         </h1>
+
+        <Link
+          href={'/agendamentos/criar'}
+          className='absolute right-4 mb-4 text-white bg-primary-600 disabled:bg-primary-500 disabled:hover:bg-primary-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+        >
+          Novo
+        </Link>
       </div>
 
       {loading ? (
@@ -78,24 +84,27 @@ export default function DetalhesAutomacao({
           </svg>
         </div>
       ) : (
-        <div className='space-y-4 md:space-y-6 mx-40'>
-          <div>
-            <label
-              htmlFor='nome'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        <div className='mt-4 w-full'>
+          {list.map((item, index) => (
+            <div
+              className='p-4 border-gray-50 border-opacity-45 border-x border-y rounded mb-2 flex justify-between'
+              key={index}
             >
-              Nome
-            </label>
-            <input
-              disabled
-              name='nome'
-              id='nome'
-              value={data?.nome}
-              className='bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-              placeholder='Processo exemplo'
-              required={false}
-            />
-          </div>
+              <div>
+                <p className='text-base font-bold'>{item.Automacao.nome}</p>
+                <p className='text-sm'>
+                  Criado em: {new Date(item.criado_em).toLocaleString()}
+                </p>
+              </div>
+
+              <Link
+                href={`/agendamentos/${item.id}`}
+                className='text-white bg-primary-600 disabled:bg-primary-500 disabled:hover:bg-primary-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+              >
+                Visualizar
+              </Link>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -198,7 +198,13 @@ class AgendamentoController {
 
   listar = async (req, res) => {
     try {
-      const agendamentos = await Agendamento.findAll();
+      const agendamentos = await Agendamento.findAll({
+        include: [
+          {
+            model: Automacao,
+          },
+        ],
+      });
 
       res.status(200).json(agendamentos);
     } catch (error) {
@@ -213,7 +219,13 @@ class AgendamentoController {
       return res.status(400).json({ error: 'Agendamento não encontrado' });
 
     try {
-      const agendamento = await Agendamento.findByPk(id);
+      const agendamento = await Agendamento.findByPk(id, {
+        include: [
+          {
+            model: Automacao,
+          },
+        ],
+      });
 
       if (!agendamento)
         return res.status(400).json({ error: 'Agendamento não encontrado' });

@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function DetalhesAutomacao({
+export default function DetalhesAgendamento({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -12,8 +12,11 @@ export default function DetalhesAutomacao({
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<{
     id: number;
-    nome: string;
+    horario: string;
     criado_em: string;
+    Automacao: {
+      nome: string;
+    };
   }>();
 
   const loadData = async () => {
@@ -26,7 +29,7 @@ export default function DetalhesAutomacao({
 
       const { id } = await params;
 
-      const res = await fetch(`http://localhost:3100/automacoes/${id}`, {
+      const res = await fetch(`http://localhost:3100/agendamentos/${id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -53,7 +56,7 @@ export default function DetalhesAutomacao({
     <div className='w-full p-4'>
       <div className='flex justify-center flex-row'>
         <h1 className='font-bold mb-4 text-xl text-center'>
-          Automação {data?.id}
+          Agendamento {data?.id}
         </h1>
       </div>
 
@@ -84,13 +87,31 @@ export default function DetalhesAutomacao({
               htmlFor='nome'
               className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
             >
-              Nome
+              Horário de execução
             </label>
             <input
               disabled
-              name='nome'
-              id='nome'
-              value={data?.nome}
+              value={data?.horario}
+              name='horario'
+              id='horario'
+              className='bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              placeholder='Processo exemplo'
+              required={false}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor='nome'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Automação
+            </label>
+            <input
+              disabled
+              value={data?.Automacao.nome}
+              name='horario'
+              id='horario'
               className='bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
               placeholder='Processo exemplo'
               required={false}
