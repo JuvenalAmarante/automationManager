@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { exec } = require('child_process');
+var parser = require('cron-parser');
 
 const Automacao = require('../models/Automacao');
 const Agendamento = require('../models/Agendamento');
@@ -7,6 +7,7 @@ const FilaController = require('./FilaController');
 const connection = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const ParametroAgendamento = require('../models/ParametroAgendamento');
+const LogAgendamento = require('../models/LogAgendamento');
 
 class AgendamentoController {
   tarefasAtivas = {};
@@ -26,8 +27,8 @@ class AgendamentoController {
         ],
       });
 
-      agendamentos.forEach((agendamento) => {
-        const { id, horario, Automacao } = agendamento;
+      for await (const agendamento of agendamentos) {
+        const { id, horario, tipo_agendamento_id, Automacao } = agendamento;
 
         const tarefa = cron.schedule(horario, async () => {
           const parametrosAgendamento = await ParametroAgendamento.findAll({
@@ -53,7 +54,26 @@ class AgendamentoController {
             })
           );
 
-          FilaController.adicionarNaFila(automacao, parametrosFormatados);
+          FilaController.adicionarNaFila(
+            Automacao,
+            agendamento.id,
+            parametrosFormatados
+          );
+
+          if (tipo_agendamento_id == 1) {
+            await Agendamento.update(
+              { ativo: false },
+              {
+                where: {
+                  id: agendamento.id,
+                },
+              }
+            );
+
+            this.tarefasAtivas[id].stop();
+
+            delete this.tarefasAtivas[id];
+          }
         });
 
         this.tarefasAtivas[id] = tarefa;
@@ -61,16 +81,21 @@ class AgendamentoController {
         console.log(
           `Agendamento ${id} configurado para a automação ${Automacao.id}: ${Automacao.nome}`
         );
-      });
+      }
     } catch (error) {
       console.error('Erro ao configurar agendamentos:', error.message);
     }
   };
 
   criar = async (req, res) => {
-    const { automacao_id, horario, parametros } = req.body;
+    const { automacao_id, horario, tipo_id, parametros } = req.body;
 
-    if (!automacao_id || !horario || (parametros && !Array.isArray(parametros)))
+    if (
+      !automacao_id ||
+      !horario ||
+      !tipo_id ||
+      (parametros && !Array.isArray(parametros))
+    )
       return res.status(400).json({ error: 'Campos inválidos' });
 
     const transaction = await connection.transaction();
@@ -128,10 +153,36 @@ class AgendamentoController {
           .status(400)
           .json({ error: 'Os parâmetros são obrigatórios' });
 
+      let horarioFormatado = ``;
+
+      const date = new Date(horario);
+
+      const minutes = date.getMinutes();
+      const hours = date.getHours();
+      const days = date.getDate();
+      const months = date.getMonth() + 1;
+      const dayOfWeek = date.getDay();
+
+      switch (tipo_id) {
+        case 1:
+          horarioFormatado = `${minutes} ${hours} ${days} ${months} *`;
+          break;
+        case 2:
+          horarioFormatado = `${minutes} ${hours} * * *`;
+          break;
+        case 3:
+          horarioFormatado = `${minutes} ${hours} * * ${dayOfWeek}`;
+          break;
+        case 4:
+          horarioFormatado = `${minutes} ${hours} ${days} * *`;
+          break;
+      }
+
       const agendamento = await Agendamento.create(
         {
           automacao_id,
-          horario,
+          tipo_agendamento_id: tipo_id,
+          horario: horarioFormatado,
           ativo: true,
         },
         {
@@ -158,7 +209,7 @@ class AgendamentoController {
         }
       }
 
-      const tarefa = cron.schedule(horario, async () => {
+      const tarefa = cron.schedule(horarioFormatado, async () => {
         const parametrosAgendamento = await ParametroAgendamento.findAll({
           where: {
             agendamento_id: agendamento.id,
@@ -179,7 +230,26 @@ class AgendamentoController {
           valor: parametro.valor,
         }));
 
-        FilaController.adicionarNaFila(automacao, parametrosFormatados);
+        FilaController.adicionarNaFila(
+          automacao,
+          agendamento.dataValues.id,
+          parametrosFormatados
+        );
+
+        if (tipo_id == 1) {
+          await Agendamento.update(
+            { ativo: false },
+            {
+              where: {
+                id: agendamento.id,
+              },
+            }
+          );
+
+          this.tarefasAtivas[id].stop();
+
+          delete this.tarefasAtivas[id];
+        }
       });
 
       this.tarefasAtivas[agendamento.id] = tarefa;
@@ -206,7 +276,14 @@ class AgendamentoController {
         ],
       });
 
-      res.status(200).json(agendamentos);
+      res.status(200).json(
+        agendamentos.map((agendamento) => ({
+          ...agendamento.dataValues,
+          horario_formatado: parser
+            .parseExpression(agendamento.dataValues.horario)
+            .next(),
+        }))
+      );
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -237,6 +314,36 @@ class AgendamentoController {
       });
 
       res.status(200).json({ ...agendamento.dataValues, parametros });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async listarLogs(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res.status(400).json({ error: 'Agendamento não encontrado' });
+
+    try {
+      const agendamento = await Agendamento.findByPk(id, {
+        include: [
+          {
+            model: Automacao,
+          },
+        ],
+      });
+
+      if (!agendamento)
+        return res.status(400).json({ error: 'Agendamento não encontrado' });
+
+      const logs = await LogAgendamento.findAll({
+        where: {
+          agendamento_id: id,
+        },
+      });
+
+      res.status(200).json(logs);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

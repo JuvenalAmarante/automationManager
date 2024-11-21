@@ -57,6 +57,27 @@ module.exports = {
       },
     });
 
+    await queryInterface.createTable('tipos_agendamentos', {
+      id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      nome: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      criado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      atualizado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+
     await queryInterface.createTable('automacoes', {
       id: {
         type: Sequelize.INTEGER,
@@ -122,6 +143,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: { model: 'automacoes', key: 'id' },
       },
+      tipo_agendamento_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'tipos_agendamentos', key: 'id' },
+      },
       horario: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -168,15 +193,45 @@ module.exports = {
         allowNull: false,
       },
     });
+
+    await queryInterface.createTable('logs_agendamentos', {
+      id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      agendamento_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'agendamentos', key: 'id' },
+      },
+      possui_erro: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+      },
+      retorno: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      criado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      atualizado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('logs_agendamentos');
     await queryInterface.dropTable('parametros_agendamentos');
     await queryInterface.dropTable('agendamentos');
     await queryInterface.dropTable('parametros_automacoes');
     await queryInterface.dropTable('automacoes');
+    await queryInterface.dropTable('tipos_agendamentos');
     await queryInterface.dropTable('tipos_parametros');
     await queryInterface.dropTable('usuarios');
-
   },
 };

@@ -1,9 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
 export default function Home() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -33,6 +36,7 @@ export default function Home() {
 
       if (res.ok) {
         localStorage.setItem('token', data.token);
+        router.push('/automacoes');
       } else {
         setError(data.error);
       }

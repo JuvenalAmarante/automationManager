@@ -5,6 +5,7 @@ class Agendamento extends Model {
     super.init(
       {
         automacao_id: DataTypes.INTEGER,
+        tipo_agendamento_id: DataTypes.INTEGER,
         horario: DataTypes.STRING,
         ativo: DataTypes.BOOLEAN,
       },

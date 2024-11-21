@@ -7,5 +7,6 @@ module.exports = {
   define: {
     timestamp: true,
     underscored: true
-  }
+  },
+  logging: false
 }

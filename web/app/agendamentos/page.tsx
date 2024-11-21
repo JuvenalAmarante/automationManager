@@ -11,6 +11,7 @@ export default function Agendamentos() {
     {
       id: number;
       criado_em: string;
+      horario_formatado: string;
       Automacao: {
         nome: string;
       };
@@ -93,13 +94,16 @@ export default function Agendamentos() {
               <div>
                 <p className='text-base font-bold'>{item.Automacao.nome}</p>
                 <p className='text-sm'>
+                  Próxima execução: {new Date(item.horario_formatado).toLocaleString()}
+                </p>
+                <p className='text-sm'>
                   Criado em: {new Date(item.criado_em).toLocaleString()}
                 </p>
               </div>
 
               <Link
                 href={`/agendamentos/${item.id}`}
-                className='text-white bg-primary-600 disabled:bg-primary-500 disabled:hover:bg-primary-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                className='text-white flex justify-center items-center bg-primary-600 disabled:bg-primary-500 disabled:hover:bg-primary-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
               >
                 Visualizar
               </Link>

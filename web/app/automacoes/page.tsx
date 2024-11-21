@@ -1,9 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Automacoes() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState<
     {
@@ -19,8 +21,8 @@ export default function Automacoes() {
 
       const token = localStorage.getItem('token');
 
-      if (!token) redirect('/login');
-      
+      if (!token) router.push('/login');
+
       const res = await fetch('http://localhost:3100/automacoes', {
         method: 'GET',
         headers: {

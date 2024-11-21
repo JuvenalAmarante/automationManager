@@ -8,6 +8,7 @@ const Agendamento = require('../models/Agendamento');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const TipoParametro = require('../models/TipoParametro');
 const ParametroAgendamento = require('../models/ParametroAgendamento');
+const LogAgendamento = require('../models/LogAgendamento');
 
 const connection = new Sequelize(configDB);
 
@@ -17,6 +18,7 @@ Automacao.init(connection);
 ParametroAutomacao.init(connection);
 Agendamento.init(connection);
 ParametroAgendamento.init(connection);
+LogAgendamento.init(connection);
 
 TipoParametro.hasMany(ParametroAutomacao);
 
@@ -36,6 +38,7 @@ ParametroAutomacao.belongsTo(Automacao, {
 });
 
 Agendamento.hasMany(ParametroAgendamento);
+Agendamento.hasMany(LogAgendamento);
 Agendamento.belongsTo(Automacao, {
   foreignKey: 'automacao_id',
 });
@@ -48,6 +51,12 @@ ParametroAgendamento.belongsTo(Agendamento, {
 ParametroAgendamento.belongsTo(ParametroAutomacao, {
   foreignKey: {
     name: 'parametro_automacao_id',
+  },
+});
+
+LogAgendamento.belongsTo(Agendamento, {
+  foreignKey: {
+    name: 'agendamento_id',
   },
 });
 

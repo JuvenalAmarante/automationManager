@@ -136,6 +136,16 @@ class AutomacaoController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async listarTiposParametro(req, res) {
+    try {
+      const tipos = await TipoParametro.findAll();
+
+      res.status(200).json(tipos);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new AutomacaoController();
