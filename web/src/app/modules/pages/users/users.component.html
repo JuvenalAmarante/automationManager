@@ -34,7 +34,7 @@
 					<nz-form-label>Cargo</nz-form-label>
 
 					<nz-form-control>
-						<nz-input-group style="border: 0; padding: 0" [nzSuffix]="shortcutCreateOcupation">
+						<nz-input-group style="border: 0; padding: 0">
 							<nz-select
 								nzMode="multiple"
 								nzPlaceHolder="Selecione o cargo"
@@ -55,15 +55,7 @@
 						</nz-input-group>
 					</nz-form-control>
 
-					<ng-template #shortcutCreateOcupation>
-						<app-label-add-button
-							permission="cargos-cadastrar"
-							title="Novo Cargo"
-							tooltipText="Clique para adicionar um novo cargo"
-							type="ocupation"
-							[onClose]="onSearchOcupation"
-						/>
-					</ng-template>
+					
 				</nz-form-item>
 			</div>
 

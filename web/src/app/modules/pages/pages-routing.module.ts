@@ -25,8 +25,8 @@ const routes: Routes = [
 				loadChildren: () => import('./automations/automations.module').then((m) => m.AutomationsModule),
 			},
 			{
-				path: 'cargos',
-				loadChildren: () => import('./ocupations/ocupations.module').then((m) => m.OcupationsModule),
+				path: 'agendamentos',
+				loadChildren: () => import('./schedules/schedules.module').then((m) => m.SchedulesModule),
 			}
 		],
 	},

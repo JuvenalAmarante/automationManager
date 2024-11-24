@@ -1,11 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
-import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { ApiService } from 'src/app/core/services/api.service';
-import { DefaultResponse, Filial } from 'src/app/shared/types';
+import { DefaultResponse } from 'src/app/shared/types';
 import { normalizeParams } from 'src/app/shared/helpers';
 import { finalize } from 'rxjs';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-automations-create',
@@ -18,10 +18,7 @@ export class AutomationsCreateComponent {
 	fileList: NzUploadFile[] = [];
 	errorList: string[] = [];
 
-	nzData: { isModal: boolean; automation_id: number } = inject(NZ_MODAL_DATA);
-	modalRef: NzModalRef = inject(NzModalRef);
-
-	constructor(private readonly fb: UntypedFormBuilder, private readonly api: ApiService) {
+	constructor(private readonly fb: UntypedFormBuilder, private readonly api: ApiService, private readonly router: Router) {
 		this.automationForm = this.fb.group({
 			nome: [null, [Validators.required]],
 			arquivo: [null, [Validators.required]],
@@ -41,8 +38,13 @@ export class AutomationsCreateComponent {
 
 	createAutomation(): void {
 		this.isSaving = true;
+		const form = new FormData();
+
+		form.append('nome', this.automationForm.value.nome);
+		form.append('arquivo', this.automationForm.value.arquivo);
+
 		this.api
-			.post('/automacoes', normalizeParams(this.automationForm.value), true)
+			.post('/automacoes', form)
 			.pipe(
 				finalize(() => {
 					this.isSaving = false;
@@ -50,9 +52,13 @@ export class AutomationsCreateComponent {
 			)
 			.subscribe({
 				next: (res: DefaultResponse<null | undefined>) => {
-					this.modalRef.close();
+					this.goBack();
 				},
 			});
+	}
+
+	goBack() {
+		this.router.navigate(['/app/automacoes']);
 	}
 
 	closeErrorAlert(error: string) {

@@ -1,43 +1,49 @@
-<form nz-form nzLayout="vertical" nzNoColon [formGroup]="automationForm" (ngSubmit)="handleSubmit()">
-	<nz-row nzGutter="16">
-		<ng-container *ngIf="errorList?.length">
-			<div *ngFor="let error of errorList">
+<nz-page-header [nzGhost]="false" nzBackIcon>
+	<nz-page-header-title>Cadastrar</nz-page-header-title>
+	<nz-page-header-subtitle>Crie novas automações</nz-page-header-subtitle>
+	<nz-page-header-content>
+		<form nz-form nzLayout="vertical" nzNoColon [formGroup]="automationForm" (ngSubmit)="handleSubmit()">
+			<nz-row nzGutter="16">
+				<ng-container *ngIf="errorList?.length">
+					<div *ngFor="let error of errorList">
+						<nz-col nzSpan="24">
+							<nz-alert
+								style="margin-bottom: 12px"
+								nzShowIcon
+								nzType="error"
+								nzCloseable
+								nzMessage="{{ error }}"
+								(nzOnClose)="closeErrorAlert(error)"
+							></nz-alert>
+						</nz-col>
+					</div>
+				</ng-container>
+
 				<nz-col nzSpan="24">
-					<nz-alert
-						style="margin-bottom: 12px"
-						nzShowIcon
-						nzType="error"
-						nzCloseable
-						nzMessage="{{ error }}"
-						(nzOnClose)="closeErrorAlert(error)"
-					></nz-alert>
+					<nz-form-item>
+						<nz-form-label>Nome da automação</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira o nome do automação">
+							<input nz-input formControlName="nome" placeholder="Digite o nome do automação" />
+						</nz-form-control>
+					</nz-form-item>
 				</nz-col>
+
+				<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+					<button nz-button type="button">
+						<span nz-icon nzType="upload"></span>
+						Selecione o arquivo
+					</button>
+				</nz-upload>
+			</nz-row>
+
+			<div nz-row nzJustify="end" nzAlign="middle" nzGutter="16">
+				<div nz-col>
+					<button nz-button type="button" nzType="default" (click)="goBack()">Cancelar</button>
+				</div>
+				<div nz-col>
+					<button nz-col nz-button nzType="primary" [disabled]="!automationForm.valid" [nzLoading]="isSaving">Salvar</button>
+				</div>
 			</div>
-		</ng-container>
-
-		<nz-col nzSpan="24">
-			<nz-form-item>
-				<nz-form-label>Nome da automação</nz-form-label>
-				<nz-form-control nzErrorTip="Por favor, insira o nome do automação">
-					<input nz-input formControlName="nome" placeholder="Digite o nome do automação" />
-				</nz-form-control>
-			</nz-form-item>
-		</nz-col>
-
-		<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
-			<button nz-button type="button">
-				<span nz-icon nzType="upload"></span>
-				Selecione o arquivo
-			</button>
-		</nz-upload>
-	</nz-row>
-
-	<div nz-row nzJustify="end" nzAlign="middle" nzGutter="16">
-		<div nz-col>
-			<button nz-button type="button" nzType="default" (click)="modalRef.close()">Cancelar</button>
-		</div>
-		<div nz-col>
-			<button nz-col nz-button nzType="primary" [disabled]="!automationForm.valid" [nzLoading]="isSaving">Cadastrar</button>
-		</div>
-	</div>
-</form>
+		</form>
+	</nz-page-header-content>
+</nz-page-header>

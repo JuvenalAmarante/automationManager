@@ -20,18 +20,11 @@ export class ApiService {
 			.pipe(take(1));
 	}
 
-	post(path: string, params: ApiParams, isFormdata = false): Observable<any> {
+	post(path: string, params: ApiParams): Observable<any> {
 		return this.http
 			.post(
 				`${this.baseURL + path}`,
 				params,
-				isFormdata
-					? {
-							headers: new HttpHeaders({
-								'Content-Type': 'multipart/form-data',
-							}),
-					  }
-					: undefined,
 			)
 			.pipe(take(1));
 	}

@@ -8,6 +8,7 @@ const connection = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const ParametroAgendamento = require('../models/ParametroAgendamento');
 const LogAgendamento = require('../models/LogAgendamento');
+const TipoAgendamento = require('../models/TipoAgendamento');
 
 class AgendamentoController {
   tarefasAtivas = {};
@@ -282,6 +283,9 @@ class AgendamentoController {
           {
             model: Automacao,
           },
+          {
+            model: TipoAgendamento,
+          },
         ],
       });
 
@@ -289,7 +293,7 @@ class AgendamentoController {
         success: true,
         data: agendamentos.map((agendamento) => ({
           ...agendamento.dataValues,
-          horario_formatado: parser
+          proxima_execucao: parser
             .parseExpression(agendamento.dataValues.horario)
             .next(),
         })),

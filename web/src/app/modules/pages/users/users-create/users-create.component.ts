@@ -7,7 +7,6 @@ import { debounce, normalizeParams } from 'src/app/shared/helpers';
 import { FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DefaultResponse, Cargo, Departamentos, Usuario } from 'src/app/shared/types';
 import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
-import { OcupationsCreateComponent } from '../../ocupations/ocupations-create/ocupations-create.component';
 import { ContactType } from 'src/app/shared/constants/contact-types';
 
 type data = { isModal?: boolean; userId?: number; isBiker?: boolean };
@@ -254,21 +253,6 @@ export class UsersCreateComponent implements OnInit {
 			() => {},
 			false,
 		);
-	}
-
-	showModalOcupation() {
-		this.permissionService.validate('cargos-cadastrar', () => {
-			this.modalService
-				.create({
-					nzContent: OcupationsCreateComponent,
-					nzTitle: 'Adicionar novo cargo',
-					nzData: { isModal: true },
-					nzFooter: null,
-				})
-				.afterClose.subscribe((res) => {
-					this.updateOcupationList();
-				});
-		});
 	}
 
 	closeErrorAlert(error: string) {

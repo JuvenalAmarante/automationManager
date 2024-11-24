@@ -34,9 +34,9 @@ class AutomacaoController {
               .status(500)
               .json({ success: false, message: err.message });
 
-          const { nome, arquivo, parametros } = req.body;
+          const { nome, parametros } = req.body;
 
-          if (!nome || !arquivo || (parametros && !Array.isArray(parametros)))
+          if (!nome || !nomeArquivo || (parametros && !Array.isArray(parametros)))
             return res
               .status(400)
               .json({ success: false, message: 'Campos inválidos' });

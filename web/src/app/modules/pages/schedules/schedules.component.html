@@ -1,19 +1,19 @@
 <nz-page-header [nzGhost]="false" nzBackIcon>
-	<nz-page-header-title>Automações</nz-page-header-title>
-	<nz-page-header-subtitle>Verifique ou crie novas automações</nz-page-header-subtitle>
+	<nz-page-header-title>Agendamentos</nz-page-header-title>
+	<nz-page-header-subtitle>Verifique ou crie novos agendamentos</nz-page-header-subtitle>
 	<nz-page-header-extra>
-		@if(profile?.admin){
 		<nz-space>
-			<a nz-button nzType="primary" [routerLink]="['criar']"><span nz-icon nzType="plus" nzTheme="outline"></span>Cadastrar</a> </nz-space
-		>}
+			<a nz-button nzType="primary" [routerLink]="['criar']"><span nz-icon nzType="plus" nzTheme="outline"></span>Adicionar</a>
+		</nz-space>
 	</nz-page-header-extra>
 	<nz-page-header-content>
 		<nz-table #dynamicTable [nzData]="dataList" [nzLoading]="isLoading">
 			<thead>
 				<tr>
 					<th>Código</th>
-					<th>Nome da automação</th>
-					<th nzAlign="center">Criado em</th>
+					<th>Automação</th>
+					<th>Tipo</th>
+					<th nzAlign="center">Próxima execução</th>
 					<th nzAlign="center">Ações</th>
 				</tr>
 			</thead>
@@ -21,15 +21,16 @@
 				<ng-container *ngFor="let data of dynamicTable.data">
 					<tr>
 						<td>{{ data.id }}</td>
-						<td>{{ data.nome }}</td>
-						<td nzAlign="center">{{ data.criado_em | date : 'dd/MM/yyyy' }}</td>
+						<td>{{ data.Automacao.nome }}</td>
+						<td>{{ data.TipoAgendamento.nome }}</td>
+						<td nzAlign="center">{{ data.proxima_execucao | date : 'dd/MM/yyyy HH:mm' }}</td>
 						<td nzAlign="center">
 							<a
 								nz-button
 								nzType="link"
 								nz-popconfirm
-								nzPopconfirmTitle="Você deseja realmente excluir essa automação?"
-								(nzOnConfirm)="removeAutomation(data.id)"
+								nzPopconfirmTitle="Você deseja realmente excluir esse agendamento?"
+								(nzOnConfirm)="removeSchedule(data.id)"
 								nzPopconfirmPlacement="topLeft"
 								nzDanger
 								><span nz-icon nzType="delete" nzTheme="outline" nzDanger></span

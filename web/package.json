@@ -21,6 +21,7 @@
     "@angular/router": "^17.1.0",
     "@tinymce/tinymce-angular": "^7.0.0",
     "apexcharts": "^3.45.0",
+    "date-fns": "^4.1.0",
     "ng-apexcharts": "^1.8.0",
     "ng-zorro-antd": "~17.1.0",
     "ngx-editor": "^16.0.1",

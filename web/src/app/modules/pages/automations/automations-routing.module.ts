@@ -1,16 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AutomationsComponent } from './automations.component';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
-import { PermissaoEnum } from 'src/app/shared/enums/permissions';
+import { AutomationsCreateComponent } from './automations-create/automations-create.component';
+import { AdminAuthGuard } from 'src/app/core/guards/admin-auth.guard';
 
 const routes: Routes = [
   {
-    path: '', pathMatch: 'full', redirectTo: 'buscar',
+    path: '',
+     component: AutomationsComponent,
+     canActivate: [AdminAuthGuard],
   },
   {
-    path: 'buscar',
-    component: AutomationsComponent,
+    path: 'criar',
+    component: AutomationsCreateComponent,
+    canActivate: [AdminAuthGuard],
   },
 ];
 

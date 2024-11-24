@@ -1,4 +1,5 @@
 class MenuController {
+  menusAdmin = [1, 7]
   lista = [
     {
       item_id: 1,
@@ -74,7 +75,12 @@ class MenuController {
   listar = (req, res) => {
     const { usuario } = req;
 
-    return res.status(200).json({ success: true, data: this.lista });
+    let novaLista = this.lista;
+
+    if(!usuario.admin) 
+      novaLista = novaLista.filter(item => !this.menusAdmin.includes(item.item_id))
+
+    return res.status(200).json({ success: true, data: novaLista });
   };
 }
 

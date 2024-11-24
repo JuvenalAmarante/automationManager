@@ -8,7 +8,7 @@ module.exports = {
       [
         {
           id: 1,
-          nome: 'Sem repetições',
+          nome: 'Sem recorrência',
           criado_em: new Date(),
           atualizado_em: new Date(),
         },

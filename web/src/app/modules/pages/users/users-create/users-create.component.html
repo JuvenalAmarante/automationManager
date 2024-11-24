@@ -113,7 +113,7 @@
 			<nz-form-item>
 				<nz-form-label nzRequired>Cargo</nz-form-label>
 				<nz-form-control nzErrorTip="Informe o cargo">
-					<nz-input-group style="border: 0; padding: 0" [nzSuffix]="shortcutCreateOcupation">
+					<nz-input-group style="border: 0; padding: 0">
 						<nz-select
 							nzMode="default"
 							nzPlaceHolder="Selecione o cargo"
@@ -133,19 +133,7 @@
 						</nz-select>
 					</nz-input-group>
 
-					<ng-template #shortcutCreateOcupation>
-						<button
-							*ngIf="hasPermissionOcupation"
-							nz-button
-							nzType="default"
-							type="button"
-							nz-tooltip
-							nzTooltipTitle="Clique para adicionar um novo cargo"
-							(click)="showModalOcupation()"
-						>
-							<span nz-icon nzType="plus" nzTheme="outline"></span>
-						</button>
-					</ng-template>
+					
 				</nz-form-control>
 			</nz-form-item>
 		</nz-col>

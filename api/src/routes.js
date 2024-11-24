@@ -9,6 +9,7 @@ const UsuarioController = require('./controller/UsuarioController');
 const MenuController = require('./controller/MenuController');
 const PermissaoController = require('./controller/PermissaoController');
 const verificarAdmin = require('./middlewares/verificarAdmin');
+const TipoAgendamentoController = require('./controller/TipoAgendamentoController');
 
 const router = Router();
 
@@ -33,8 +34,10 @@ router.get('/perfil', UsuarioController.listarDetalhes);
 // Agendamentos
 router.post('/agendamentos', AgendamentoController.criar);
 router.get('/agendamentos', AgendamentoController.listar);
-router.get('/agendamentos/:id/logs', AgendamentoController.listarLogs);
+router.get('/agendamentos/automacoes', AutomacaoController.listar);
+router.get('/agendamentos/tipos', TipoAgendamentoController.listar);
 router.get('/agendamentos/:id', AgendamentoController.listarDetalhes);
+router.get('/agendamentos/:id/logs', AgendamentoController.listarLogs);
 router.post('/agendamentos/:id/cancelar', AgendamentoController.cancelar);
 
 // Middleware permissão admin

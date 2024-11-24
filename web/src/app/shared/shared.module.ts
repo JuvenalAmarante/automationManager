@@ -10,8 +10,6 @@ import { DonutChartComponent } from './components/charts/donut-chart/donut-chart
 import { EditorFormInputComponent } from './components/editor-form-input/editor-form-input.component';
 import { EditorComponent } from './components/editor/editor.component';
 import { FileViewerItemListComponent } from './components/file-viewer-item-list/file-viewer-item-list.component';
-import { FiltroCondominioComponent } from './components/filtro-condominio/filtro-condominio.component';
-import { LabelAddButtonComponent } from './components/label-add-button/label-add-button.component';
 import { LayoutEditorComponent } from './components/layout-editor/layout-editor.component';
 import { LayoutViewerComponent } from './components/layout-viewer/layout-viewer.component';
 import { LinkButtonComponent } from './components/link-button/link-button.component';
@@ -28,7 +26,6 @@ import { CreateCustomFieldsComponent } from '../modules/pages/custom-forms/creat
 @NgModule({
 	declarations: [
 		EditorComponent,
-		FiltroCondominioComponent,
 		UploadFileComponent,
 		ListResponsaveisComponent,
 		LinkButtonComponent,
@@ -37,7 +34,6 @@ import { CreateCustomFieldsComponent } from '../modules/pages/custom-forms/creat
 		LayoutViewerComponent,
 		SafeHTMLPipe,
 		EditorFormInputComponent,
-		LabelAddButtonComponent,
 		FileViewerItemListComponent,
 		ModalConfirmationComponent,
 		ProtocolDocumentHistoryComponent,
@@ -95,7 +91,6 @@ import { CreateCustomFieldsComponent } from '../modules/pages/custom-forms/creat
 	],
 	exports: [
 		EditorComponent,
-		FiltroCondominioComponent,
 		UploadFileComponent,
 		ListResponsaveisComponent,
 		NgxMaskDirective,
@@ -104,7 +99,6 @@ import { CreateCustomFieldsComponent } from '../modules/pages/custom-forms/creat
 		LayoutEditorComponent,
 		SafeHTMLPipe,
 		EditorFormInputComponent,
-		LabelAddButtonComponent,
 		FileViewerItemListComponent,
 		ProtocolDocumentHistoryComponent,
 		DonutChartComponent,

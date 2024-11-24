@@ -1,0 +1,193 @@
+<nz-page-header [nzGhost]="false" nzBackIcon>
+	<nz-page-header-title>Cadastrar</nz-page-header-title>
+	<nz-page-header-subtitle>Crie novas automações</nz-page-header-subtitle>
+	<nz-page-header-content>
+		<form nz-form nzLayout="vertical" nzNoColon [formGroup]="scheduleForm" (ngSubmit)="handleSubmit()">
+			<nz-row nzGutter="16">
+				<ng-container *ngIf="errorList?.length">
+					<div *ngFor="let error of errorList">
+						<nz-col nzSpan="24">
+							<nz-alert
+								style="margin-bottom: 12px"
+								nzShowIcon
+								nzType="error"
+								nzCloseable
+								nzMessage="{{ error }}"
+								(nzOnClose)="closeErrorAlert(error)"
+							></nz-alert>
+						</nz-col>
+					</div>
+				</ng-container>
+
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label nzRequired>Automação</nz-form-label>
+						<nz-form-control nzErrorTip="Selecione a automação">
+							<nz-input-group style="border: 0; padding: 0">
+								<nz-select nzMode="default" nzPlaceHolder="Selecione a automação" nzShowSearch formControlName="automacao_id">
+									<ng-container *ngFor="let automation of automationsList">
+										<nz-option *ngIf="!isLoadingAutomations" [nzValue]="automation.id" [nzLabel]="automation.nome"></nz-option>
+									</ng-container>
+									<nz-option *ngIf="isLoadingAutomations" nzDisabled nzCustomContent>
+										<span nz-icon nzType="loading" class="loading-icon"></span>
+										Carregando os dados...
+									</nz-option>
+								</nz-select>
+							</nz-input-group>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label nzRequired>Tipo do Agendamento</nz-form-label>
+						<nz-form-control nzErrorTip="Informe o tipo">
+							<nz-input-group style="border: 0; padding: 0">
+								<nz-select nzMode="default" nzPlaceHolder="Selecione o tipo" nzShowSearch formControlName="tipo_id">
+									<ng-container *ngFor="let type of typesList">
+										<nz-option *ngIf="!isLoadingTypes" [nzValue]="type.id" [nzLabel]="type.nome"></nz-option>
+									</ng-container>
+									<nz-option *ngIf="isLoadingTypes" nzDisabled nzCustomContent>
+										<span nz-icon nzType="loading" class="loading-icon"></span>
+										Carregando os dados...
+									</nz-option>
+								</nz-select>
+							</nz-input-group>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				@switch (scheduleForm.value.tipo_id) { @case (1) {
+				<nz-col nzSpan="6">
+					<nz-form-item>
+						<nz-form-label>Data da execução</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, selecione a data da execução">
+							<nz-date-picker
+								[(ngModel)]="datetime"
+								[nzDisabledDate]="disabledDate"
+								nzFormat="dd/MM/yyyy"
+								(ngModelChange)="onChange($event)"
+								[ngModelOptions]="{ standalone: true }"
+							></nz-date-picker>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col nzSpan="6">
+					<nz-form-item>
+						<nz-form-label>Horário da execução</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, selecione o horário da execução">
+							<nz-time-picker
+								style="width: 100%"
+								[(ngModel)]="datetime"
+								nzFormat="HH:mm"
+								(ngModelChange)="onChange($event)"
+								[ngModelOptions]="{ standalone: true }"
+							></nz-time-picker>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				} @case (2) {
+
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label>Horário da execução</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, selecione o horário da execução">
+							<nz-time-picker
+								style="width: 100%"
+								[(ngModel)]="datetime"
+								nzFormat="HH:mm"
+								(ngModelChange)="onChange($event)"
+								[ngModelOptions]="{ standalone: true }"
+							></nz-time-picker>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				} @case (3) {
+				<nz-col nzSpan="6">
+					<nz-form-item>
+						<nz-form-label nzRequired>Selecione o dia da semana</nz-form-label>
+						<nz-form-control nzErrorTip="Selecione o dia da semana">
+							<nz-input-group style="border: 0; padding: 0">
+								<nz-select
+									nzMode="default"
+									nzPlaceHolder="Selecione o dia da semana"
+									nzShowSearch
+									(ngModel)="(weekDaySelected)"
+									[ngModelOptions]="{ standalone: true }"
+									(ngModelChange)="onChangeWeekDay($event)"
+								>
+									<ng-container *ngFor="let weekDay of weekDaysList; let i = index">
+										<nz-option *ngIf="!isLoadingAutomations" [nzValue]="i" [nzLabel]="weekDay"></nz-option>
+									</ng-container>
+									<nz-option *ngIf="isLoadingAutomations" nzDisabled nzCustomContent>
+										<span nz-icon nzType="loading" class="loading-icon"></span>
+										Carregando os dados...
+									</nz-option>
+								</nz-select>
+							</nz-input-group>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col nzSpan="6">
+					<nz-form-item>
+						<nz-form-label>Horário da execução</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, selecione o horário da execução">
+							<nz-time-picker
+								style="width: 100%"
+								[(ngModel)]="datetime"
+								nzFormat="HH:mm"
+								(ngModelChange)="onChange($event)"
+								[ngModelOptions]="{ standalone: true }"
+							></nz-time-picker>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				} @case (4) {
+				<nz-col nzSpan="6">
+					<nz-form-item>
+						<nz-form-label>Data da execução</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, selecione a data da execução">
+							<nz-date-picker
+								[(ngModel)]="datetime"
+								nzFormat="dd/MM"
+								(ngModelChange)="onChange($event)"
+								[ngModelOptions]="{ standalone: true }"
+							></nz-date-picker>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col nzSpan="6">
+					<nz-form-item>
+						<nz-form-label>Horário da execução</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, selecione o horário da execução">
+							<nz-time-picker
+								style="width: 100%"
+								[(ngModel)]="datetime"
+								nzFormat="HH:mm"
+								(ngModelChange)="onChange($event)"
+								[ngModelOptions]="{ standalone: true }"
+							></nz-time-picker>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				} }
+			</nz-row>
+
+			<div nz-row nzJustify="end" nzAlign="middle" nzGutter="16">
+				<div nz-col>
+					<button nz-button type="button" nzType="default" (click)="goBack()">Cancelar</button>
+				</div>
+				<div nz-col>
+					<button nz-col nz-button nzType="primary" [disabled]="!scheduleForm.valid" [nzLoading]="isSaving">Salvar</button>
+				</div>
+			</div>
+		</form>
+	</nz-page-header-content>
+</nz-page-header>

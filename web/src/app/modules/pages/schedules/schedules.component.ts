@@ -1,22 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ApiService } from 'src/app/core/services/api.service';
-import { AutomationsCreateComponent } from './automations-create/automations-create.component';
+import { SchedulesCreateComponent } from './schedules-create/schedules-create.component';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { Automacao, DefaultResponse, Profile } from 'src/app/shared/types';
+import { Agendamento, DefaultResponse, Profile } from 'src/app/shared/types';
 import { finalize } from 'rxjs';
 import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
 import { Router } from '@angular/router';
 
 @Component({
-	selector: 'app-automations',
-	templateUrl: './automations.component.html',
-	styleUrls: ['./automations.component.less'],
+	selector: 'app-schedules',
+	templateUrl: './schedules.component.html',
+	styleUrls: ['./schedules.component.less'],
 })
-export class AutomationsComponent implements OnInit {
+export class SchedulesComponent implements OnInit {
 	isLoading = false;
 	validateForm!: FormGroup;
-	dataList: Automacao[] = [];
+	dataList: Agendamento[] = [];
 	profile?: Profile;
 
 	constructor(
@@ -27,11 +27,7 @@ export class AutomationsComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		this.profile = JSON.parse(localStorage.getItem('profileData') || '{}');
-    
-    if(!this.profile?.admin) this.router.navigate(['/app']);
-
-		this.getAutomationsList();
+		this.getSchedulesList();
 	}
 
 	getFormControlValidationStatus(controlName: string): string {
@@ -39,26 +35,26 @@ export class AutomationsComponent implements OnInit {
 		return control?.dirty && control?.errors ? 'error' : '';
 	}
 
-	getAutomationsList(values?: { busca: string; nac: boolean; ativo: boolean }) {
+	getSchedulesList(values?: { busca: string; nac: boolean; ativo: boolean }) {
 		this.isLoading = true;
 
 		this.api
-			.get('/automacoes', values || {})
+			.get('/agendamentos', values || {})
 			.pipe(
 				finalize(() => {
 					this.isLoading = false;
 				}),
 			)
 			.subscribe({
-				next: (res: DefaultResponse<Automacao[]>) => {
+				next: (res: DefaultResponse<Agendamento[]>) => {
 					this.dataList = res.data;
 				},
 			});
 	}
 
-	removeAutomation(id: number) {
+	removeSchedule(id: number) {
 		this.api
-			.delete(`/automacoes/${id}`)
+			.delete(`/agendamentos/${id}`)
 			.pipe(
 				finalize(() => {
 					this.isLoading = false;
@@ -66,7 +62,7 @@ export class AutomationsComponent implements OnInit {
 			)
 			.subscribe({
 				next: (res: DefaultResponse<undefined | null>) => {
-					this.getAutomationsList();
+					this.getSchedulesList();
 				},
 			});
 	}

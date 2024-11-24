@@ -1237,3 +1237,20 @@ export type Automacao = {
 	criado_em: Date;
 	atualizado_em: Date;
 };
+
+export type TipoAgendamento = {
+	id: number;
+	nome: string;
+	criado_em: Date;
+	atualizado_em: Date;
+};
+
+export type Agendamento = {
+	id: number;
+	Automacao: Automacao;
+	TipoAgendamento: TipoAgendamento;
+	horario: string;
+	proxima_execucao: Date;
+	criado_em: Date;
+	atualizado_em: Date;
+};

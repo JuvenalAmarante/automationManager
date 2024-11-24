@@ -19,12 +19,12 @@ export class PagesComponent implements OnInit {
 
 	menu: MenuItem[] = [];
 	profile?: Profile;
-	currentRoute: string = '';
 
 	constructor(private readonly router: Router, private readonly api: ApiService) {}
 
 	ngOnInit(): void {
 		this.status = window.navigator.onLine;
+
 		this.getMenu();
 		this.getProfile();
 	}
@@ -34,7 +34,7 @@ export class PagesComponent implements OnInit {
 			next: (res: DefaultResponse<MenuItem[]>) => {
 				this.menu = res.data.map((item) => ({
 					...item,
-					isActive: item?.items?.some((i) => i.url.includes(this.currentRoute)),
+					isActive: item?.items?.some((i) => i.url.includes(this.router.url.split('/app/')[1])),
 				}));
 			},
 		});
@@ -42,9 +42,7 @@ export class PagesComponent implements OnInit {
 
 	getProfile() {
 		this.api.get('/perfil').subscribe({
-			next: (
-				res: DefaultResponse<Profile>,
-			) => {
+			next: (res: DefaultResponse<Profile>) => {
 				this.profile = res.data;
 
 				localStorage.setItem('profileData', JSON.stringify(res.data));
