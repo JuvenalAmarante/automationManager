@@ -6,6 +6,7 @@ class Automacao extends Model {
       {
         nome: DataTypes.STRING,
         arquivo: DataTypes.STRING,
+        excluido: DataTypes.BOOLEAN,
       },
       {
         sequelize,

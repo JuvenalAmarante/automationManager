@@ -1,0 +1,15 @@
+<nz-page-header [nzGhost]="false" nzBackIcon>
+    <nz-page-header-title>Permissões</nz-page-header-title>
+    <nz-page-header-subtitle>Gerencie as permissões dos usuários ou carros</nz-page-header-subtitle>
+    <nz-page-header-content>
+        <nz-tabset>
+            <nz-tab nzTitle="Cargos" [nzDisabled]="disabledTabs.cargos">
+                <app-permissions-ocupations *ngIf="!disabledTabs.cargos"></app-permissions-ocupations>
+                <nz-empty *ngIf="disabledTabs.cargos" nzNotFoundContent="Sem permissão para acessar"></nz-empty>
+            </nz-tab>
+            <nz-tab nzTitle="Usuários" [nzDisabled]="disabledTabs.usuarios">
+                <app-permissions-users *ngIf="!disabledTabs.usuarios"></app-permissions-users>
+            </nz-tab>
+        </nz-tabset>
+    </nz-page-header-content>
+</nz-page-header>

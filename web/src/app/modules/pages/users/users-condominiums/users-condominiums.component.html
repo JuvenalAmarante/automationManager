@@ -1,0 +1,131 @@
+<form nz-form nzLayout="vertical" nzNoColon [formGroup]="form">
+	<nz-row nzGutter="16">
+		<ng-container *ngFor="let error of errorList">
+			<nz-col nzSpan="24">
+				<nz-alert
+					style="margin-bottom: 12px"
+					nzShowIcon
+					nzType="error"
+					nzCloseable
+					nzMessage="{{ error }}"
+					(nzOnClose)="closeErrorAlert(error)"
+				></nz-alert>
+			</nz-col>
+		</ng-container>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label>Departamento</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o nome de usuário">
+					<nz-select
+						nzMode="default"
+						nzPlaceHolder="Selecione o departamento"
+						nzAllowClear
+						nzShowSearch
+						nzServerSearch
+						formControlName="departamento_id"
+						(nzOnSearch)="onSearchDepartments($event)"
+						(ngModelChange)="this.getUserLinks()"
+					>
+						<nz-option [nzValue]="0" nzLabel="Todos"></nz-option>
+
+						<ng-container *ngFor="let departamento of departmentsList">
+							<nz-option
+								*ngIf="!isLoadingDepartment"
+								[nzValue]="departamento.id"
+								[nzLabel]="departamento.nome + ' (' + departamento.filial.nome + ')'"
+							></nz-option>
+						</ng-container>
+						<nz-option *ngIf="isLoadingDepartment" nzDisabled nzCustomContent>
+							<span nz-icon nzType="loading" class="loading-icon"></span>
+							Carregando os dados...
+						</nz-option>
+					</nz-select>
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<div nz-col nzSpan="24" style="overflow-x: hidden">
+			<nz-transfer
+				[nzListStyle]="{ width: '100%', overflow: 'auto', maxHeight: '32em', }"
+				[nzDataSource]="list"
+				nzShowSearch
+				nzSearchPlaceholder="Digite o nome do condomínio"
+				(nzSearchChange)="search($event)"
+				[nzFilterOption]="filterOption"
+				[nzTitles]="['Disponíveis', 'Carteira']"
+				[nzFooter]="totalTemplate"
+				nzItemsUnit="condomínios"
+				nzItemUnit="condomínios"
+				[nzRenderList]="[renderList, renderListRight]"
+				(nzChange)="transferItems()"
+			></nz-transfer>
+		</div>
+	</nz-row>
+</form>
+
+<ng-template #totalTemplate let-items>
+	<div *ngIf="items == 'left'" style="display: flex; justify-content: space-between; padding: 4px">
+		<div style="display: flex; gap: 16px">
+			<span
+				>Total de condomínios: <span class="total">{{ totalRegistros[items] || 0 }}</span>
+			</span>
+		</div>
+		<nz-pagination
+			nzSize="small"
+			[nzPageIndex]="indexPage"
+			[nzTotal]="totalRegistros[items]"
+			[nzPageSize]="20"
+			(nzPageIndexChange)="paginate($event)"
+		></nz-pagination>
+	</div>
+</ng-template>
+
+<ng-template
+	#renderList
+	let-items
+	let-direction="direction"
+	let-stat="stat"
+	let-disabled="disabled"
+	let-onItemSelectAll="onItemSelectAll"
+	let-onItemSelect="onItemSelect"
+>
+	<div *ngIf="$asTransferItems(items).length" style="height: 23em; overflow-y: auto; overflow-x: hidden">
+		<nz-list nzBordered nzSize="small" style="margin-bottom: 8px">
+			<ng-container *ngFor="let item of $asTransferItems(items)" (click)="onItemSelect(item)">
+				<nz-list-item *ngIf="item['page'] == indexPage">
+					<label nz-checkbox [ngModel]="!!item.checked" (ngModelChange)="onItemSelect(item)">{{ item['id'] }} - {{ item.title }}</label>
+				</nz-list-item>
+			</ng-container>
+		</nz-list>
+	</div>
+
+	<div style="display: flex; justify-content: center; align-items: center; height: 200px" *ngIf="isLoadingCondominiums">
+		<nz-spin></nz-spin>
+	</div>
+	<nz-empty *ngIf="!$asTransferItems(items).length && !isLoadingCondominiums" nzNotFoundImage="simple"></nz-empty>
+</ng-template>
+
+<ng-template
+	#renderListRight
+	let-items
+	let-direction="direction"
+	let-stat="stat"
+	let-disabled="disabled"
+	let-onItemSelectAll="onItemSelectAll"
+	let-onItemSelect="onItemSelect"
+>
+	<div style="height: 25em; overflow-y: auto; overflow-x: hidden">
+		<nz-list nzBordered nzSize="small">
+			<ng-container *ngFor="let item of $asTransferItems(items)" (click)="onItemSelect(item)">
+				<nz-list-item>
+					<label nz-checkbox [ngModel]="!!item.checked" (ngModelChange)="onItemSelect(item)">{{ item['id'] }} - {{ item.title }}</label>
+				</nz-list-item>
+			</ng-container>
+		</nz-list>
+	</div>
+	<div style="display: flex; justify-content: center; align-items: center; height: 200px" *ngIf="isLoadingCondominiums">
+		<nz-spin></nz-spin>
+	</div>
+	<nz-empty *ngIf="!$asTransferItems(items).length && !isLoadingCondominiums" nzNotFoundImage="simple"></nz-empty>
+</ng-template>

@@ -8,6 +8,7 @@ class Agendamento extends Model {
         tipo_agendamento_id: DataTypes.INTEGER,
         horario: DataTypes.STRING,
         ativo: DataTypes.BOOLEAN,
+        excluido: DataTypes.BOOLEAN,
       },
       {
         sequelize,

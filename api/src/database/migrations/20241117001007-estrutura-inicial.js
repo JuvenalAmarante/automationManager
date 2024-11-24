@@ -18,6 +18,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      admin: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       senha: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -25,6 +30,7 @@ module.exports = {
       ativo: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
       },
       criado_em: {
         type: Sequelize.DATE,
@@ -93,6 +99,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      excluido: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       criado_em: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -151,9 +162,15 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      excluido: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       ativo: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
       },
       criado_em: {
         type: Sequelize.DATE,

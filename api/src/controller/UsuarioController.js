@@ -16,6 +16,17 @@ class UsuarioController {
 
     return data;
   }
+
+  async listarDetalhes(req, res) {
+    const { usuario } = req;
+
+    delete usuario.id;
+
+    return res.status(200).json({
+      success: true,
+      data: usuario,
+    });
+  }
 }
 
 module.exports = new UsuarioController();

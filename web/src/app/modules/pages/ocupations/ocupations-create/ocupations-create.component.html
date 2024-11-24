@@ -1,0 +1,43 @@
+<form nz-form nzLayout="vertical" nzNoColon [formGroup]="ocupationForm" (ngSubmit)="handleSubmit()">
+	<nz-row nzGutter="16">
+		<nz-col nzSpan="24">
+			<nz-form-item>
+				<nz-form-label>Nome do cargo</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o nome do cargo">
+					<input nz-input formControlName="nome" placeholder="Digite o nome do cargo" />
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label nzRequired>Perfil</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, informe o perfil do usuário">
+					<nz-select formControlName="perfil">
+						<nz-option nzLabel="Padrão" [nzValue]="1"> </nz-option>
+						<nz-option nzLabel="Motoboy" [nzValue]="2"> </nz-option>
+					</nz-select>
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label></nz-form-label>
+				<nz-form-control>
+					<label nz-checkbox formControlName="ativo">Ativo</label>
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+	</nz-row>
+
+	<div nz-row nzJustify="end" nzAlign="middle" nzGutter="16">
+		<div nz-col>
+			<button nz-button type="button" nzType="default" (click)="modalRef.close()">Cancelar</button>
+		</div>
+		<div nz-col>
+			<button nz-col nz-button nzType="primary" [disabled]="!ocupationForm.valid" [nzLoading]="isSaving">
+				{{ nzData.ocupation ? 'Atualizar informações' : 'Cadastrar' }}
+			</button>
+		</div>
+	</div>
+</form>

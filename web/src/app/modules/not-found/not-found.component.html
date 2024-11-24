@@ -1,0 +1,13 @@
+<div class="main">
+  <div class="content">
+    <h3 class="not-found-title">Oops! Essa página não existe.</h3>
+    <div class="image-content">
+      <img class="content-not-found-img" src="assets/img/age_not_found.svg" alt="pagina não encontrada">
+    </div>
+    <div class="not-found-links">
+      <p>Voltar para <a nz-link (click)="_location.back()">pagina anterior</a></p>
+      <p>Ir para<a nz-link [routerLink]="['/app']"> pagina inicial</a></p>
+    </div>
+  </div>
+  <div class="box"></div>
+</div>

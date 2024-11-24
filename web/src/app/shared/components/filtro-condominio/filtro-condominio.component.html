@@ -1,0 +1,47 @@
+<div nz-row nzGutter="16">
+	<div nz-col nzSm="24" nzLg="{{ hasUnidade ? '12' : '24' }}">
+		<nz-form-item>
+			<nz-form-label [nzRequired]="required">{{label}}</nz-form-label>
+			<nz-form-control>
+				<nz-select
+					nzShowSearch
+					nzServerSearch
+					[nzMode]="selectModeCondominio"
+					#selectCond
+					nzPlaceHolder="Busque por nome ou código"
+					(nzOnSearch)="searchCondominios($event)"
+					[(ngModel)]="condominio"
+					(ngModelChange)="onInputBlur($event); getUnidades($event)"
+					nzAllowClear
+				>
+					<nz-option
+						*ngFor="let condominio of condominios"
+						[nzValue]="condominio.id"
+						nzLabel="{{ condominio.id }} - {{ condominio.nome }} {{ !condominio.ativo ? ' (Inativo)' : '' }}"
+					>
+					</nz-option>
+				</nz-select>
+			</nz-form-control>
+		</nz-form-item>
+	</div>
+
+	<div *ngIf="hasUnidade" nz-col nzSm="24" nzLg="12">
+		<nz-form-item>
+			<nz-form-label>Unidade</nz-form-label>
+			<nz-form-control>
+				<nz-select
+					nzShowSearch
+					nzServerSearch
+					nzPlaceHolder="Busque por código"
+					[nzMode]="selectModeCondominio"
+					[nzDisabled]="disabledUnidade"
+					[(ngModel)]="unidade"
+					(ngModelChange)="onInputBlur($event)"
+					(nzOnSearch)="searchUnidades($event)"
+				>
+					<nz-option *ngFor="let item of unidades" [nzLabel]="item.label" [nzValue]="item.value"> </nz-option>
+				</nz-select>
+			</nz-form-control>
+		</nz-form-item>
+	</div>
+</div>

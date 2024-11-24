@@ -1,0 +1,47 @@
+<div nz-row style="height: 100%" nzAlign="middle" nzJustify="center">
+	<div nz-col nzXs="20" nzSm="24" nzMd="7">
+		<form nz-form [formGroup]="validateForm" nzLayout="vertical" class="login-form" (ngSubmit)="login()">
+			<div nz-row nzJustify="center" class="login-logo">
+				<img src="assets/img/logo.svg" width="350" class="" alt="logo" />
+			</div>
+			<h1 class="title primary">Bem vindo(a)!</h1>
+			<p class="login-info-lable">Por gentileza, efetue o login para prosseguir.</p>
+			<nz-form-item>
+				<nz-form-label nzNoColon>Usuário</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor insira o seu nome de usuário!">
+					<nz-input-group nzSize="large" nzPrefixIcon="user">
+						<input type="text" nz-input formControlName="usuario" placeholder="Digite o nome de usuário" />
+					</nz-input-group>
+				</nz-form-control>
+			</nz-form-item>
+			<nz-form-item>
+				<nz-form-label nzNoColon>Senha</nz-form-label>
+				<nz-form-control Infração="Por favor insira a senha!">
+					<nz-input-group nzSize="large" nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+						<input [type]="passwordVisible ? 'text' : 'password'" nz-input formControlName="senha" placeholder="Digite a senha" />
+					</nz-input-group>
+					<ng-template #suffixTemplate>
+						<span nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'" (click)="passwordVisible = !passwordVisible"></span>
+					</ng-template>
+				</nz-form-control>
+			</nz-form-item>
+			<div nz-row nzJustify="end" nzAlign="top" class="login-form-margin">
+				<a
+					nz-button
+					nzType="text"
+					nz-link
+					class="login-form-forgot"
+					nz-tooltip
+					nzTooltipTitle="Caso enfrente qualquer problema relacionado à senha, entre em contato com o admininstrador do sistema."
+					nzTooltipColor="#114c78"
+				>
+					Não lembra a senha?
+				</a>
+			</div>
+			<button nz-button nzType="primary" nzSize="large" nzBlock [nzLoading]="isLogging">
+				<span nz-icon nzType="login" nzTheme="outline"></span>
+				{{ isLogging ? 'Acessando' : 'Acessar' }}
+			</button>
+		</form>
+	</div>
+</div>

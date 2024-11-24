@@ -1,0 +1,215 @@
+<form *ngIf="!isLoading" nz-form nzLayout="vertical" nzNoColon [formGroup]="userForm" (ngSubmit)="submitForm()">
+	<nz-row nzGutter="16">
+		<ng-container *ngFor="let error of errorList">
+			<nz-col nzSpan="24">
+				<nz-alert
+					style="margin-bottom: 12px"
+					nzShowIcon
+					nzType="error"
+					nzCloseable
+					nzMessage="{{ error }}"
+					(nzOnClose)="closeErrorAlert(error)"
+				></nz-alert>
+			</nz-col>
+		</ng-container>
+
+		<nz-col nzSpan="24">
+			<nz-form-item>
+				<nz-form-label nzRequired>Nome completo</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o nome">
+					<input nz-input formControlName="nome" placeholder="Nome" />
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label nzRequired>Nome usuário</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o nome de usuário">
+					<input nz-input formControlName="username" [pattern]="userPattern" (change)="validateUserName()" placeholder="Digite o nome de usuário" />
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label [nzRequired]="!nzData.userId">Senha</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira a senha">
+					<nz-input-group [nzSuffix]="suffixTemplate">
+						<input
+							[type]="passwordVisible ? 'text' : 'password'"
+							nz-input
+							placeholder="input password"
+							formControlName="password"
+							placeholder="Digite a senha"
+						/>
+					</nz-input-group>
+				</nz-form-control>
+			</nz-form-item>
+
+			<ng-template #suffixTemplate>
+				<span
+					nz-icon
+					[ngStyle]="{ color: '#1890ff' }"
+					[nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+					(click)="passwordVisible = !passwordVisible"
+				></span>
+			</ng-template>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label nzRequired>E-mail</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira um email válido">
+					<input nz-input type="email" formControlName="email" placeholder="Email" />
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label>WhatsApp</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o telefone">
+					<input
+						nz-input
+						type="text"
+						formControlName="whatsapp"
+						[showMaskTyped]="true"
+						placeholder="Digite o numero usado no WhatsApp"
+						mask="(00)0000-0000 || (00)00000-0000"
+						[dropSpecialCharacters]="true"
+					/>
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label>Telefone</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o telefone">
+					<input
+						nz-input
+						type="text"
+						formControlName="telefone"
+						[showMaskTyped]="true"
+						placeholder="Digite o telefone"
+						mask="(00)0000-0000||(00)00000-0000"
+						[dropSpecialCharacters]="true"
+					/>
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label>Ramal</nz-form-label>
+				<nz-form-control nzErrorTip="Por favor, insira o ramal">
+					<input nz-input type="text" formControlName="ramal" placeholder="Digite o ramal" mask="000000" [validation]="false" />
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label nzRequired>Cargo</nz-form-label>
+				<nz-form-control nzErrorTip="Informe o cargo">
+					<nz-input-group style="border: 0; padding: 0" [nzSuffix]="shortcutCreateOcupation">
+						<nz-select
+							nzMode="default"
+							nzPlaceHolder="Selecione o cargo"
+							nzAllowClear
+							nzShowSearch
+							nzServerSearch
+							formControlName="cargo_id"
+							(nzOnSearch)="onSearchOcupation($event)"
+						>
+							<ng-container *ngFor="let ocupation of ocupationsList">
+								<nz-option *ngIf="!isLoadingOcupation" [nzValue]="ocupation.id" [nzLabel]="ocupation.nome"></nz-option>
+							</ng-container>
+							<nz-option *ngIf="isLoadingOcupation" nzDisabled nzCustomContent>
+								<span nz-icon nzType="loading" class="loading-icon"></span>
+								Carregando os dados...
+							</nz-option>
+						</nz-select>
+					</nz-input-group>
+
+					<ng-template #shortcutCreateOcupation>
+						<button
+							*ngIf="hasPermissionOcupation"
+							nz-button
+							nzType="default"
+							type="button"
+							nz-tooltip
+							nzTooltipTitle="Clique para adicionar um novo cargo"
+							(click)="showModalOcupation()"
+						>
+							<span nz-icon nzType="plus" nzTheme="outline"></span>
+						</button>
+					</ng-template>
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="12">
+			<nz-form-item>
+				<nz-form-label></nz-form-label>
+				<label nz-checkbox formControlName="acessa_todos_departamentos">
+					<span nz-tooltip="Usuário tem permissão pra acessar todos os departamentos">Acessa todos os departamentos</span></label
+				>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col nzSpan="20">
+			<nz-form-item>
+				<nz-form-label nzRequired>Departamentos</nz-form-label>
+				<nz-form-control nzErrorTip="Informe o departamento">
+					<nz-input-group style="border: 0; padding: 0">
+						<nz-select
+							nzMode="multiple"
+							nzPlaceHolder="Selecione o(s) departamento(s)"
+							nzPlacement="topRight"
+							nzAllowClear
+							nzShowSearch
+							nzServerSearch
+							formControlName="departamentos"
+							(nzOnSearch)="onSearchDepartments($event)"
+						>
+							<ng-container *ngFor="let department of departmentsList">
+								<nz-option
+									*ngIf="!isLoadingDepartment"
+									[nzValue]="department.id"
+									[nzLabel]="department.nome + ' (' + department.filial.nome + ')'"
+									nzCustomContent
+								>
+									<span>{{ department.nome }} ({{ department.filial.nome }})</span></nz-option
+								>
+							</ng-container>
+						</nz-select>
+					</nz-input-group>
+
+				</nz-form-control>
+			</nz-form-item>
+		</nz-col>
+
+		<nz-col>
+			<nz-form-item nzAlign="top">
+				<nz-form-label></nz-form-label>
+				<label nz-checkbox formControlName="ativo"> <span nz-tooltip="Status do usuário">Ativo</span></label>
+			</nz-form-item>
+		</nz-col>
+	</nz-row>
+
+	<div nz-row nzJustify="end" nzGutter="16">
+		<div nz-col>
+			<button nz-button nzType="default" type="button" (click)="closeModal()">Cancelar</button>
+		</div>
+		<div nz-col>
+			<button nz-button nzType="primary" [disabled]="!userForm.valid"><span nz-icon nzType="save" nzTheme="outline"></span>Salvar</button>
+		</div>
+	</div>
+</form>
+
+<div *ngIf="isLoading">
+	<nz-skeleton [nzActive]="true"> </nz-skeleton>
+	<nz-skeleton [nzActive]="true"> </nz-skeleton>
+</div>

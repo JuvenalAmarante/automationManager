@@ -7,9 +7,10 @@ module.exports = {
       'usuarios',
       [
         {
-          nome: 'Admin',
+          nome: 'Administrador',
           usuario: 'admin',
-          senha: 'teste',
+          senha: 'teste123',
+          admin: true,
           ativo: true,
           criado_em: new Date(),
           atualizado_em: new Date(),

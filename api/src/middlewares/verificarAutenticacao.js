@@ -5,22 +5,32 @@ const UsuarioController = require('../controller/UsuarioController');
 function verificarAutenticacao(req, res, next) {
   const token = req.headers['authorization']?.split('Bearer ')?.at(1);
 
-  if (!token) return res.status(401).json({ error: 'Não autorizado.' });
+  if (!token)
+    return res.status(401).json({ success: false, message: 'Não autorizado.' });
 
   jwt.verify(token, secret, async function (err, decoded) {
     if (err) {
       console.log(err);
 
-      return res
-        .status(500)
-        .json({ error: 'Ocorreu um erro ao validar a autenticação.' });
+      return res.status(500).json({
+        success: false,
+        message: 'Ocorreu um erro ao validar a autenticação.',
+      });
     }
 
     const usuario = await UsuarioController.buscarUsuarioPorId(decoded.id);
 
-    if (!usuario) return res.status(401).json({ error: 'Não autorizado.' });
+    if (!usuario || !usuario.dataValues.ativo)
+      return res
+        .status(401)
+        .json({ success: false, message: 'Não autorizado.' });
 
-    req.userId = decoded.id;
+    req.usuario = {
+      id: usuario.dataValues.id,
+      nome: usuario.dataValues.nome,
+      admin: usuario.dataValues.admin,
+    };
+
     next();
   });
 }

@@ -29,12 +29,17 @@ class AutomacaoController {
       upload(req, res, async function (err) {
         const transaction = await connection.transaction();
         try {
-          if (err) return res.status(500).json({ error: err.message });
+          if (err)
+            return res
+              .status(500)
+              .json({ success: false, message: err.message });
 
-          const { nome, parametros } = req.body;
+          const { nome, arquivo, parametros } = req.body;
 
-          if (!nome || (parametros && !Array.isArray(parametros)))
-            return res.status(400).json({ error: 'Campos inválidos' });
+          if (!nome || !arquivo || (parametros && !Array.isArray(parametros)))
+            return res
+              .status(400)
+              .json({ success: false, message: 'Campos inválidos' });
 
           if (parametros) {
             let contador = 0;
@@ -54,7 +59,9 @@ class AutomacaoController {
             }
 
             if (contador != parametros.length)
-              return res.status(400).json({ error: 'Campos inválidos' });
+              return res
+                .status(400)
+                .json({ success: false, message: 'Campos inválidos' });
           }
 
           const automacao = await Automacao.create(
@@ -87,29 +94,34 @@ class AutomacaoController {
             }
           }
 
-          res
-            .status(201)
-            .json({ ...automacao.dataValues, parametros: parametrosSalvos });
+          res.status(201).json({
+            success: true,
+            data: { ...automacao.dataValues, parametros: parametrosSalvos },
+          });
 
           await transaction.commit();
         } catch (error) {
           await transaction.rollback();
 
-          res.status(500).json({ error: error.message });
+          res.status(500).json({ success: false, message: error.message });
         }
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
   async listar(req, res) {
     try {
-      const automacoes = await Automacao.findAll();
+      const automacoes = await Automacao.findAll({
+        where: {
+          excluido: false,
+        },
+      });
 
-      res.status(200).json(automacoes);
+      res.status(200).json({ success: true, data: automacoes });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -117,13 +129,17 @@ class AutomacaoController {
     const { id } = req.params;
 
     if (!id || isNaN(+id))
-      return res.status(400).json({ error: 'Automação não encontrada' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Automação não encontrada' });
 
     try {
       const automacao = await Automacao.findByPk(id);
 
       if (!automacao)
-        return res.status(400).json({ error: 'Automação não encontrada' });
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
 
       const parametros = await ParametroAutomacao.findAll({
         where: {
@@ -131,9 +147,37 @@ class AutomacaoController {
         },
       });
 
-      res.status(200).json({ ...automacao.dataValues, parametros });
+      res
+        .status(200)
+        .json({ success: true, data: { ...automacao.dataValues, parametros } });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async deletar(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Automação não encontrada' });
+
+    try {
+      const automacao = await Automacao.findByPk(id);
+
+      if (!automacao)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
+
+      await Automacao.update({ excluido: true }, { where: { id } });
+
+      res
+        .status(200)
+        .json({ success: true, message: 'Automação deletada com sucesso' });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -141,9 +185,9 @@ class AutomacaoController {
     try {
       const tipos = await TipoParametro.findAll();
 
-      res.status(200).json(tipos);
+      res.status(200).json({ success: true, data: tipos });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

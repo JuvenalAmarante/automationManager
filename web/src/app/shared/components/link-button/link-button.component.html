@@ -1,0 +1,29 @@
+<button
+  *ngIf="link"
+  (mouseover)="linkEditButton = true"
+  (mouseleave)="linkEditButton = false"
+  (click)="vinculate()"
+  nzTooltipTitle="Clique para editar"
+  [nzTooltipPlacement]="['top', 'top']"
+  nz-button
+  nz-tooltip
+  [nzType]="selectedType"
+  nzSize="small"
+>
+  <span
+    nz-icon
+    [nzType]="linkEditButton ? 'edit' : icon"
+    nzTheme="outline"
+  ></span>
+  {{ link.id.length > 1 ? "Vinculado" : link.nome }}
+</button>
+
+<button
+  *ngIf="!link"
+  (click)="vinculate()"
+  nz-button
+  [nzType]="unselectedType"
+  nzSize="small"
+>
+  <span nz-icon nzType="link" nzTheme="outline"></span>{{ unselectedText }}
+</button>

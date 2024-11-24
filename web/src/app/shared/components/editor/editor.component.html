@@ -1,0 +1,53 @@
+<div>
+  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"> </ngx-editor-menu>
+  <ngx-editor
+    [editor]="editor"
+    [(ngModel)]="html"
+    [ngModelOptions]="{ standalone: true }"
+    placeholder="Digite aqui..."
+  ></ngx-editor>
+  <div
+    nz-row
+    nzJustify="end"
+    nzGutter="16"
+    style="margin-top: 2em"
+    *ngIf="isModal"
+  >
+    <div nz-col nzSpan="auto">
+      <button type="button" nz-button nzType="default" (click)="closeModal()">
+        CANCELAR
+      </button>
+    </div>
+
+    <div nz-col nzSpan="auto">
+      <button (click)="closeEditor()" nz-button nzType="primary">
+        INSERIR
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #menu>
+  <div class="NgxEditor__Seperator NgxEditor__MenuItem--Active"></div>
+  <button type="button" nz-button nzType="default" (click)="insertTable()">
+    <span nz-icon nzType="table" nzTheme="outline"></span>
+  </button>
+  <div class="NgxEditor__Seperator NgxEditor__MenuItem--Active"></div>
+  <div class="NgxEditor__MenuItem NgxEditor__MenuItem--Text" *ngIf="useVars">
+    <a nz-dropdown [nzDropdownMenu]="menu">
+      Variáveis
+      <span nz-icon nzType="down"></span>
+    </a>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu>
+        <li
+          *ngFor="let item of constLayout"
+          nz-menu-item
+          (click)="insertVariables($event, item.const)"
+        >
+          {{ item.label }}
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </div>
+</ng-template>

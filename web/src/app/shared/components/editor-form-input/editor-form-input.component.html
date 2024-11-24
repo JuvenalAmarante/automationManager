@@ -1,0 +1,23 @@
+<div nz-col nzMd="24">
+  <nz-form-item>
+    <div nz-row nzJustify="space-between">
+      <nz-form-label [nzRequired]="required">{{ label }}</nz-form-label>
+      <a *ngIf="value" nz-button nzType="link" (click)="createModalEditor('input')">
+        <span nz-icon nzType="edit" nzTheme="outline"></span> Editar
+      </a>
+    </div>
+    <nz-form-control [nzErrorTip]="message">
+      <div *ngIf="value" class="value" [innerHTML]="sanitizeStyle(value)" (click)="createModalEditor('input')"></div>
+
+      <div *ngIf="!value" nz-row nzType="flex" class="insert-button-modal" nzJustify="center" style="min-height: 90px"
+        (click)="createModalEditor('input')">
+        <a nz-button nzBlock nzSize="large" nzType="link">
+          <span nz-icon nzType="edit" nzTheme="outline"></span> Inserir
+        </a>
+        <span>
+          {{ placeholder }}
+        </span>
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+</div>

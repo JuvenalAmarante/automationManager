@@ -1,0 +1,87 @@
+<nz-layout class="app-layout">
+	<nz-sider class="menu-sidebar" nzCollapsible nzWidth="256px" [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+		<div [class]="'sidebar-logo ' + (!isCollapsed ? '' : 'minimized')">
+			<img [src]="'assets/img/logo.svg'" alt="logo" />
+		</div>
+		<ul class="menu-items" nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+			<li nz-menu-item nz-tooltip nzTooltipPlacement="right">
+				<span nz-icon nzType="home"></span>
+				<span><a routerLink="/app">Home</a></span>
+			</li>
+			<ng-container *ngFor="let item of menu">
+				<li *ngIf="!item.items?.length" nz-menu-item nz-tooltip nzTooltipPlacement="right">
+					<span nz-icon [nzType]="item.icon"></span>
+					<span
+						><a [routerLink]="item.url">{{ item.label }}</a></span
+					>
+				</li>
+				<li *ngIf="item.items?.length" nz-submenu [nzTitle]="item.label" [nzIcon]="item.icon" [nzOpen]="item.isActive">
+					<ul *ngFor="let sub of item.items">
+						<li nz-menu-item routerLinkActive [routerLinkActiveOptions]="{ exact: true }" #rtla="routerLinkActive" [nzSelected]="rtla.isActive">
+							<a [routerLink]="sub.url">{{ sub.label }}</a>
+						</li>
+					</ul>
+				</li>
+			</ng-container>
+		</ul>
+	</nz-sider>
+	<nz-layout [style]="isCollapsed ? 'margin-left: 80px' : 'margin-left: 256px'">
+		<nz-header>
+			<div nz-row nzJustify="space-between" nzAlign="middle" class="app-header">
+				<div class="header-trigger">
+					<span
+						class="toggle-icon"
+						(click)="isCollapsed = !isCollapsed"
+						nz-icon
+						[nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+						nzTheme="outline"
+					></span>
+				</div>
+				<div nz-row nz-row nzJustify="end" nzAlign="middle" nzGutter="20">
+					<div nz-col nz-row nzJustify="center" nzAlign="middle" nz-dropdown [nzDropdownMenu]="profile_menu">
+						<nz-avatar
+							[ngStyle]="{
+								'background-color': status ? '#87d068' : '#dedede'
+							}"
+							nzIcon="user"
+						></nz-avatar>
+
+						<div nz-col style="text-align: right; padding: 0.2em 1em !important">
+							<h3
+								style="
+									margin: 0;
+									margin-top: 4px;
+									width: auto;
+									line-height: 1.5;
+									font-size: 1rem;
+									border-bottom: solid 1px #edeef2;
+									font-weight: 500;
+								"
+							>
+							Avanço
+						</h3>
+						<a *ngIf="profile" nz-button nzType="link" class="profile" nzPlacement="bottomRight" style="line-height: 1">
+							{{ profile.nome }} 
+							</a>
+							<nz-dropdown-menu #profile_menu="nzDropdownMenu">
+								<ul nz-menu>
+									<li nz-menu-item (click)="logout()">Sair</li>
+								</ul>
+							</nz-dropdown-menu>
+						</div>
+						<span nz-icon nzType="down" nzTheme="outline"></span>
+					</div>
+				</div>
+			</div>
+		</nz-header>
+		<nz-content>
+			<div class="inner-content">
+				<router-outlet></router-outlet>
+			</div>
+		</nz-content>
+		<ng-template #iconTemplate>
+			<span nz-icon nzType="arrow-right"></span>
+		</ng-template>
+	</nz-layout>
+</nz-layout>
+

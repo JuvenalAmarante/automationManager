@@ -96,7 +96,9 @@ class AgendamentoController {
       !tipo_id ||
       (parametros && !Array.isArray(parametros))
     )
-      return res.status(400).json({ error: 'Campos inválidos' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Campos inválidos' });
 
     const transaction = await connection.transaction();
 
@@ -129,7 +131,9 @@ class AgendamentoController {
         }
 
         if (contador != parametros.length)
-          return res.status(400).json({ error: 'Parâmetros inválidos' });
+          return res
+            .status(400)
+            .json({ success: false, message: 'Parâmetros inválidos' });
       }
 
       const automacao = await Automacao.findByPk(automacao_id, {
@@ -137,7 +141,9 @@ class AgendamentoController {
       });
 
       if (!automacao)
-        return res.status(400).json({ error: 'Automação não encontrada' });
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
 
       const listaParametros = await ParametroAutomacao.findAll({
         where: {
@@ -151,7 +157,7 @@ class AgendamentoController {
       )
         return res
           .status(400)
-          .json({ error: 'Os parâmetros são obrigatórios' });
+          .json({ success: false, message: 'Os parâmetros são obrigatórios' });
 
       let horarioFormatado = ``;
 
@@ -258,11 +264,14 @@ class AgendamentoController {
 
       res
         .status(201)
-        .json({ ...agendamento.dataValues, parametros: parametrosSalvos });
+        .json({
+          success: true,
+          data: { ...agendamento.dataValues, parametros: parametrosSalvos },
+        });
     } catch (error) {
       await transaction.rollback();
 
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   };
 
@@ -276,16 +285,17 @@ class AgendamentoController {
         ],
       });
 
-      res.status(200).json(
-        agendamentos.map((agendamento) => ({
+      res.status(200).json({
+        success: true,
+        data: agendamentos.map((agendamento) => ({
           ...agendamento.dataValues,
           horario_formatado: parser
             .parseExpression(agendamento.dataValues.horario)
             .next(),
-        }))
-      );
+        })),
+      });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   };
 
@@ -293,7 +303,9 @@ class AgendamentoController {
     const { id } = req.params;
 
     if (!id || isNaN(+id))
-      return res.status(400).json({ error: 'Agendamento não encontrado' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Agendamento não encontrado' });
 
     try {
       const agendamento = await Agendamento.findByPk(id, {
@@ -305,7 +317,9 @@ class AgendamentoController {
       });
 
       if (!agendamento)
-        return res.status(400).json({ error: 'Agendamento não encontrado' });
+        return res
+          .status(400)
+          .json({ success: false, message: 'Agendamento não encontrado' });
 
       const parametros = await ParametroAgendamento.findAll({
         where: {
@@ -313,9 +327,9 @@ class AgendamentoController {
         },
       });
 
-      res.status(200).json({ ...agendamento.dataValues, parametros });
+      res.status(200).json({success: true, data: { ...agendamento.dataValues, parametros }});
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -323,7 +337,9 @@ class AgendamentoController {
     const { id } = req.params;
 
     if (!id || isNaN(+id))
-      return res.status(400).json({ error: 'Agendamento não encontrado' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Agendamento não encontrado' });
 
     try {
       const agendamento = await Agendamento.findByPk(id, {
@@ -335,7 +351,9 @@ class AgendamentoController {
       });
 
       if (!agendamento)
-        return res.status(400).json({ error: 'Agendamento não encontrado' });
+        return res
+          .status(400)
+          .json({ success: false, message: 'Agendamento não encontrado' });
 
       const logs = await LogAgendamento.findAll({
         where: {
@@ -343,9 +361,9 @@ class AgendamentoController {
         },
       });
 
-      res.status(200).json(logs);
+      res.status(200).json({success: true, data: logs});
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -353,13 +371,17 @@ class AgendamentoController {
     const { id } = req.params;
 
     if (!id || isNaN(+id))
-      return res.status(400).json({ error: 'Agendamento não encontrado' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Agendamento não encontrado' });
 
     try {
       const agendamento = await Agendamento.findByPk(id);
 
       if (!agendamento)
-        return res.status(400).json({ error: 'Agendamento não encontrado' });
+        return res
+          .status(400)
+          .json({ success: false, message: 'Agendamento não encontrado' });
 
       await Agendamento.update({ ativo: false }, { where: { id } });
 
@@ -373,7 +395,7 @@ class AgendamentoController {
 
       res.status(200).json({ message: 'Agendamento cancelado.' });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   };
 }

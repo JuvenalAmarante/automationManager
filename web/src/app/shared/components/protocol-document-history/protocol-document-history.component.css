@@ -1,0 +1,16 @@
+.timeline {
+	padding: 18px;
+}
+
+.timeline-header {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding: 0;
+}
+
+.timeline-title {
+	font-size: 1.2rem;
+	padding: 0;
+}

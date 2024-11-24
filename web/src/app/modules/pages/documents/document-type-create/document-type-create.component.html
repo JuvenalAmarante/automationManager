@@ -1,0 +1,69 @@
+<form
+  nz-form
+  nzLayout="vertical"
+  nz-row
+  nzGutter="16"
+  nzNoColon
+  [formGroup]="documentTypeForm"
+  (ngSubmit)="handleSubmit()"
+>
+  <ng-container *ngFor="let error of errorList">
+    <nz-col nzSpan="24">
+      <nz-alert
+        style="margin-bottom: 12px"
+        nzShowIcon
+        nzType="error"
+        nzCloseable
+        nzMessage="{{ error }}"
+        (nzOnClose)="closeErrorAlert(error)"
+      ></nz-alert>
+    </nz-col>
+  </ng-container>
+
+  <nz-col nzSpan="24">
+    <nz-form-item>
+      <nz-form-label>Nome</nz-form-label>
+      <nz-form-control nzErrorTip="Por favor, insira o nome">
+        <input
+          nz-input
+          formControlName="nome"
+          placeholder="Insira o nome para o tipo de documento"
+        />
+      </nz-form-control>
+    </nz-form-item>
+  </nz-col>
+
+  <nz-col>
+    <nz-form-item>
+      <nz-form-control>
+        <label nz-checkbox formControlName="ativo">Ativo</label>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-col>
+
+  <div nz-col nzSpan="24">
+    <div nz-row nzType="flex" nzGutter="16" nzJustify="end" nzAlign="top">
+      <div nz-col>
+        <button
+          nz-button
+          type="button"
+          nzType="default"
+          (click)="modalRef.close()"
+        >
+          Cancelar
+        </button>
+      </div>
+      <div nz-col>
+        <button
+          nz-col
+          nz-button
+          nzType="primary"
+          [disabled]="!documentTypeForm.valid"
+          [nzLoading]="isSaving"
+        >
+          {{ nzData.document_type_id ? "Atualizar" : "Cadastrar" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
