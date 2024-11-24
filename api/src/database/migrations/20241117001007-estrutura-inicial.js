@@ -133,6 +133,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      qtd_digitos: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       criado_em: {
         type: Sequelize.DATE,
         allowNull: false,

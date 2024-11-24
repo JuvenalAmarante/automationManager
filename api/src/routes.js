@@ -16,9 +16,6 @@ const router = Router();
 // Autenticação
 router.post('/login', AutenticacaoController.login);
 
-// Tipos parametros
-router.get('/tipos-parametros', AutomacaoController.listarTiposParametro);
-
 // Middleware Autenticação
 router.use(verificarAutenticacao)
 
@@ -45,6 +42,7 @@ router.use(verificarAdmin)
 
 // Automações
 router.get('/automacoes', AutomacaoController.listar);
+router.get('/automacoes/tipos-parametros', AutomacaoController.listarTiposParametro);
 router.get('/automacoes/:id', AutomacaoController.listarDetalhes);
 router.post('/automacoes', AutomacaoController.criar);
 router.delete('/automacoes/:id', AutomacaoController.deletar);

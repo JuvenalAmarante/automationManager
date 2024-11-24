@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ApiService } from 'src/app/core/services/api.service';
-import { DefaultResponse } from 'src/app/shared/types';
+import { DefaultResponse, TipoParametro } from 'src/app/shared/types';
 import { normalizeParams } from 'src/app/shared/helpers';
 import { finalize } from 'rxjs';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
@@ -12,10 +12,17 @@ import { Router } from '@angular/router';
 	templateUrl: './automations-create.component.html',
 	styleUrls: ['./automations-create.component.less'],
 })
-export class AutomationsCreateComponent {
+export class AutomationsCreateComponent implements OnInit {
 	automationForm: FormGroup;
 	isSaving = false;
+
+	parametersList: { nome: string; tipo_parametro_id: number; qtd_digitos?: number }[] = [];
+
+	isLoadingTypes = false;
+	typesList: TipoParametro[] = [];
+
 	fileList: NzUploadFile[] = [];
+
 	errorList: string[] = [];
 
 	constructor(private readonly fb: UntypedFormBuilder, private readonly api: ApiService, private readonly router: Router) {
@@ -23,6 +30,26 @@ export class AutomationsCreateComponent {
 			nome: [null, [Validators.required]],
 			arquivo: [null, [Validators.required]],
 		});
+	}
+
+	ngOnInit(): void {
+		this.loadTypes();
+	}
+
+	loadTypes(): void {
+		this.isLoadingTypes = true;
+		this.api
+			.get('/automacoes/tipos-parametros')
+			.pipe(
+				finalize(() => {
+					this.isLoadingTypes = false;
+				}),
+			)
+			.subscribe({
+				next: (res: DefaultResponse<TipoParametro[]>) => {
+					this.typesList = res.data;
+				},
+			});
 	}
 
 	async handleSubmit() {
@@ -42,6 +69,9 @@ export class AutomationsCreateComponent {
 
 		form.append('nome', this.automationForm.value.nome);
 		form.append('arquivo', this.automationForm.value.arquivo);
+		this.parametersList.forEach(parameter => {
+			form.append('parametros[]', JSON.stringify(parameter));
+		})
 
 		this.api
 			.post('/automacoes', form)
@@ -63,5 +93,16 @@ export class AutomationsCreateComponent {
 
 	closeErrorAlert(error: string) {
 		this.errorList = this.errorList.filter((err) => err !== error);
+	}
+
+	addParameter() {
+		this.parametersList.push({
+			nome: '',
+			tipo_parametro_id: 0,
+		});
+	}
+
+	removeParameter(index: number) {
+		this.parametersList.splice(index, 1);
 	}
 }

@@ -12,7 +12,22 @@ module.exports = {
           atualizado_em: new Date(),
         },
         {
+          nome: 'Número',
+          criado_em: new Date(),
+          atualizado_em: new Date(),
+        },
+        {
           nome: 'Data',
+          criado_em: new Date(),
+          atualizado_em: new Date(),
+        },
+        {
+          nome: 'Dia e mês',
+          criado_em: new Date(),
+          atualizado_em: new Date(),
+        },
+        {
+          nome: 'Mês e ano',
           criado_em: new Date(),
           atualizado_em: new Date(),
         },

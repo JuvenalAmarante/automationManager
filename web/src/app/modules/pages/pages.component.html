@@ -4,9 +4,9 @@
 			<img [src]="'assets/img/logo.svg'" alt="logo" />
 		</div>
 		<ul class="menu-items" nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-			<li nz-menu-item nz-tooltip nzTooltipPlacement="right">
+			<li nz-menu-item nz-tooltip nzTooltipPlacement="right" routerLinkActive [routerLinkActiveOptions]="{ exact: true }" #rtla="routerLinkActive" [nzSelected]="rtla.isActive">
 				<span nz-icon nzType="home"></span>
-				<span><a routerLink="/app">Home</a></span>
+				<span><a routerLink="/app/home">Home</a></span>
 			</li>
 			<ng-container *ngFor="let item of menu">
 				<li *ngIf="!item.items?.length" nz-menu-item nz-tooltip nzTooltipPlacement="right">

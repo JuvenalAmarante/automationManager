@@ -7,6 +7,7 @@ class ParametroAutomacao extends Model {
         nome: DataTypes.STRING,
         automacao_id: DataTypes.INTEGER,
         tipo_parametro_id: DataTypes.INTEGER,
+        qtd_digitos: DataTypes.INTEGER,
       },
       {
         sequelize,

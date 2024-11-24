@@ -1245,6 +1245,13 @@ export type TipoAgendamento = {
 	atualizado_em: Date;
 };
 
+export type TipoParametro = {
+	id: number;
+	nome: string;
+	criado_em: Date;
+	atualizado_em: Date;
+};
+
 export type Agendamento = {
 	id: number;
 	Automacao: Automacao;

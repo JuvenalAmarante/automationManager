@@ -19,21 +19,102 @@
 					</div>
 				</ng-container>
 
+				<div nz-col nzSm="24" nzMd="24" nzLg="24">
+					<h2 class="form-subtitle">Informações</h2>
+				</div>
+
 				<nz-col nzSpan="24">
 					<nz-form-item>
-						<nz-form-label>Nome da automação</nz-form-label>
+						<nz-form-label nzRequired>Nome da automação</nz-form-label>
 						<nz-form-control nzErrorTip="Por favor, insira o nome do automação">
 							<input nz-input formControlName="nome" placeholder="Digite o nome do automação" />
 						</nz-form-control>
 					</nz-form-item>
 				</nz-col>
 
-				<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
-					<button nz-button type="button">
-						<span nz-icon nzType="upload"></span>
-						Selecione o arquivo
+				<nz-col nzSpan="24">
+					<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+						<button nz-button type="button">
+							<span nz-icon nzType="upload"></span>
+							Selecione o arquivo
+						</button>
+					</nz-upload>
+				</nz-col>
+			</nz-row>
+
+			<nz-row nzJustify="end" nzAlign="middle" nzGutter="16" style="margin-top: 16px">
+				<nz-col nzSpan="24">
+					<nz-row nzJustify="space-between">
+						<h2 class="form-subtitle">Parâmetros</h2>
+						<button nz-button nzType="primary" type="button" (click)="addParameter()">
+							<span nz-icon nzType="plus" nzTheme="outline"></span>Adicionar
+						</button>
+					</nz-row>
+				</nz-col>
+
+				@for (parameter of parametersList; track $index) {
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label nzRequired>Nome do parâmetro</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira o nome do parâmetro">
+							<input
+								nz-input
+								[(ngModel)]="parametersList[$index].nome"
+								[ngModelOptions]="{ standalone: true }"
+								placeholder="Digite o nome do parâmetro"
+							/>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col [nzSpan]="parametersList[$index].tipo_parametro_id === 2 ? 5 : 10">
+					<nz-form-item>
+						<nz-form-label nzRequired>Tipo</nz-form-label>
+						<nz-form-control nzErrorTip="Informe o tipo">
+							<nz-input-group style="border: 0; padding: 0">
+								<nz-select
+									nzMode="default"
+									nzPlaceHolder="Selecione o tipo"
+									nzShowSearch
+									[(ngModel)]="parametersList[$index].tipo_parametro_id"
+									[ngModelOptions]="{ standalone: true }"
+								>
+									<ng-container *ngFor="let type of typesList">
+										<nz-option *ngIf="!isLoadingTypes" [nzValue]="type.id" [nzLabel]="type.nome"></nz-option>
+									</ng-container>
+									<nz-option *ngIf="isLoadingTypes" nzDisabled nzCustomContent>
+										<span nz-icon nzType="loading" class="loading-icon"></span>
+										Carregando os dados...
+									</nz-option>
+								</nz-select>
+							</nz-input-group>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				@if(parametersList[$index].tipo_parametro_id === 2) {
+				<nz-col nzSpan="5">
+					<nz-form-item>
+						<nz-form-label nzRequired>Quantidade de digitos</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira a quantidade">
+							<nz-input-number
+								style="width: 100%;"
+								[nzMin]="1"
+								[(ngModel)]="parametersList[$index].qtd_digitos"
+								[ngModelOptions]="{ standalone: true }"
+								placeholder="Digite a quantidade"
+							/>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+				}
+
+				<nz-col nzSpan="2">
+					<button type="button" nz-button nzType="link" (click)="removeParameter($index)" nzDanger>
+						<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
 					</button>
-				</nz-upload>
+				</nz-col>
+				}
 			</nz-row>
 
 			<div nz-row nzJustify="end" nzAlign="middle" nzGutter="16">

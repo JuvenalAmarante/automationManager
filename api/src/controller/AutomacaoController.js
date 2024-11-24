@@ -36,7 +36,11 @@ class AutomacaoController {
 
           const { nome, parametros } = req.body;
 
-          if (!nome || !nomeArquivo || (parametros && !Array.isArray(parametros)))
+          if (
+            !nome ||
+            !nomeArquivo ||
+            (parametros && !Array.isArray(parametros))
+          )
             return res
               .status(400)
               .json({ success: false, message: 'Campos inválidos' });
@@ -47,7 +51,12 @@ class AutomacaoController {
             for await (const data of parametros) {
               const parametro = JSON.parse(data);
 
-              if (!parametro.nome || !parametro.tipo_parametro_id) break;
+              if (
+                !parametro.nome ||
+                !parametro.tipo_parametro_id ||
+                (parametro.tipo_parametro_id == 2 && !parametro.qtd_digitos)
+              )
+                break;
 
               const tipo = await TipoParametro.findByPk(
                 parametro.tipo_parametro_id
@@ -84,6 +93,7 @@ class AutomacaoController {
                   nome: parametro.nome,
                   automacao_id: automacao.id,
                   tipo_parametro_id: parametro.tipo_parametro_id,
+                  qtd_digitos: parametro.qtd_digitos || null,
                 },
                 {
                   transaction,
