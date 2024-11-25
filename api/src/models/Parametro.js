@@ -1,15 +1,15 @@
 const { Model, DataTypes } = require('sequelize');
 
-class ParametroAgendamento extends Model {
+class Parametro extends Model {
   static init(sequelize) {
     super.init(
       {
         valor: DataTypes.STRING,
-        agendamento_id: DataTypes.INTEGER,
+        automacao_id: DataTypes.INTEGER,
       },
       {
         sequelize,
-        tableName: 'parametros_agendamentos',
+        tableName: 'parametros',
         createdAt: 'criado_em',
         updatedAt: 'atualizado_em',
       }
@@ -17,4 +17,4 @@ class ParametroAgendamento extends Model {
   }
 }
 
-module.exports = ParametroAgendamento;
+module.exports = Parametro;

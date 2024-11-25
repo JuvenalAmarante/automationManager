@@ -1,0 +1,236 @@
+<nz-page-header [nzGhost]="false" nzBackIcon>
+	<nz-page-header-title>Cadastrar</nz-page-header-title>
+	<nz-page-header-subtitle>Crie novos agendamentos</nz-page-header-subtitle>
+	<nz-page-header-content>
+		<form nz-form nzLayout="vertical" nzNoColon [formGroup]="scheduleForm" (ngSubmit)="handleSubmit()">
+			<nz-row nzGutter="16">
+				<ng-container *ngIf="errorList?.length">
+					<div *ngFor="let error of errorList">
+						<nz-col nzSpan="24">
+							<nz-alert
+								style="margin-bottom: 12px; width: 100%"
+								nzShowIcon
+								nzType="error"
+								nzCloseable
+								nzMessage="{{ error }}"
+								(nzOnClose)="closeErrorAlert(error)"
+							></nz-alert>
+						</nz-col>
+					</div>
+				</ng-container>
+
+				<div nz-col nzSpan="24">
+					<h2 class="form-subtitle">Informações</h2>
+				</div>
+
+				<nz-col nzSpan="24">
+					<nz-form-item>
+						<nz-form-label nzRequired>Automação</nz-form-label>
+						<nz-form-control nzErrorTip="Selecione a automação">
+							<nz-input-group style="border: 0; padding: 0">
+								<nz-select
+									nzMode="default"
+									nzPlaceHolder="Selecione a automação"
+									nzShowSearch
+									formControlName="automacao_id"
+									(ngModelChange)="loadAutomationDetail($event)"
+								>
+									<ng-container *ngFor="let automation of automationsList">
+										<nz-option *ngIf="!isLoadingAutomations" [nzValue]="automation.id" [nzLabel]="automation.nome"></nz-option>
+									</ng-container>
+									<nz-option *ngIf="isLoadingAutomations" nzDisabled nzCustomContent>
+										<span nz-icon nzType="loading" class="loading-icon"></span>
+										Carregando os dados...
+									</nz-option>
+								</nz-select>
+							</nz-input-group>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				@if (automationSelected?.parametros?.length) {
+					@if (automationSelected?.parametros?.length) {
+						<nz-col nzSpan="24">
+							<nz-row nzJustify="space-between">
+								<h2 class="form-subtitle">Parâmetros</h2>
+							</nz-row>
+						</nz-col>
+
+						@if (parametersValues.length) {
+							<div nz-col nzSpan="24">
+								<nz-table
+									#dynamicTable
+									nzSize="small"
+									[nzData]="parametersValues"
+									[nzPageSize]="20"
+									[nzLoading]="isSaving"
+									[nzHideOnSinglePage]="true"
+								>
+									<thead>
+										<tr>
+											@for (parameter of automationSelected?.parametros; track $index) {
+												<th
+													[nzWidth]="[1, 2].includes(parameter.tipo_parametro_id) ? '320px' : '160px'"
+													[nzAlign]="[2, 3, 4, 5].includes(parameter.tipo_parametro_id) ? 'center' : 'left'"
+												>
+													{{ parameter.nome }}
+												</th>
+											}
+											<th nzWidth="14%" nzAlign="center" nzEllipsis>Ações</th>
+										</tr>
+									</thead>
+									<tbody>
+										@for (data of dynamicTable.data; track indexValue; let indexValue = $index) {
+											<tr>
+												@for (parameter of automationSelected?.parametros; track $index) {
+													<td [nzAlign]="[2, 3, 4, 5].includes(parameter.tipo_parametro_id) ? 'center' : 'left'">
+														@switch (parameter.tipo_parametro_id) {
+															@case (1) {
+																<input
+																	nz-input
+																	type="text"
+																	[placeholder]="'Digite o valor do campo ' + parameter.nome"
+																	[(ngModel)]="data[parameter.nome]"
+																	[ngModelOptions]="{ standalone: true }"
+																/>
+															}
+															@case (2) {
+																<input
+																	nz-input
+																	type="text"
+																	[placeholder]="'Digite o valor do campo ' + parameter.nome"
+																	[(ngModel)]="data[parameter.nome]"
+																	[ngModelOptions]="{ standalone: true }"
+																/>
+															}
+															@case (3) {
+																<nz-date-picker
+																	style="width: 100%"
+																	nzFormat="dd/MM/yyyy"
+																	nzPlaceHolder="Selecione a data"
+																	[(ngModel)]="data[parameter.nome]"
+																	[ngModelOptions]="{ standalone: true }"
+																></nz-date-picker>
+															}
+															@case (4) {
+																<nz-date-picker
+																	style="width: 100%"
+																	nzFormat="dd/MM"
+																	nzPlaceHolder="Selecione a data"
+																	[(ngModel)]="data[parameter.nome]"
+																	[ngModelOptions]="{ standalone: true }"
+																></nz-date-picker>
+															}
+															@case (5) {
+																<nz-date-picker
+																	nzMode="month"
+																	style="width: 100%"
+																	nzFormat="MM/yyyy"
+																	nzPlaceHolder="Selecione a data"
+																	[(ngModel)]="data[parameter.nome]"
+																	[ngModelOptions]="{ standalone: true }"
+																></nz-date-picker>
+															}
+														}
+													</td>
+												}
+												<td nzAlign="center">
+													<a
+														nz-button
+														nzType="link"
+														nzSize="small"
+														nz-popconfirm
+														nzPopconfirmTitle="Você deseja realmente excluir esse item?"
+														nzPopconfirmPlacement="topLeft"
+														(nzOnConfirm)="removeParameterValue(indexValue)"
+														nzDanger
+													>
+														<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
+													</a>
+												</td>
+											</tr>
+										}
+									</tbody>
+								</nz-table>
+							</div>
+
+							<nz-col nzSpan="24" style="margin-top: 16px; margin-bottom: 16px">
+								<nz-row nzJustify="center">
+									<button
+										nz-button
+										style="margin-left: 15px"
+										nzType="default"
+										type="button"
+										nz-tooltip
+										nzTooltipTitle="Adiciona um novo registro nos parâmetros"
+										(click)="addParameterValue()"
+									>
+										<span nz-icon nzType="plus" nzTheme="outline"></span>
+										Adicionar
+									</button>
+								</nz-row>
+							</nz-col>
+						} @else {
+							<nz-col nzSpan="24">
+								<nz-row nzGutter="16">
+									<div nz-col nzSpan="24">
+										<nz-empty [nzNotFoundContent]="null" nzNotFoundImage="simple" style="margin-bottom: -20px" />
+										<nz-row nzJustify="center">
+											<span style="color: rgba(0, 0, 0, 0.25)">Não há registros adicionados</span>
+										</nz-row>
+									</div>
+									<div nz-col nzSpan="24" style="margin-top: 16px">
+										<nz-row nzJustify="center">
+											<button
+												nz-button
+												nzType="default"
+												type="button"
+												nz-tooltip
+												nzTooltipTitle="Adiciona um novo registro"
+												(click)="addParameterValue()"
+											>
+												<span nz-icon nzType="plus" nzTheme="outline"></span>
+												Adicionar
+											</button>
+										</nz-row>
+									</div>
+								</nz-row>
+							</nz-col>
+						}
+					} @else {
+						<nz-col nzSpan="24">
+							<nz-row nzGutter="16">
+								<div nz-col nzSpan="24">
+									<nz-empty [nzNotFoundContent]="null" nzNotFoundImage="simple" style="margin-bottom: -20px" />
+									<nz-row nzJustify="center">
+										<span style="color: rgba(0, 0, 0, 0.25)">Não há parâmetros cadastrados nessa automação</span>
+									</nz-row>
+								</div>
+							</nz-row>
+						</nz-col>
+					}
+				} @else {
+					<nz-col nzSpan="24">
+						<nz-row nzGutter="16">
+							<div nz-col nzSpan="24">
+								<nz-empty [nzNotFoundContent]="null" nzNotFoundImage="simple" style="margin-bottom: -20px" />
+								<nz-row nzJustify="center">
+									<span style="color: rgba(0, 0, 0, 0.25)">Selecione uma automação</span>
+								</nz-row>
+							</div>
+						</nz-row>
+					</nz-col>
+				}
+			</nz-row>
+
+			<div nz-row nzJustify="end" nzAlign="middle" nzGutter="16">
+				<div nz-col>
+					<button nz-button type="button" nzType="default" (click)="goBack()">Cancelar</button>
+				</div>
+				<div nz-col>
+					<button nz-col nz-button nzType="primary" [disabled]="!scheduleForm.valid" [nzLoading]="isSaving">Salvar</button>
+				</div>
+			</div>
+		</form>
+	</nz-page-header-content>
+</nz-page-header>

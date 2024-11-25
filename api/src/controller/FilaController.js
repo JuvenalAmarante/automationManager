@@ -5,8 +5,8 @@ class FilaController {
   filaExecucao = [];
   executando = false;
 
-  adicionarNaFila(dados, agendamento_id, parametros) {
-    this.filaExecucao.push({ dados, agendamento_id, parametros });
+  adicionarNaFila(dados, agendamento_id) {
+    this.filaExecucao.push({ dados, agendamento_id });
     console.log(`Automacao "${dados.nome}" adicionado à fila.`);
 
     if (!this.executando) {
@@ -26,11 +26,7 @@ class FilaController {
       const automacao = this.filaExecucao.shift();
 
       console.log(`Executando automação: ${automacao.dados.nome}`);
-      let comando = `python3 ./src/public/${automacao.dados.arquivo}`;
-
-      automacao.parametros.forEach((parametro) => {
-        comando += ` --${parametro.nome} "${parametro.valor}"`;
-      });
+      let comando = `python3 ./src/public/${automacao.dados.arquivo} --id "${automacao.dados.id}"`;
 
       await LogAgendamento.create({
         possui_erro: false,

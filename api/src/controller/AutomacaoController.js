@@ -3,6 +3,7 @@ const Automacao = require('../models/Automacao');
 const connection = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const TipoParametro = require('../models/TipoParametro');
+const Parametro = require('../models/Parametro');
 
 class AutomacaoController {
   async criar(req, res) {
@@ -106,7 +107,7 @@ class AutomacaoController {
 
           res.status(201).json({
             success: true,
-            data: { ...automacao.dataValues, parametros: parametrosSalvos },
+            message: 'Automação salva com sucesso!',
           });
 
           await transaction.commit();
@@ -179,6 +180,139 @@ class AutomacaoController {
     }
   }
 
+  atualizarParametros = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Agendamento não encontrado' });
+
+    const { parametros } = req.body;
+
+    if (parametros && !Array.isArray(parametros))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Campos inválidos' });
+
+    const transaction = await connection.transaction();
+
+    try {
+      const automacao = await Automacao.findByPk(id, {
+        transaction,
+      });
+
+      if (!automacao)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
+
+      const listaParametros = await ParametroAutomacao.findAll({
+        where: {
+          automacao_id: automacao.id,
+        },
+        transaction,
+      });
+
+      if (listaParametros.length && !parametros?.length)
+        return res.status(400).json({
+          success: false,
+          message: 'Os parâmetros são obrigatórios',
+        });
+
+      if (parametros) {
+        let contador = 0;
+
+        for await (const parametro of parametros) {
+          let validacao = true;
+
+          for await (const parametroSalvo of listaParametros) {
+            if (parametro[parametroSalvo.dataValues.nome] == null) {
+              validacao = false;
+              break;
+            }
+
+            if (parametroSalvo.dataValues.id == 2) {
+              parametro[parametroSalvo.dataValues.nome] = (
+                '0'.repeat(parametroSalvo.dataValues.qtd_digitos) +
+                parametro[parametroSalvo.dataValues.nome]
+              ).slice(-parametroSalvo.dataValues.qtd_digitos);
+            }
+
+            if ([3, 4, 5].includes(parametroSalvo.dataValues.id)) {
+              const date = new Date(parametro[parametroSalvo.dataValues.nome]);
+
+              const dia = date.getDate();
+              const mes = date.getMonth() + 1;
+              const ano = date.getFullYear();
+
+              switch (parametroSalvo.dataValues.id) {
+                case 3:
+                  parametro[
+                    parametroSalvo.dataValues.nome
+                  ] = `${dia}/${mes}/${ano}`;
+                  break;
+
+                case 4:
+                  parametro[parametroSalvo.dataValues.nome] = `${dia}/${mes}`;
+                  break;
+
+                case 5:
+                  parametro[parametroSalvo.dataValues.nome] = `${mes}/${ano}`;
+                  break;
+              }
+            }
+          }
+
+          if (!validacao) break;
+
+          contador++;
+        }
+
+        if (contador != parametros.length)
+          return res
+            .status(400)
+            .json({ success: false, message: 'Parâmetros inválidos' });
+      }
+
+      await Parametro.destroy({
+        where: {
+          automacao_id: id,
+        },
+        transaction,
+      });
+
+      let parametrosSalvos = [];
+
+      if (parametros) {
+        for await (const parametro of parametros) {
+          const parametroSalvo = await Parametro.create(
+            {
+              valor: JSON.stringify(parametro),
+              automacao_id: id,
+            },
+            {
+              transaction,
+            }
+          );
+
+          parametrosSalvos.push(parametroSalvo);
+        }
+      }
+
+      await transaction.commit();
+
+      res.status(201).json({
+        success: true,
+        message: 'Parâmetros atualizados com sucesso!',
+      });
+    } catch (error) {
+      await transaction.rollback();
+
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
   async deletar(req, res) {
     const { id } = req.params;
 
@@ -205,11 +339,89 @@ class AutomacaoController {
     }
   }
 
-  async listarTiposParametro(req, res) {
+  async listarTiposParametros(req, res) {
     try {
       const tipos = await TipoParametro.findAll();
 
       res.status(200).json({ success: true, data: tipos });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async listarParametros(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Automação não encontrada' });
+
+    try {
+      const automacao = await Automacao.findByPk(id);
+
+      if (!automacao)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
+
+      const listaParametros = await ParametroAutomacao.findAll({
+        where: {
+          automacao_id: id,
+        },
+      });
+
+      const parametrosSalvos = await Parametro.findAll({
+        where: {
+          automacao_id: id,
+        },
+      });
+
+      const parametros = parametrosSalvos.map((parametro) => {
+        const dados = JSON.parse(parametro.dataValues.valor);
+
+        for (const parametroCadastrado of listaParametros) {
+          if (parametroCadastrado.dataValues.id == 2) {
+            dados[parametroCadastrado.dataValues.nome] = parseInt(
+              dados[parametroCadastrado.dataValues.nome]
+            );
+          }
+
+          if ([3, 4, 5].includes(parametroCadastrado.dataValues.id)) {
+            const date = dados[parametroCadastrado.dataValues.nome].split('/');
+
+            switch (parametroCadastrado.dataValues.id) {
+              case 3:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  date[2],
+                  date[1] - 1,
+                  date[0]
+                );
+                break;
+
+              case 4:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  new Date().getFullYear(),
+                  date[1] - 1,
+                  date[0]
+                );
+                break;
+
+              case 5:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  date[1],
+                  date[0] - 1,
+                  15
+                );
+                break;
+            }
+          }
+        }
+
+        return dados;
+      });
+
+      res.status(200).json({ success: true, data: parametros });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }

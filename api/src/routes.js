@@ -16,37 +16,97 @@ const router = Router();
 // Autenticação
 router.post('/login', AutenticacaoController.login);
 
-// Middleware Autenticação
-router.use(verificarAutenticacao)
+// Menus
+router.get('/menus', verificarAutenticacao, MenuController.listar);
 
 // Menus
-router.get('/menus', MenuController.listar);
-
-// Menus
-router.get('/permissoes/validar', PermissaoController.validar);
+router.get(
+  '/permissoes/validar',
+  verificarAutenticacao,
+  PermissaoController.validar
+);
 
 // Perfil
-router.get('/perfil', UsuarioController.listarDetalhes);
+router.get('/perfil', verificarAutenticacao, UsuarioController.listarDetalhes);
 
 // Agendamentos
-router.post('/agendamentos', AgendamentoController.criar);
-router.get('/agendamentos', AgendamentoController.listar);
-router.get('/agendamentos/automacoes', AutomacaoController.listarFiltrado);
-router.get('/agendamentos/automacoes/:id', AutomacaoController.listarDetalhes);
-router.get('/agendamentos/tipos', TipoAgendamentoController.listar);
-router.patch('/agendamentos/:id', AgendamentoController.atualizar);
-router.get('/agendamentos/:id', AgendamentoController.listarDetalhes);
-router.get('/agendamentos/:id/logs', AgendamentoController.listarLogs);
-router.post('/agendamentos/:id/cancelar', AgendamentoController.cancelar);
-
-// Middleware permissão admin
-router.use(verificarAdmin)
+router.post(
+  '/agendamentos',
+  verificarAutenticacao,
+  AgendamentoController.criar
+);
+router.get(
+  '/agendamentos',
+  verificarAutenticacao,
+  AgendamentoController.listar
+);
+router.get(
+  '/agendamentos/automacoes/:id',
+  verificarAutenticacao,
+  AutomacaoController.listarDetalhes
+);
+router.get(
+  '/agendamentos/tipos',
+  verificarAutenticacao,
+  TipoAgendamentoController.listar
+);
+router.patch(
+  '/agendamentos/:id',
+  verificarAutenticacao,
+  AgendamentoController.atualizar
+);
+router.get(
+  '/agendamentos/:id',
+  verificarAutenticacao,
+  AgendamentoController.listarDetalhes
+);
+router.get(
+  '/agendamentos/:id/logs',
+  verificarAutenticacao,
+  AgendamentoController.listarLogs
+);
+router.post(
+  '/agendamentos/:id/cancelar',
+  verificarAutenticacao,
+  AgendamentoController.cancelar
+);
 
 // Automações
-router.get('/automacoes', AutomacaoController.listar);
-router.get('/automacoes/tipos-parametros', AutomacaoController.listarTiposParametro);
-router.get('/automacoes/:id', AutomacaoController.listarDetalhes);
-router.post('/automacoes', AutomacaoController.criar);
-router.delete('/automacoes/:id', AutomacaoController.deletar);
+router.get(
+  '/automacoes',
+  verificarAutenticacao,
+  AutomacaoController.listarFiltrado
+);
+router.get(
+  '/automacoes/tipos-parametros',
+  verificarAutenticacao,
+  verificarAdmin,
+  AutomacaoController.listarTiposParametros
+);
+router.get(
+  '/automacoes/:id',
+  verificarAutenticacao,
+  AutomacaoController.listarDetalhes
+);
+router.patch(
+  '/automacoes/:id/parametros',
+  verificarAutenticacao,
+  AutomacaoController.atualizarParametros
+);
+router.post(
+  '/automacoes',
+  verificarAutenticacao,
+  verificarAdmin,
+  AutomacaoController.criar
+);
+router.delete(
+  '/automacoes/:id',
+  verificarAutenticacao,
+  verificarAdmin,
+  AutomacaoController.deletar
+);
+
+// Parâmetros
+router.get('/parametros/automacoes/:id', AutomacaoController.listarParametros);
 
 module.exports = router;

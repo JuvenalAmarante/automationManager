@@ -30,9 +30,6 @@ export class SchedulesCreateComponent implements OnInit {
 	isLoadingScheduleDetails = false;
 	scheduleDetails?: Agendamento;
 
-	parametersValues: Record<string, any>[] = [];
-
-	fileList: NzUploadFile[] = [];
 	errorList: string[] = [];
 
 	weekDaysList = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
@@ -82,8 +79,6 @@ export class SchedulesCreateComponent implements OnInit {
 					this.datetime = new Date(res.data.proxima_execucao);
 
 					this.scheduleDetails = res.data;
-
-					if (res.data.parametros) this.parametersValues = res.data.parametros;
 				},
 			});
 	}
@@ -91,7 +86,7 @@ export class SchedulesCreateComponent implements OnInit {
 	loadAutomations(): void {
 		this.isLoadingAutomations = true;
 		this.api
-			.get('/agendamentos/automacoes')
+			.get('/automacoes')
 			.pipe(
 				finalize(() => {
 					this.isLoadingAutomations = false;
@@ -123,7 +118,7 @@ export class SchedulesCreateComponent implements OnInit {
 	loadAutomationDetail(id: number): void {
 		this.isLoadingAutomationDetails = true;
 		this.api
-			.get(`/agendamentos/automacoes/${id}`)
+			.get(`/automacoes/${id}`)
 			.pipe(
 				finalize(() => {
 					this.isLoadingAutomationDetails = false;
@@ -141,17 +136,10 @@ export class SchedulesCreateComponent implements OnInit {
 		return this.createSchedule();
 	}
 
-	beforeUpload = (file: NzUploadFile): boolean => {
-		this.scheduleForm.patchValue({ arquivo: file });
-		this.fileList = [file];
-
-		return false;
-	};
-
 	createSchedule(): void {
 		this.isSaving = true;
 		this.api
-			.post('/agendamentos', { ...this.scheduleForm.value, parametros: this.parametersValues })
+			.post('/agendamentos', { ...this.scheduleForm.value })
 			.pipe(
 				finalize(() => {
 					this.isSaving = false;
@@ -170,7 +158,7 @@ export class SchedulesCreateComponent implements OnInit {
 	updateSchedule(): void {
 		this.isSaving = true;
 		this.api
-			.patch(`/agendamentos/${this.scheduleDetails?.id}`, { ...this.scheduleForm.value, parametros: this.parametersValues })
+			.patch(`/agendamentos/${this.scheduleDetails?.id}`, { ...this.scheduleForm.value })
 			.pipe(
 				finalize(() => {
 					this.isSaving = false;
@@ -186,21 +174,6 @@ export class SchedulesCreateComponent implements OnInit {
 			});
 	}
 
-	addParameterValue() {
-		const value: Record<string, any> = {};
-		this.automationSelected?.parametros?.forEach((parameter) => {
-			value[parameter.nome] = null;
-		});
-
-		this.parametersValues = [...this.parametersValues, value];
-	}
-
-	removeParameterValue(index: number) {
-		const newList = this.parametersValues.filter((item, idx) => idx != index);
-
-		this.parametersValues = newList;
-	}
-
 	onChange(date: Date): void {
 		this.scheduleForm.patchValue({
 			horario: date,
@@ -208,6 +181,7 @@ export class SchedulesCreateComponent implements OnInit {
 	}
 
 	onChangeWeekDay(weekDay: Day): void {
+		this.datetime = nextDay(new Date(), weekDay);
 		this.scheduleForm.patchValue({
 			horario: nextDay(new Date(), weekDay),
 		});

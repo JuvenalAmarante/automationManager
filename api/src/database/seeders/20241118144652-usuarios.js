@@ -15,6 +15,15 @@ module.exports = {
           criado_em: new Date(),
           atualizado_em: new Date(),
         },
+        {
+          nome: 'Usuario comum',
+          usuario: 'comum',
+          senha: 'teste123',
+          admin: false,
+          ativo: true,
+          criado_em: new Date(),
+          atualizado_em: new Date(),
+        },
       ],
       {}
     );
