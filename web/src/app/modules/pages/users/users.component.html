@@ -4,62 +4,20 @@
 	<nz-page-header-extra>
 		<nz-space>
 			<button *nzSpaceItem nz-button nzType="primary" (click)="showModalEdit()"><span nz-icon nzType="plus" nzTheme="outline"></span>Cadastrar</button>
-			<button *nzSpaceItem nz-button nz-dropdown nzType="default" [nzDropdownMenu]="report">
-				Relatórios
-				<span nz-icon nzType="down"></span>
-			</button>
 		</nz-space>
-
-		<nz-dropdown-menu #report="nzDropdownMenu">
-			<ul nz-menu>
-				<li nz-menu-item>
-					<a (click)="getReport('departamento')" target="_blank">Por departamento</a>
-				</li>
-			</ul>
-		</nz-dropdown-menu>
 	</nz-page-header-extra>
 	<nz-page-header-content>
 		<form nz-row nzGutter="16" nzAlign="bottom" nz-form nzLayout="vertical" [formGroup]="validateForm" (ngSubmit)="submitForm()">
-			<div nz-col nzSm="24" nzMd="8" nzLg="8" nzXl="8" nzXXl="8">
+			<div nz-col nzSpan="20">
 				<nz-form-item>
 					<nz-form-label>Busca</nz-form-label>
 					<nz-form-control [nzValidateStatus]="getFormControlValidationStatus('busca')">
-						<input nz-input formControlName="busca" placeholder="Digite o nome, e-mail ou código do usuário" />
+						<input nz-input formControlName="busca" placeholder="Pesquise pelo nome ou usuário" />
 					</nz-form-control>
 				</nz-form-item>
 			</div>
 
-			<div nz-col nzSm="24" nzMd="6" nzLg="6">
-				<nz-form-item>
-					<nz-form-label>Cargo</nz-form-label>
-
-					<nz-form-control>
-						<nz-input-group style="border: 0; padding: 0">
-							<nz-select
-								nzMode="multiple"
-								nzPlaceHolder="Selecione o cargo"
-								nzAllowClear
-								nzShowSearch
-								nzServerSearch
-								formControlName="cargos"
-								(nzOnSearch)="onSearchOcupation($event)"
-							>
-								<ng-container *ngFor="let ocupation of ocupationsList">
-									<nz-option *ngIf="!isLoadingOcupation" [nzValue]="ocupation.id" [nzLabel]="ocupation.nome"></nz-option>
-								</ng-container>
-								<nz-option *ngIf="isLoadingOcupation" nzDisabled nzCustomContent>
-									<span nz-icon nzType="loading" class="loading-icon"></span>
-									Carregando os dados...
-								</nz-option>
-							</nz-select>
-						</nz-input-group>
-					</nz-form-control>
-
-					
-				</nz-form-item>
-			</div>
-
-			<div nz-col nzXs="16" nzSm="20" nzMd="4" nzLg="4">
+			<div nz-col nzSpan="4">
 				<nz-form-item>
 					<button nz-button nzType="primary">
 						<span nz-icon nzType="search"></span>
@@ -81,9 +39,7 @@
 			<thead>
 				<tr>
 					<th>Nome</th>
-					<th>E-mail</th>
-					<th>Cargo</th>
-					<th nzAlign="center">Carteira</th>
+					<th nzAlign="center">Automações</th>
 					<th nzAlign="center">Status</th>
 					<th nzAlign="center">Ações</th>
 				</tr>
@@ -91,17 +47,11 @@
 			<tbody>
 				<ng-container *ngFor="let data of usersTable.data">
 					<tr>
-						<td>{{ data.pessoa.nome }}</td>
-						<td [nzEllipsis]="true">{{ data.email }}</td>
-						<td [nzEllipsis]="true">
-							<ng-container *ngFor="let empresa of data.empresas">
-								{{ empresa.cargo?.nome }}
-							</ng-container>
-						</td>
+						<td>{{ data.nome }}</td>
 
 						<td nzAlign="center">
 							<button (click)="showModalLink(data)" nz-button nzType="primary" nzSize="small">
-								<span nz-icon nzType="lock" nzTheme="outline"></span>Carteira
+								<span nz-icon nzType="file-sync" nzTheme="outline"></span>Vincular
 							</button>
 						</td>
 
@@ -111,9 +61,9 @@
 						</td>
 
 						<td nzAlign="center">
-							<a (click)="showModalInfo(data.uuid)"><span nz-icon nzType="eye" nzTheme="outline"></span></a>
+							<a (click)="showModalInfo(data.id)"><span nz-icon nzType="eye" nzTheme="outline"></span></a>
 							<nz-divider nzType="vertical"></nz-divider>
-							<a (click)="showModalEdit(data.uuid)"><span nz-icon nzType="edit" nzTheme="outline"></span></a>
+							<a (click)="showModalEdit(data.id)"><span nz-icon nzType="edit" nzTheme="outline"></span></a>
 						</td>
 					</tr>
 				</ng-container>

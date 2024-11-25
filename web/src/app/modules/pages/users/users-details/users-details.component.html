@@ -3,81 +3,33 @@
 		<div nz-row nzGutter="8">
 			<div nz-col nzSpan="12">
 				<h4>Nome do Usuário</h4>
-				<p>{{ details?.pessoa?.nome }}</p>
-			</div>
-
-			<div nz-col nzSpan="12">
-				<h4>Cargos</h4>
-
-				<ng-container *ngFor="let empresa of details?.empresas">
-					<p>{{ empresa.cargo?.nome }}</p>
-				</ng-container>
+				<p>{{ details?.nome }}</p>
 			</div>
 		</div>
 	</div>
 
 	<div nz-col nzSpan="12">
-		<h4>Email</h4>
+		<h4>Usuário</h4>
 		<p>
-			{{ details?.email }}
-			<a nz-button nzType="link" (click)="copy(details?.email)" nz-tooltip="Clique para copiar o e-mail"
-				><span style="margin-left: 4px; font-size: 0.875rem" nz-icon nzType="copy" nzTheme="outline"></span
-			></a>
+			{{ details?.usuario }}
 		</p>
 	</div>
 
-	<div *ngIf="details && details.empresas[0].tipo_usuario" nz-col nzSpan="12">
+	<div nz-col nzSpan="12">
 		<h4>Tipo</h4>
 		<p>
-			{{ details.empresas[0].tipo_usuario === 1 ? 'Padrão' : 'Motoboy' }}
+			{{ details?.admin ? 'Administrador' : 'Usuário comum' }}
 		</p>
 	</div>
 
-	@for(contact of details?.pessoa?.contatos; track contact.contato) {
-		@if(validateCelphoneContactType(contact.tipo)) {
-			<div nz-col nzSpan="12">
-				<h4>Telefone</h4>
-				<p>
-					{{ contact?.contato || '' | mask : '(00) 00000-0000' }}
-					<a nz-button nzType="link" (click)="copy(contact?.contato)" nz-tooltip="Clique para copiar o número do telefone">
-						<span style="margin-left: 4px; font-size: 0.875rem" nz-icon nzType="copy" nzTheme="outline"></span>
-					</a>
-				</p>
-			</div>
-		}
-		
-		@if(validateWhatsappContactType(contact.tipo)) {
-			<div nz-col nzSpan="12">
-				<h4>WhatsApp</h4>
-				<p>
-					{{ contact?.contato || '' | mask : '(00) 00000-0000' }}
-					<a nz-button nzType="link" (click)="copy(contact?.contato)" nz-tooltip="Clique para copiar o número do whatsapp">
-						<span style="margin-left: 4px; font-size: 0.875rem" nz-icon nzType="copy" nzTheme="outline"></span>
-					</a>
-				</p>
-			</div>
-		}
-		
-		@if(validateRamalContactType(contact.tipo)) {
-			<div nz-col nzSpan="12">
-				<h4>Ramal</h4>
-				<p>
-					{{ contact?.contato || 'Não informado' }}
-				</p>
-			</div>
-		} 
-	}
-
-	<div nz-col nzSpan="24">
-		<h4>Departamentos</h4>
-		<ng-container *ngIf="!details?.departamentos?.length">
-			<p>Não possui departamento</p>
-		</ng-container>
-
-		<ng-container *ngIf="details?.departamentos?.length">
-			<ng-container *ngFor="let departamento of details?.departamentos">
-				<p>{{ departamento.departamento.nome }} ({{ departamento.departamento.filial.nome }})</p>
-			</ng-container>
-		</ng-container>
+	<div nz-col nzSpan="12">
+		<h4>Status</h4>
+		<p>
+			@if (details?.ativo) {
+				<nz-tag nzColor="success">Ativo</nz-tag>
+			} @else {
+				<nz-tag nzColor="default" nzMode="default">Inativo</nz-tag>
+			}
+		</p>
 	</div>
 </div>

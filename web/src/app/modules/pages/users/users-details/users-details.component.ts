@@ -25,29 +25,10 @@ export class UsersDetailsComponent implements OnInit {
 	}
 
 	getUser(id: number) {
-		this.api.get(`/users/${id}`).subscribe({
+		this.api.get(`/usuarios/${id}`).subscribe({
 			next: (res: DefaultResponse<Usuario>) => {
 				this.details = res.data;
 			},
 		});
-	}
-
-	copy(value?: string) {
-		if (!value) return;
-
-		navigator.clipboard.writeText(value);
-		this.messageService.success('Copiado com sucesso!');
-	}
-
-	validateCelphoneContactType(type: number) {
-		return type === ContactType.TELEFONE;
-	}
-
-	validateWhatsappContactType(type: number) {
-		return type === ContactType.WHATSAPP;
-	}
-
-	validateRamalContactType(type: number) {
-		return type === ContactType.RAMAL;
 	}
 }

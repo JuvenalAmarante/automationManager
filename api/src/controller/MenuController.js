@@ -68,13 +68,6 @@ class MenuController {
           label: 'Usuarios',
           icon: '',
         },
-        {
-          item_id: 10,
-          url: 'permissoes',
-          target: '_blank',
-          label: 'Permissões',
-          icon: '',
-        },
       ],
     },
   ];

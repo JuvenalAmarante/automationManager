@@ -1,14 +1,13 @@
 const { Router } = require('express');
 
+const verificarAutenticacao = require('./middlewares/verificarAutenticacao');
+const verificarAdmin = require('./middlewares/verificarAdmin');
+
+const MenuController = require('./controller/MenuController');
+const UsuarioController = require('./controller/UsuarioController');
 const AutomacaoController = require('./controller/AutomacaoController');
 const AgendamentoController = require('./controller/AgendamentoController');
 const AutenticacaoController = require('./controller/AutenticacaoController');
-
-const verificarAutenticacao = require('./middlewares/verificarAutenticacao');
-const UsuarioController = require('./controller/UsuarioController');
-const MenuController = require('./controller/MenuController');
-const PermissaoController = require('./controller/PermissaoController');
-const verificarAdmin = require('./middlewares/verificarAdmin');
 const TipoAgendamentoController = require('./controller/TipoAgendamentoController');
 
 const router = Router();
@@ -19,15 +18,12 @@ router.post('/login', AutenticacaoController.login);
 // Menus
 router.get('/menus', verificarAutenticacao, MenuController.listar);
 
-// Menus
-router.get(
-  '/permissoes/validar',
-  verificarAutenticacao,
-  PermissaoController.validar
-);
-
 // Perfil
-router.get('/perfil', verificarAutenticacao, UsuarioController.listarDetalhes);
+router.get(
+  '/perfil',
+  verificarAutenticacao,
+  UsuarioController.listarDetalhesUsuarioLogado
+);
 
 // Agendamentos
 router.post(
@@ -104,6 +100,32 @@ router.delete(
   verificarAutenticacao,
   verificarAdmin,
   AutomacaoController.deletar
+);
+
+// Usuários
+router.post(
+  '/usuarios',
+  verificarAutenticacao,
+  verificarAdmin,
+  UsuarioController.criar
+);
+router.get(
+  '/usuarios',
+  verificarAutenticacao,
+  verificarAdmin,
+  UsuarioController.listar
+);
+router.get(
+  '/usuarios/:id',
+  verificarAutenticacao,
+  verificarAdmin,
+  UsuarioController.listarDetalhes
+);
+router.patch(
+  '/usuarios/:id',
+  verificarAutenticacao,
+  verificarAdmin,
+  UsuarioController.atualizar
 );
 
 // Parâmetros

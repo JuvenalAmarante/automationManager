@@ -22,18 +22,8 @@ export class UsersCreateComponent implements OnInit {
 	nzData: data = inject(NZ_MODAL_DATA);
 	modalRef: NzModalRef = inject(NzModalRef);
 
-	isLoadingOcupation: boolean = false;
-	isLoadingDepartment: boolean = false;
-
-	hasPermissionOcupation: boolean = false;
-	hasPermissionDepartment: boolean = false;
-
 	errorList: string[] = [];
 
-	ocupationsList: Cargo[] = [];
-	departmentsList: Departamentos[] = [];
-	savedDepartmentsList: number[] = [];
-	canSelectAllDepartments = false;
 	userPattern = new RegExp('[a-zA-Z]');
 	isLoading = false;
 	passwordVisible = false;
@@ -42,47 +32,27 @@ export class UsersCreateComponent implements OnInit {
 		private readonly fb: UntypedFormBuilder,
 		private readonly api: ApiService,
 		private readonly maskService: NgxMaskService,
-		private readonly modalService: NzModalService,
-		private readonly permissionService: PermissionValidateService,
 	) {
 		this.userForm = fb.group({
-			email: [null, [Validators.required, Validators.email]],
 			nome: [null, Validators.required],
-			username: [null, Validators.required],
-			password: [null],
-			telefone: [null],
-			whatsapp: [null],
-			ramal: [null],
-			acessa_todos_departamentos: [false],
-			cargo_id: [null, Validators.required],
-			departamentos: [null],
+			usuario: [null, Validators.required],
+			senha: [null],
+			admin: [false, [Validators.required]],
 			ativo: [true, [Validators.required]],
 		});
 	}
 
 	ngOnInit() {
-		this.hasPermissions();
-		this.onSearchOcupation();
-		this.onSearchDepartments();
-
 		if (this.nzData?.userId) {
 			this.getUser(this.nzData?.userId);
-			this.userForm.get('password')?.removeValidators(Validators.required);
+			this.userForm.get('senha')?.removeValidators(Validators.required);
 		}
-
-		if (this.nzData?.isBiker) {
-			this.userForm.patchValue({
-				tipo_usuario: 2,
-			});
-		}
-
-		this.updateProfilePermissions();
 	}
 
 	getUser(id: number) {
 		this.isLoading = true;
 		this.api
-			.get(`/users/${id}`)
+			.get(`/usuarios/${id}`)
 			.pipe(
 				finalize(() => {
 					this.isLoading = false;
@@ -90,31 +60,11 @@ export class UsersCreateComponent implements OnInit {
 			)
 			.subscribe({
 				next: (res: DefaultResponse<Usuario>) => {
-					this.savedDepartmentsList = res.data.departamentos.map((departamento) => departamento.departamento_id);
-
 					this.userForm?.patchValue({
-						email: res.data.email,
-						nome: res.data.pessoa.nome,
-						username: res.data.username,
-						cargo_id: res.data.empresas[0].cargo?.id || null,
-						tipo_usuario: res.data.empresas[0].tipo_usuario,
-						acessa_todos_departamentos: res.data.acessa_todos_departamentos,
-						departamentos: this.savedDepartmentsList,
+						nome: res.data.nome,
+						usuario: res.data.usuario,
+						admin: res.data.admin,
 						ativo: res.data.ativo,
-					});
-
-					res.data.pessoa.contatos.forEach((item) => {
-						if (item.tipo === ContactType.WHATSAPP) {
-							this.userForm.patchValue({ whatsapp: this.maskService.applyMask(item.contato, '(00)00000-0000 || (00)0000-0000') });
-						}
-
-						if (item.tipo === ContactType.TELEFONE) {
-							this.userForm.patchValue({ telefone: this.maskService.applyMask(item.contato, '(00)00000-0000 || (00)0000-0000') });
-						}
-
-						if (item.tipo === ContactType.RAMAL) {
-							this.userForm.patchValue({ ramal: item.contato });
-						}
 					});
 
 					this.isLoading = false;
@@ -136,59 +86,16 @@ export class UsersCreateComponent implements OnInit {
 		}
 	}
 
-	onSearchOcupation(busca?: string) {
-		debounce(() => {
-			this.isLoadingOcupation = true;
-			this.api
-				.get(`/ocupations/active`, {
-					busca: busca || '',
-				})
-				.subscribe({
-					next: (res: DefaultResponse<Cargo[]>) => {
-						this.ocupationsList = res.data;
-					},
-					error: () => {
-						this.isLoadingOcupation = false;
-					},
-					complete: () => {
-						this.isLoadingOcupation = false;
-					},
-				});
-		}, 1);
-	}
-
-	updateOcupationList = () => this.onSearchOcupation();
-
-	updateProfilePermissions() {
-		this.api.get('/perfil').subscribe({
-			next: (
-				res: DefaultResponse<{
-					nome: string;
-					empresa: string;
-					acessa_todos_departamentos: boolean;
-				}>,
-			) => {
-				if (res.data.acessa_todos_departamentos) {
-					this.canSelectAllDepartments = true;
-				}
-			},
-		});
-	}
-
 	createUser() {
-		if (!this.userForm.get('password')?.value) {
-			this.userForm.get('password')?.setValidators(Validators.required);
-			this.userForm.get('password')?.updateValueAndValidity();
+		if (!this.userForm.get('senha')?.value) {
+			this.userForm.get('senha')?.setValidators(Validators.required);
+			this.userForm.get('senha')?.updateValueAndValidity();
 
 			return;
 		}
 		this.api
-			.post('/users', {
-				departamentos: [],
+			.post('/usuarios', {
 				...this.userForm?.value,
-				tipo_usuario: this.nzData.isBiker ? 2 : this.userForm.get('tipo_usuario')?.value,
-				whatsapp: this.maskService.removeMask(this.userForm.get('whatsapp')?.value),
-				telefone: this.maskService.removeMask(this.userForm.get('telefone')?.value),
 			})
 			.subscribe({
 				next: () => {
@@ -203,10 +110,8 @@ export class UsersCreateComponent implements OnInit {
 
 	updateUser(id: number) {
 		this.api
-			.patch(`/users/${id}`, {
+			.patch(`/usuarios/${id}`, {
 				...this.userForm?.value,
-				whatsapp: this.maskService.removeMask(this.userForm.get('whatsapp')?.value),
-				telefone: this.maskService.removeMask(this.userForm.get('telefone')?.value),
 			})
 			.subscribe({
 				next: () => {
@@ -219,47 +124,9 @@ export class UsersCreateComponent implements OnInit {
 			});
 	}
 
-	onSearchDepartments(value: string = '') {
-		debounce(() => {
-			this.isLoadingDepartment = true;
-			this.api.post(`/departments/list`, { busca: value }).subscribe({
-				next: (res: DefaultResponse<Departamentos[]>) => {
-					this.departmentsList = res.data;
-				},
-				error: () => {
-					this.isLoadingDepartment = false;
-				},
-				complete: () => {
-					this.isLoadingDepartment = false;
-				},
-			});
-		}, 2);
-	}
-
-	hasPermissions() {
-		this.permissionService.validate(
-			'cargos-cadastrar',
-			() => {
-				this.hasPermissionOcupation = true;
-			},
-			() => {},
-			false,
-		);
-		this.permissionService.validate(
-			'departamentos-cadastrar',
-			() => {
-				this.hasPermissionDepartment = true;
-			},
-			() => {},
-			false,
-		);
-	}
-
 	closeErrorAlert(error: string) {
 		this.errorList = this.errorList.filter((err) => err !== error);
 	}
-
-	updateDepartmentsList = () => this.onSearchDepartments();
 
 	closeModal() {
 		this.modalRef.close();

@@ -5,7 +5,6 @@ import { ApiService } from 'src/app/core/services/api.service';
 import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
 import { debounce, normalizeParams } from 'src/app/shared/helpers';
 import { Cargo, DefaultResponse, Usuario } from 'src/app/shared/types';
-import { UsersCondominiumsComponent } from './users-condominiums/users-condominiums.component';
 import { UsersCreateComponent } from './users-create/users-create.component';
 import { UsersDetailsComponent } from './users-details/users-details.component';
 
@@ -29,8 +28,6 @@ export class UsersComponent implements OnInit {
 	) {
 		this.validateForm = fb.group({
 			busca: [null],
-			cargos: [null],
-			departamentos: [null],
 		});
 	}
 
@@ -50,29 +47,6 @@ export class UsersComponent implements OnInit {
 		return control?.dirty && control?.errors ? 'error' : '';
 	}
 
-	onSearchOcupation(busca: string) {
-		this.isLoadingOcupation = true;
-
-		debounce(() => {
-			this.ocupationsList = [];
-			this.api
-				.get(`/ocupations/active`, {
-					busca,
-				})
-				.subscribe({
-					next: (res: DefaultResponse<Cargo[]>) => {
-						this.ocupationsList = res.data;
-					},
-					error: () => {
-						this.isLoadingOcupation = false;
-					},
-					complete: () => {
-						this.isLoadingOcupation = false;
-					},
-				});
-		});
-	}
-
 	submitForm() {
 		this.indexPage = 1;
 		this.totalRegistros = 0;
@@ -81,7 +55,7 @@ export class UsersComponent implements OnInit {
 
 	getUsers(page: number = this.indexPage) {
 		this.isLoading = true;
-		this.api.post(`/users/list?page=${page}`, normalizeParams(this.validateForm.value)).subscribe({
+		this.api.get(`/usuarios?pagina=${page}`, normalizeParams(this.validateForm.value)).subscribe({
 			next: (res: DefaultResponse<Usuario[]>) => {
 				if (page > 1) {
 					this.page[page] = res.data;
@@ -101,64 +75,51 @@ export class UsersComponent implements OnInit {
 		});
 	}
 
-	showModalInfo(id?: string): void {
-		this.permissionService.validate('usuarios-exibir-dados', () => {
-			this.modalServices.info({
-				nzContent: UsersDetailsComponent,
-				nzTitle: `Dados do Usuário`,
-				nzWidth: '40%',
-				nzData: {
-					isModal: true,
-					userId: id,
-				},
-			});
-
-			this.modalServices.afterAllClose.subscribe(() => this.getUsers());
+	showModalInfo(id?: number): void {
+		this.modalServices.info({
+			nzContent: UsersDetailsComponent,
+			nzTitle: `Dados do Usuário`,
+			nzWidth: '40%',
+			nzData: {
+				isModal: true,
+				userId: id,
+			},
 		});
 	}
 
-	showModalEdit(id?: string): void {
-		this.permissionService.validate(id ? 'usuarios-atualizar-dados' : 'usuarios-cadastrar', () => {
-			this.modalServices.create({
-				nzContent: UsersCreateComponent,
-				nzTitle: `${id ? 'Editar' : 'Novo'} Usuário`,
-				nzWidth: '60%',
-				nzData: {
-					isModal: true,
-					userId: id,
-				},
-				nzFooter: null,
-			});
-
-			this.modalServices.afterAllClose.subscribe(() => this.getUsers());
+	showModalEdit(id?: number): void {
+		this.modalServices.create({
+			nzContent: UsersCreateComponent,
+			nzTitle: `${id ? 'Editar' : 'Novo'} Usuário`,
+			nzWidth: '60%',
+			nzData: {
+				isModal: true,
+				userId: id,
+			},
+			nzFooter: null,
 		});
+
+		this.modalServices.afterAllClose.subscribe(() => this.getUsers());
 	}
 
 	showModalLink(user?: Usuario): void {
-		this.permissionService.validate('usuarios-limitar-acesso-condominios', () => {
-			this.modalServices.create({
-				nzContent: UsersCondominiumsComponent,
-				nzTitle: `Carteira de condomínios - ${user?.pessoa.nome}`,
-				nzBodyStyle: {
-					maxHeight: '80vh',
-					overflow: 'auto',
-				},
-				nzCentered: true,
-				nzWidth: '70%',
-				nzData: {
-					isModal: true,
-					userId: user?.uuid,
-				},
-				nzOkText: 'Salvar',
-			});
-
-			this.modalServices.afterAllClose.subscribe(() => this.getUsers());
+		this.modalServices.create({
+			nzContent: 'UsersCondominiumsComponent',
+			nzTitle: `Carteira de condomínios - ${user?.nome}`,
+			nzBodyStyle: {
+				maxHeight: '80vh',
+				overflow: 'auto',
+			},
+			nzCentered: true,
+			nzWidth: '70%',
+			nzData: {
+				isModal: true,
+				userId: user?.id,
+			},
+			nzOkText: 'Salvar',
 		});
-	}
 
-	getReport(path: string) {
-		localStorage.setItem('reportUserParams', JSON.stringify(this.validateForm.value));
-		window.open('/relatorios/usuario/' + path, '_blank');
+		this.modalServices.afterAllClose.subscribe(() => this.getUsers());
 	}
 
 	paginate(index: number) {

@@ -62,39 +62,6 @@ export class User extends BaseType {
 	ativo?: boolean;
 }
 
-export class Usuario extends BaseType {
-	acessa_todos_departamentos!: boolean;
-	email!: string;
-	username!: string;
-	password?: string;
-	uuid!: string;
-	pessoa!: {
-		nome: string;
-		contatos: {
-			contato: string;
-			tipo: number;
-			observacao?: string;
-		}[];
-	};
-	empresas!: {
-		empresa_id: number;
-		cargo?: Cargo;
-		tipo_usuario: number;
-	}[];
-	departamentos!: {
-		departamento_id: number;
-		departamento: {
-			id?: number;
-			nome: string;
-			filial: {
-				id: number;
-				nome: string;
-			};
-		};
-	}[];
-	ativo?: boolean;
-}
-
 export class ContatoUsuario {
 	tipo!: number;
 	contato!: string;
@@ -1267,3 +1234,11 @@ export type Agendamento = {
 	criado_em: Date;
 	atualizado_em: Date;
 };
+
+export type Usuario = {
+	id: number;
+	nome: string;
+	usuario: string;
+	admin: boolean;
+	ativo: boolean;
+}
