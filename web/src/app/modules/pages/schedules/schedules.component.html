@@ -23,8 +23,10 @@
 						<td>{{ data.id }}</td>
 						<td>{{ data.Automacao.nome }}</td>
 						<td>{{ data.TipoAgendamento.nome }}</td>
-						<td nzAlign="center">{{ data.proxima_execucao | date : 'dd/MM/yyyy HH:mm' }}</td>
+						<td nzAlign="center">{{ data.proxima_execucao | date: 'dd/MM/yyyy HH:mm' }}</td>
 						<td nzAlign="center">
+							<a nz-button nzType="link" [routerLink]="['editar/' + data.id]"><span nz-icon nzType="edit" nzTheme="outline"></span></a>
+							<nz-divider nzType="vertical"></nz-divider>
 							<a
 								nz-button
 								nzType="link"

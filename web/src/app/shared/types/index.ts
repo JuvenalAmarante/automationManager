@@ -1,4 +1,3 @@
-import { ProtocolDocumentHistoryComponent } from 'src/app/shared/components/protocol-document-history/protocol-document-history.component';
 import { HttpParams } from '@angular/common/http';
 import {
 	ApexAxisChartSeries,
@@ -1234,6 +1233,12 @@ export type Automacao = {
 	id: number;
 	nome: string;
 	arquivo: string;
+	parametros?: {
+		id: number;
+		nome: string;
+		tipo_parametro_id: number;
+		qtd_digitos?: number;
+	}[];
 	criado_em: Date;
 	atualizado_em: Date;
 };
@@ -1256,6 +1261,7 @@ export type Agendamento = {
 	id: number;
 	Automacao: Automacao;
 	TipoAgendamento: TipoAgendamento;
+	parametros?: Record<string, any>[];
 	horario: string;
 	proxima_execucao: Date;
 	criado_em: Date;

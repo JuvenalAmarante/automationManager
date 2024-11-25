@@ -197,10 +197,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: { model: 'agendamentos', key: 'id' },
       },
-      parametro_automacao_id: {
-        type: Sequelize.INTEGER,
-        references: { model: 'parametros_automacoes', key: 'id' },
-      },
       valor: {
         type: Sequelize.STRING,
         allowNull: false,

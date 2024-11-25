@@ -28,7 +28,6 @@ TipoAgendamento.hasMany(Agendamento)
 Automacao.hasMany(Agendamento);
 Automacao.hasMany(ParametroAutomacao);
 
-ParametroAutomacao.hasMany(ParametroAgendamento);
 ParametroAutomacao.belongsTo(TipoParametro, {
   foreignKey: {
     name: 'tipo_parametro_id',
@@ -54,11 +53,6 @@ Agendamento.belongsTo(TipoAgendamento, {
 ParametroAgendamento.belongsTo(Agendamento, {
   foreignKey: {
     name: 'agendamento_id',
-  },
-});
-ParametroAgendamento.belongsTo(ParametroAutomacao, {
-  foreignKey: {
-    name: 'parametro_automacao_id',
   },
 });
 

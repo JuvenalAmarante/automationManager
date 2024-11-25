@@ -12,6 +12,10 @@ const routes: Routes = [
 		path: 'criar',
 		component: SchedulesCreateComponent,
 	},
+	{
+		path: 'editar/:id',
+		component: SchedulesCreateComponent,
+	},
 ];
 
 @NgModule({

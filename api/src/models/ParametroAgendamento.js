@@ -6,7 +6,6 @@ class ParametroAgendamento extends Model {
       {
         valor: DataTypes.STRING,
         agendamento_id: DataTypes.INTEGER,
-        parametro_automacao_id: DataTypes.INTEGER,
       },
       {
         sequelize,

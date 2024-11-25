@@ -5,43 +5,15 @@ import { EditorModule } from '@tinymce/tinymce-angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { NgxEditorModule } from 'ngx-editor';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
-import { BarChartComponent } from './components/charts/bar-chart/bar-chart.component';
-import { DonutChartComponent } from './components/charts/donut-chart/donut-chart.component';
-import { EditorFormInputComponent } from './components/editor-form-input/editor-form-input.component';
-import { EditorComponent } from './components/editor/editor.component';
-import { FileViewerItemListComponent } from './components/file-viewer-item-list/file-viewer-item-list.component';
-import { LayoutEditorComponent } from './components/layout-editor/layout-editor.component';
-import { LayoutViewerComponent } from './components/layout-viewer/layout-viewer.component';
 import { LinkButtonComponent } from './components/link-button/link-button.component';
-import { ListResponsaveisComponent } from './components/list-responsaveis/list-responsaveis.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { ModalConfirmationComponent } from './components/modal-confirmation/modal-confirmation.component';
-import { ProtocolDocumentHistoryComponent } from './components/protocol-document-history/protocol-document-history.component';
-import { UploadFileComponent } from './components/upload-file/upload-file.component';
 import { NgZorroModule } from './ng-zorro.module';
 import { SafeHTMLPipe } from './pipes/safeHTML.pipe';
 import { CopyLinkComponent } from './components/copy-link/copy-link.component';
-import { CreateCustomFieldsComponent } from '../modules/pages/custom-forms/create-custom-fields/create-custom-fields.component';
 
 @NgModule({
-	declarations: [
-		EditorComponent,
-		UploadFileComponent,
-		ListResponsaveisComponent,
-		LinkButtonComponent,
-		LayoutEditorComponent,
-		LoaderComponent,
-		LayoutViewerComponent,
-		SafeHTMLPipe,
-		EditorFormInputComponent,
-		FileViewerItemListComponent,
-		ModalConfirmationComponent,
-		ProtocolDocumentHistoryComponent,
-		DonutChartComponent,
-		BarChartComponent,
-		CopyLinkComponent,
-		CreateCustomFieldsComponent,
-	],
+	declarations: [LinkButtonComponent, LoaderComponent, SafeHTMLPipe, ModalConfirmationComponent, CopyLinkComponent],
 	imports: [
 		CommonModule,
 		FormsModule,
@@ -89,22 +61,7 @@ import { CreateCustomFieldsComponent } from '../modules/pages/custom-forms/creat
 			},
 		}),
 	],
-	exports: [
-		EditorComponent,
-		UploadFileComponent,
-		ListResponsaveisComponent,
-		NgxMaskDirective,
-		NgxMaskPipe,
-		LinkButtonComponent,
-		LayoutEditorComponent,
-		SafeHTMLPipe,
-		EditorFormInputComponent,
-		FileViewerItemListComponent,
-		ProtocolDocumentHistoryComponent,
-		DonutChartComponent,
-		BarChartComponent,
-		CopyLinkComponent,
-	],
+	exports: [NgxMaskDirective, NgxMaskPipe, LinkButtonComponent, SafeHTMLPipe, CopyLinkComponent],
 	providers: [provideNgxMask()],
 })
 export class SharedModule {}

@@ -104,39 +104,6 @@ class AgendamentoController {
     const transaction = await connection.transaction();
 
     try {
-      if (parametros) {
-        let contador = 0;
-
-        for await (const parametro of parametros) {
-          if (!parametro.valor || !parametro.parametro_automacao_id) break;
-
-          if (
-            parametros.find(
-              (item, index) =>
-                item.parametro_automacao_id ==
-                  parametro.parametro_automacao_id && index != contador
-            )
-          )
-            break;
-
-          const parametroAutomacao = await ParametroAutomacao.findByPk(
-            parametro.parametro_automacao_id,
-            {
-              transaction,
-            }
-          );
-
-          if (!parametroAutomacao) break;
-
-          contador++;
-        }
-
-        if (contador != parametros.length)
-          return res
-            .status(400)
-            .json({ success: false, message: 'Parâmetros inválidos' });
-      }
-
       const automacao = await Automacao.findByPk(automacao_id, {
         transaction,
       });
@@ -150,15 +117,69 @@ class AgendamentoController {
         where: {
           automacao_id: automacao.id,
         },
+        transaction,
       });
 
-      if (
-        listaParametros.length &&
-        parametros?.length != listaParametros.length
-      )
-        return res
-          .status(400)
-          .json({ success: false, message: 'Os parâmetros são obrigatórios' });
+      if (listaParametros.length && !parametros?.length)
+        return res.status(400).json({
+          success: false,
+          message: 'Os parâmetros são obrigatórios',
+        });
+
+      if (parametros) {
+        let contador = 0;
+
+        for await (const parametro of parametros) {
+          let validacao = true;
+
+          for await (const parametroSalvo of listaParametros) {
+            if (parametro[parametroSalvo.dataValues.nome] == null) {
+              validacao = false;
+              break;
+            }
+
+            if (parametroSalvo.dataValues.id == 2) {
+              parametro[parametroSalvo.dataValues.nome] = (
+                '0'.repeat(parametroSalvo.dataValues.qtd_digitos) +
+                parametro[parametroSalvo.dataValues.nome]
+              ).slice(-parametroSalvo.dataValues.qtd_digitos);
+            }
+
+            if ([3, 4, 5].includes(parametroSalvo.dataValues.id)) {
+              const date = new Date(parametro[parametroSalvo.dataValues.nome]);
+
+              const dia = date.getDate();
+              const mes = date.getMonth() + 1;
+              const ano = date.getFullYear();
+
+              switch (parametroSalvo.dataValues.id) {
+                case 3:
+                  parametro[
+                    parametroSalvo.dataValues.nome
+                  ] = `${dia}/${mes}/${ano}`;
+                  break;
+
+                case 4:
+                  parametro[parametroSalvo.dataValues.nome] = `${dia}/${mes}`;
+                  break;
+
+                case 5:
+                  parametro[parametroSalvo.dataValues.nome] = `${mes}/${ano}`;
+                  break;
+              }
+            }
+          }
+
+          if (!validacao) break;
+
+          contador++;
+        }
+
+        if (contador != parametros.length)
+          return res
+            .status(400)
+            .json({ success: false, message: 'Parâmetros inválidos' });
+      }
 
       let horarioFormatado = ``;
 
@@ -203,9 +224,8 @@ class AgendamentoController {
         for await (const parametro of parametros) {
           const parametroSalvo = await ParametroAgendamento.create(
             {
-              valor: parametro.valor,
-              agendamento_id: agendamento.id,
-              parametro_automacao_id: parametro.parametro_automacao_id,
+              valor: JSON.stringify(parametro),
+              agendamento_id: agendamento.dataValues.id,
             },
             {
               transaction,
@@ -263,12 +283,10 @@ class AgendamentoController {
 
       await transaction.commit();
 
-      res
-        .status(201)
-        .json({
-          success: true,
-          data: { ...agendamento.dataValues, parametros: parametrosSalvos },
-        });
+      res.status(201).json({
+        success: true,
+        data: { ...agendamento.dataValues, parametros: parametrosSalvos },
+      });
     } catch (error) {
       await transaction.rollback();
 
@@ -317,6 +335,9 @@ class AgendamentoController {
           {
             model: Automacao,
           },
+          {
+            model: TipoAgendamento,
+          },
         ],
       });
 
@@ -325,13 +346,72 @@ class AgendamentoController {
           .status(400)
           .json({ success: false, message: 'Agendamento não encontrado' });
 
-      const parametros = await ParametroAgendamento.findAll({
+      const listaParametros = await ParametroAutomacao.findAll({
+        where: {
+          automacao_id: agendamento.Automacao.id,
+        },
+      });
+
+      const parametrosSalvos = await ParametroAgendamento.findAll({
         where: {
           agendamento_id: id,
         },
       });
 
-      res.status(200).json({success: true, data: { ...agendamento.dataValues, parametros }});
+      const parametros = parametrosSalvos.map((parametro) => {
+        const dados = JSON.parse(parametro.dataValues.valor);
+
+        for (const parametroCadastrado of listaParametros) {
+          if (parametroCadastrado.dataValues.id == 2) {
+            dados[parametroCadastrado.dataValues.nome] = parseInt(
+              dados[parametroCadastrado.dataValues.nome]
+            );
+          }
+
+          if ([3, 4, 5].includes(parametroCadastrado.dataValues.id)) {
+            const date = dados[parametroCadastrado.dataValues.nome].split('/');
+
+            switch (parametroCadastrado.dataValues.id) {
+              case 3:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  date[2],
+                  date[1] - 1,
+                  date[0]
+                );
+                break;
+
+              case 4:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  new Date().getFullYear(),
+                  date[1] - 1,
+                  date[0]
+                );
+                break;
+
+              case 5:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  date[1],
+                  date[0] - 1,
+                  15
+                );
+                break;
+            }
+          }
+        }
+
+        return dados;
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          ...agendamento.dataValues,
+          proxima_execucao: parser
+            .parseExpression(agendamento.dataValues.horario)
+            .next(),
+          parametros,
+        },
+      });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -365,11 +445,248 @@ class AgendamentoController {
         },
       });
 
-      res.status(200).json({success: true, data: logs});
+      res.status(200).json({ success: true, data: logs });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
   }
+
+  atualizar = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Agendamento não encontrado' });
+
+    const { automacao_id, horario, tipo_id, parametros } = req.body;
+
+    if (
+      !automacao_id ||
+      !horario ||
+      !tipo_id ||
+      (parametros && !Array.isArray(parametros))
+    )
+      return res
+        .status(400)
+        .json({ success: false, message: 'Campos inválidos' });
+
+    const transaction = await connection.transaction();
+
+    try {
+      let agendamento = await Agendamento.findByPk(id, {
+        include: [
+          {
+            model: Automacao,
+          },
+        ],
+        transaction,
+      });
+
+      if (!agendamento)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Agendamento não encontrado' });
+
+      const automacao = await Automacao.findByPk(automacao_id, {
+        transaction,
+      });
+
+      if (!automacao)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
+
+      const listaParametros = await ParametroAutomacao.findAll({
+        where: {
+          automacao_id: automacao.id,
+        },
+        transaction,
+      });
+
+      if (listaParametros.length && !parametros?.length)
+        return res.status(400).json({
+          success: false,
+          message: 'Os parâmetros são obrigatórios',
+        });
+
+      if (parametros) {
+        let contador = 0;
+
+        for await (const parametro of parametros) {
+          let validacao = true;
+
+          for await (const parametroSalvo of listaParametros) {
+            if (parametro[parametroSalvo.dataValues.nome] == null) {
+              validacao = false;
+              break;
+            }
+
+            if (parametroSalvo.dataValues.id == 2) {
+              parametro[parametroSalvo.dataValues.nome] = (
+                '0'.repeat(parametroSalvo.dataValues.qtd_digitos) +
+                parametro[parametroSalvo.dataValues.nome]
+              ).slice(-parametroSalvo.dataValues.qtd_digitos);
+            }
+
+            if ([3, 4, 5].includes(parametroSalvo.dataValues.id)) {
+              const date = new Date(parametro[parametroSalvo.dataValues.nome]);
+
+              const dia = date.getDate();
+              const mes = date.getMonth() + 1;
+              const ano = date.getFullYear();
+
+              switch (parametroSalvo.dataValues.id) {
+                case 3:
+                  parametro[
+                    parametroSalvo.dataValues.nome
+                  ] = `${dia}/${mes}/${ano}`;
+                  break;
+
+                case 4:
+                  parametro[parametroSalvo.dataValues.nome] = `${dia}/${mes}`;
+                  break;
+
+                case 5:
+                  parametro[parametroSalvo.dataValues.nome] = `${mes}/${ano}`;
+                  break;
+              }
+            }
+          }
+
+          if (!validacao) break;
+
+          contador++;
+        }
+
+        if (contador != parametros.length)
+          return res
+            .status(400)
+            .json({ success: false, message: 'Parâmetros inválidos' });
+      }
+
+      let horarioFormatado = ``;
+
+      const date = new Date(horario);
+
+      const minutes = date.getMinutes();
+      const hours = date.getHours();
+      const days = date.getDate();
+      const months = date.getMonth() + 1;
+      const dayOfWeek = date.getDay();
+
+      switch (tipo_id) {
+        case 1:
+          horarioFormatado = `${minutes} ${hours} ${days} ${months} *`;
+          break;
+        case 2:
+          horarioFormatado = `${minutes} ${hours} * * *`;
+          break;
+        case 3:
+          horarioFormatado = `${minutes} ${hours} * * ${dayOfWeek}`;
+          break;
+        case 4:
+          horarioFormatado = `${minutes} ${hours} ${days} * *`;
+          break;
+      }
+
+      await Agendamento.update(
+        {
+          automacao_id,
+          tipo_agendamento_id: tipo_id,
+          horario: horarioFormatado,
+          ativo: true,
+        },
+        {
+          where: {
+            id,
+          },
+          transaction,
+        }
+      );
+
+      await ParametroAgendamento.destroy({
+        where: {
+          agendamento_id: id,
+        },
+        transaction,
+      });
+
+      let parametrosSalvos = [];
+
+      if (parametros) {
+        for await (const parametro of parametros) {
+          const parametroSalvo = await ParametroAgendamento.create(
+            {
+              valor: JSON.stringify(parametro),
+              agendamento_id: agendamento.dataValues.id,
+            },
+            {
+              transaction,
+            }
+          );
+
+          parametrosSalvos.push(parametroSalvo);
+        }
+      }
+
+      const tarefa = cron.schedule(horarioFormatado, async () => {
+        const parametrosAgendamento = await ParametroAgendamento.findAll({
+          where: {
+            agendamento_id: agendamento.id,
+          },
+        });
+
+        const parametrosAutomacao = await ParametroAutomacao.findAll({
+          where: {
+            automacao_id: agendamento.automacao_id,
+          },
+        });
+
+        const parametrosFormatados = parametrosAgendamento.map((parametro) => ({
+          nome: parametrosAutomacao.find(
+            (item) =>
+              item.dataValues.id === parametro.dataValues.parametro_automacao_id
+          ).dataValues.nome,
+          valor: parametro.valor,
+        }));
+
+        FilaController.adicionarNaFila(
+          automacao,
+          agendamento.dataValues.id,
+          parametrosFormatados
+        );
+
+        if (tipo_id == 1) {
+          await Agendamento.update(
+            { ativo: false },
+            {
+              where: {
+                id: agendamento.id,
+              },
+            }
+          );
+
+          this.tarefasAtivas[id].stop();
+
+          delete this.tarefasAtivas[id];
+        }
+      });
+
+      this.tarefasAtivas[agendamento.id] = tarefa;
+
+      await transaction.commit();
+
+      res.status(201).json({
+        success: true,
+        message: 'Agendamento atualizado com sucesso!',
+      });
+    } catch (error) {
+      await transaction.rollback();
+
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
 
   cancelar = async (req, res) => {
     const { id } = req.params;

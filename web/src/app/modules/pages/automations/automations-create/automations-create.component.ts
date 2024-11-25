@@ -84,6 +84,9 @@ export class AutomationsCreateComponent implements OnInit {
 				next: (res: DefaultResponse<null | undefined>) => {
 					this.goBack();
 				},
+				error: (err) => {
+					this.errorList = [err.error.message]
+				}
 			});
 	}
 

@@ -31,8 +31,10 @@ router.get('/perfil', UsuarioController.listarDetalhes);
 // Agendamentos
 router.post('/agendamentos', AgendamentoController.criar);
 router.get('/agendamentos', AgendamentoController.listar);
-router.get('/agendamentos/automacoes', AutomacaoController.listar);
+router.get('/agendamentos/automacoes', AutomacaoController.listarFiltrado);
+router.get('/agendamentos/automacoes/:id', AutomacaoController.listarDetalhes);
 router.get('/agendamentos/tipos', TipoAgendamentoController.listar);
+router.patch('/agendamentos/:id', AgendamentoController.atualizar);
 router.get('/agendamentos/:id', AgendamentoController.listarDetalhes);
 router.get('/agendamentos/:id/logs', AgendamentoController.listarLogs);
 router.post('/agendamentos/:id/cancelar', AgendamentoController.cancelar);

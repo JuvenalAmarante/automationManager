@@ -135,6 +135,20 @@ class AutomacaoController {
     }
   }
 
+  async listarFiltrado(req, res) {
+    try {
+      const automacoes = await Automacao.findAll({
+        where: {
+          excluido: false,
+        },
+      });
+
+      res.status(200).json({ success: true, data: automacoes });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
   async listarDetalhes(req, res) {
     const { id } = req.params;
 
