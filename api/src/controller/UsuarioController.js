@@ -9,6 +9,7 @@ class UsuarioController {
     const data = await Usuario.findOne({
       where: {
         usuario,
+        ativo: true,
       },
     });
 

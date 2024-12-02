@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DefaultResponse } from 'src/app/shared/types';
 @Component({
@@ -12,7 +13,12 @@ export class AuthComponent implements OnInit {
 	validateForm: UntypedFormGroup;
 	passwordVisible = false;
 	isLogging = false;
-	constructor(private readonly fb: UntypedFormBuilder, private readonly authServices: AuthService, private readonly router: Router) {
+	constructor(
+		private readonly fb: UntypedFormBuilder,
+		private readonly authServices: AuthService,
+		private readonly router: Router,
+		private readonly messageService: NzMessageService,
+	) {
 		this.validateForm = this.fb.group({
 			usuario: ['', [Validators.required]],
 			senha: ['', [Validators.required]],
@@ -36,7 +42,8 @@ export class AuthComponent implements OnInit {
 					this.isLogging = false;
 				}
 			},
-			error: (err: Error) => {
+			error: (err) => {
+				this.messageService.error(err.error.message);
 				this.isLogging = false;
 			},
 		});

@@ -14,7 +14,7 @@ class AutenticacaoController {
     try {
       const data = await UsuarioController.buscarUsuarioPorUsuario(usuario);
 
-      if (!data)
+      if (!data || senha != data.dataValues.senha)
         return res
           .status(400)
           .json({ success: false, message: 'Usuário ou senha inválidos' });
