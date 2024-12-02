@@ -34,7 +34,7 @@ class FilaController {
         retorno: 'Início da execução',
       });
 
-      exec(comando, async (error, stdout, stderr) => {
+      exec(comando, { windowsHide: true }, async (error, stdout, stderr) => {
         if (error) {
           await LogAgendamento.create({
             possui_erro: true,
@@ -80,7 +80,7 @@ class FilaController {
           id: item.dados.id,
           nome: item.dados.nome,
           agendamento_id: item.agendamento_id,
-        }))
+        })),
       });
     } catch (err) {
       console.error(err);
