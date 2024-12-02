@@ -1,0 +1,45 @@
+<nz-page-header [nzGhost]="false" nzBackIcon>
+	<nz-page-header-title>Fila</nz-page-header-title>
+	<nz-page-header-subtitle>Visualize a fila de execução atual</nz-page-header-subtitle>
+	<nz-page-header-content>
+		<nz-row nzGutter="16">
+			<div nz-col nzSpan="24">
+				<h2 class="form-subtitle">
+					Processos em andamento
+					<strong style="font-size: 12px; font-weight: normal; margin-left: 16px; color: rgba(0, 0, 0, 0.45)">Atualizado em: {{ dateSync | date: 'dd/MM/yyyy HH:mm:ss' }}</strong>
+				</h2>
+			</div>
+
+			@if (queueList.length) {
+				<nz-col nzSpan="24">
+					<nz-timeline>
+						@for (queueItem of queueList; track $index) {
+							<nz-timeline-item [nzColor]="$index == 0 ? 'green' : 'blue'" [nzDot]="$index == 0 ? dotTemplateSync : dotTemplateClock"
+								>Agendamento {{ queueItem.agendamento_id }}: {{ queueItem.nome }}</nz-timeline-item
+							>
+
+							<ng-template #dotTemplateClock>
+								<span nz-icon nzType="clock-circle-o" style="font-size: 16px"></span>
+							</ng-template>
+
+							<ng-template #dotTemplateSync>
+								<span nz-icon nzType="sync" style="font-size: 16px"></span>
+							</ng-template>
+						}
+					</nz-timeline>
+				</nz-col>
+			} @else {
+				<nz-col nzSpan="24">
+					<nz-row nzGutter="16">
+						<div nz-col nzSpan="24">
+							<nz-empty [nzNotFoundContent]="null" nzNotFoundImage="simple" style="margin-bottom: -20px" />
+							<nz-row nzJustify="center">
+								<span style="color: rgba(0, 0, 0, 0.25)">Não há automações em execução no momento</span>
+							</nz-row>
+						</div>
+					</nz-row>
+				</nz-col>
+			}
+		</nz-row>
+	</nz-page-header-content>
+</nz-page-header>

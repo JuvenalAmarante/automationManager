@@ -9,6 +9,7 @@ const AutomacaoController = require('./controller/AutomacaoController');
 const AgendamentoController = require('./controller/AgendamentoController');
 const AutenticacaoController = require('./controller/AutenticacaoController');
 const TipoAgendamentoController = require('./controller/TipoAgendamentoController');
+const FilaController = require('./controller/FilaController');
 
 const router = Router();
 
@@ -46,6 +47,11 @@ router.get(
   verificarAutenticacao,
   TipoAgendamentoController.listar
 );
+router.get(
+  '/agendamentos/fila',
+  verificarAutenticacao,
+  FilaController.listar
+);
 router.patch(
   '/agendamentos/:id',
   verificarAutenticacao,
@@ -61,17 +67,17 @@ router.get(
   verificarAutenticacao,
   AgendamentoController.listarLogs
 );
-router.post(
-  '/agendamentos/:id/cancelar',
+router.delete(
+  '/agendamentos/:id',
   verificarAutenticacao,
-  AgendamentoController.cancelar
+  AgendamentoController.deletar
 );
 
 // Automações
 router.get(
   '/automacoes',
   verificarAutenticacao,
-  AutomacaoController.listarFiltrado
+  AutomacaoController.listar
 );
 router.get(
   '/automacoes/tipos-parametros',
@@ -120,6 +126,18 @@ router.get(
   verificarAutenticacao,
   verificarAdmin,
   UsuarioController.listarDetalhes
+);
+router.get(
+  '/usuarios/:id/automacoes',
+  verificarAutenticacao,
+  verificarAdmin,
+  UsuarioController.listarAutomacoesVinculadas
+);
+router.put(
+  '/usuarios/:id/automacoes',
+  verificarAutenticacao,
+  verificarAdmin,
+  UsuarioController.atualizarAutomacoesVinculadas
 );
 router.patch(
   '/usuarios/:id',

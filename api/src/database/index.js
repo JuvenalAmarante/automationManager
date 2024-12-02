@@ -10,10 +10,12 @@ const TipoParametro = require('../models/TipoParametro');
 const TipoAgendamento = require('../models/TipoAgendamento');
 const Parametro = require('../models/Parametro');
 const LogAgendamento = require('../models/LogAgendamento');
+const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 
 const connection = new Sequelize(configDB);
 
 Usuario.init(connection);
+UsuarioTemAutomacao.init(connection);
 TipoParametro.init(connection);
 TipoAgendamento.init(connection);
 Automacao.init(connection);
@@ -22,12 +24,15 @@ Parametro.init(connection);
 Agendamento.init(connection);
 LogAgendamento.init(connection);
 
+Usuario.belongsToMany(Automacao, { as: 'Automacoes', through: 'usuarios_tem_automacoes' });
+
 TipoParametro.hasMany(ParametroAutomacao);
 TipoAgendamento.hasMany(Agendamento);
 
 Automacao.hasMany(Agendamento);
 Automacao.hasMany(ParametroAutomacao);
 Automacao.hasMany(Parametro);
+Automacao.belongsToMany(Usuario, { as: 'Usuarios', through: 'usuarios_tem_automacoes' });
 
 ParametroAutomacao.belongsTo(TipoParametro, {
   foreignKey: {

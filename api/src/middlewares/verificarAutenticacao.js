@@ -12,9 +12,9 @@ function verificarAutenticacao(req, res, next) {
     if (err) {
       console.log(err);
 
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
-        message: 'Ocorreu um erro ao validar a autenticação.',
+        message: 'Não autorizado.',
       });
     }
 

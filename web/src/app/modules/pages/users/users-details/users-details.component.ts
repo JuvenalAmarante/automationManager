@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { ApiService } from 'src/app/core/services/api.service';
-import { ContactType } from 'src/app/shared/constants/contact-types';
 import { DefaultResponse, User, Usuario } from 'src/app/shared/types';
 
 type data = { isModal?: boolean; userId?: number };

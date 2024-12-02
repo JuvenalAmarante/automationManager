@@ -34,7 +34,9 @@ class AutenticacaoController {
         },
       });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 }

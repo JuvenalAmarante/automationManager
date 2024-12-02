@@ -1,5 +1,5 @@
 class MenuController {
-  menusAdmin = [2, 4, 8];
+  menusAdmin = [2, 4, 9];
   lista = [
     {
       item_id: 1,
@@ -52,17 +52,24 @@ class MenuController {
           label: 'Buscar',
           icon: '',
         },
+        {
+          item_id: 8,
+          url: 'agendamentos/fila',
+          target: '_blank',
+          label: 'Fila de execução',
+          icon: '',
+        },
       ],
     },
     {
-      item_id: 8,
+      item_id: 9,
       url: null,
       target: '_blank',
       label: 'Sistema',
       icon: 'setting',
       items: [
         {
-          item_id: 9,
+          item_id: 10,
           url: 'usuarios',
           target: '_blank',
           label: 'Usuarios',

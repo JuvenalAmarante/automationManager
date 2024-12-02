@@ -8,12 +8,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersCreateComponent } from './users-create/users-create.component';
 import { UsersDetailsComponent } from './users-details/users-details.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { UsersAutomationComponent } from './users-automation/users-automation.component';
 
 @NgModule({
   declarations: [
     UsersComponent,
     UsersCreateComponent,
     UsersDetailsComponent,
+    UsersAutomationComponent
   ],
   imports: [
     CommonModule,

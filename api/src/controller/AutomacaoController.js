@@ -4,6 +4,9 @@ const connection = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const TipoParametro = require('../models/TipoParametro');
 const Parametro = require('../models/Parametro');
+const Usuario = require('../models/Usuario');
+const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
+const { Op, where } = require('sequelize');
 
 class AutomacaoController {
   async criar(req, res) {
@@ -29,6 +32,7 @@ class AutomacaoController {
 
       upload(req, res, async function (err) {
         const transaction = await connection.transaction();
+
         try {
           if (err)
             return res
@@ -114,39 +118,52 @@ class AutomacaoController {
         } catch (error) {
           await transaction.rollback();
 
-          res.status(500).json({ success: false, message: error.message });
+          res
+            .status(500)
+            .json({ success: false, message: 'Ocorreu um erro interno' });
         }
       });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
   async listar(req, res) {
+    const { usuario } = req;
+
     try {
+      let automacoes_ids = [];
+      if (!usuario.admin) {
+        automacoes_ids = (
+          await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          })
+        ).map((relacao) => relacao.dataValues.automacao_id);
+      }
+
+      let where = {
+        excluido: false,
+      };
+
+      if (!usuario.admin)
+        where.id = {
+          [Op.in]: automacoes_ids,
+        };
+
       const automacoes = await Automacao.findAll({
-        where: {
-          excluido: false,
-        },
+        where,
       });
 
       res.status(200).json({ success: true, data: automacoes });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  }
-
-  async listarFiltrado(req, res) {
-    try {
-      const automacoes = await Automacao.findAll({
-        where: {
-          excluido: false,
-        },
-      });
-
-      res.status(200).json({ success: true, data: automacoes });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      console.log(error);
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -176,7 +193,9 @@ class AutomacaoController {
         .status(200)
         .json({ success: true, data: { ...automacao.dataValues, parametros } });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -239,7 +258,7 @@ class AutomacaoController {
               ).slice(-parametroSalvo.dataValues.qtd_digitos);
             }
 
-            if ([3, 4, 5].includes(parametroSalvo.dataValues.id)) {
+            if ([3, 4, 5, 6, 7].includes(parametroSalvo.dataValues.id)) {
               const date = new Date(parametro[parametroSalvo.dataValues.nome]);
 
               const dia = date.getDate();
@@ -248,16 +267,24 @@ class AutomacaoController {
 
               switch (parametroSalvo.dataValues.id) {
                 case 3:
+                  parametro[parametroSalvo.dataValues.nome] = `${dia}`;
+                  break;
+
+                case 4:
+                  parametro[parametroSalvo.dataValues.nome] = `${mes}`;
+                  break;
+
+                case 5:
+                  parametro[parametroSalvo.dataValues.nome] = `${ano}`;
+                  break;
+
+                case 6:
                   parametro[
                     parametroSalvo.dataValues.nome
                   ] = `${dia}/${mes}/${ano}`;
                   break;
 
-                case 4:
-                  parametro[parametroSalvo.dataValues.nome] = `${dia}/${mes}`;
-                  break;
-
-                case 5:
+                case 7:
                   parametro[parametroSalvo.dataValues.nome] = `${mes}/${ano}`;
                   break;
               }
@@ -309,7 +336,9 @@ class AutomacaoController {
     } catch (error) {
       await transaction.rollback();
 
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   };
 
@@ -335,7 +364,9 @@ class AutomacaoController {
         .status(200)
         .json({ success: true, message: 'Automação deletada com sucesso' });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -345,7 +376,9 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: tipos });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -387,11 +420,35 @@ class AutomacaoController {
             );
           }
 
-          if ([3, 4, 5].includes(parametroCadastrado.dataValues.id)) {
+          if ([3, 4, 5, 6, 7].includes(parametroCadastrado.dataValues.id)) {
             const date = dados[parametroCadastrado.dataValues.nome].split('/');
 
             switch (parametroCadastrado.dataValues.id) {
               case 3:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  2024,
+                  7,
+                  date[0]
+                );
+                break;
+
+              case 4:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  2024,
+                  date[0] - 1,
+                  13
+                );
+                break;
+
+              case 5:
+                dados[parametroCadastrado.dataValues.nome] = new Date(
+                  date[0],
+                  7,
+                  13
+                );
+                break;
+
+              case 6:
                 dados[parametroCadastrado.dataValues.nome] = new Date(
                   date[2],
                   date[1] - 1,
@@ -399,19 +456,11 @@ class AutomacaoController {
                 );
                 break;
 
-              case 4:
-                dados[parametroCadastrado.dataValues.nome] = new Date(
-                  new Date().getFullYear(),
-                  date[1] - 1,
-                  date[0]
-                );
-                break;
-
-              case 5:
+              case 7:
                 dados[parametroCadastrado.dataValues.nome] = new Date(
                   date[1],
                   date[0] - 1,
-                  15
+                  13
                 );
                 break;
             }
@@ -423,7 +472,9 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: parametros });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 }

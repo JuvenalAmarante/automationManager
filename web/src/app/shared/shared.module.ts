@@ -5,15 +5,12 @@ import { EditorModule } from '@tinymce/tinymce-angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { NgxEditorModule } from 'ngx-editor';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
-import { LinkButtonComponent } from './components/link-button/link-button.component';
 import { LoaderComponent } from './components/loader/loader.component';
-import { ModalConfirmationComponent } from './components/modal-confirmation/modal-confirmation.component';
 import { NgZorroModule } from './ng-zorro.module';
 import { SafeHTMLPipe } from './pipes/safeHTML.pipe';
-import { CopyLinkComponent } from './components/copy-link/copy-link.component';
 
 @NgModule({
-	declarations: [LinkButtonComponent, LoaderComponent, SafeHTMLPipe, ModalConfirmationComponent, CopyLinkComponent],
+	declarations: [LoaderComponent, SafeHTMLPipe],
 	imports: [
 		CommonModule,
 		FormsModule,
@@ -61,7 +58,7 @@ import { CopyLinkComponent } from './components/copy-link/copy-link.component';
 			},
 		}),
 	],
-	exports: [NgxMaskDirective, NgxMaskPipe, LinkButtonComponent, SafeHTMLPipe, CopyLinkComponent],
+	exports: [NgxMaskDirective, NgxMaskPipe, SafeHTMLPipe],
 	providers: [provideNgxMask()],
 })
 export class SharedModule {}

@@ -3,10 +3,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { ApiService } from 'src/app/core/services/api.service';
 import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
-import { debounce, normalizeParams } from 'src/app/shared/helpers';
+import { normalizeParams } from 'src/app/shared/helpers';
 import { Cargo, DefaultResponse, Usuario } from 'src/app/shared/types';
 import { UsersCreateComponent } from './users-create/users-create.component';
 import { UsersDetailsComponent } from './users-details/users-details.component';
+import { UsersAutomationComponent } from './users-automation/users-automation.component';
 
 @Component({
 	selector: 'app-users',
@@ -104,8 +105,8 @@ export class UsersComponent implements OnInit {
 
 	showModalLink(user?: Usuario): void {
 		this.modalServices.create({
-			nzContent: 'UsersCondominiumsComponent',
-			nzTitle: `Carteira de condomínios - ${user?.nome}`,
+			nzContent: UsersAutomationComponent,
+			nzTitle: `Vincular automações - ${user?.nome}`,
 			nzBodyStyle: {
 				maxHeight: '80vh',
 				overflow: 'auto',

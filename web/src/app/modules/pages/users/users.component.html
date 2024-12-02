@@ -50,9 +50,13 @@
 						<td>{{ data.nome }}</td>
 
 						<td nzAlign="center">
-							<button (click)="showModalLink(data)" nz-button nzType="primary" nzSize="small">
-								<span nz-icon nzType="file-sync" nzTheme="outline"></span>Vincular
-							</button>
+							@if (data.admin) {
+								<nz-tag nzColor="success">Admin</nz-tag>
+							} @else {
+								<button (click)="showModalLink(data)" nz-button nzType="primary" nzSize="small">
+									<span nz-icon nzType="file-sync" nzTheme="outline"></span>Vincular
+								</button>
+							}
 						</td>
 
 						<td nzAlign="center" [nzEllipsis]="true">

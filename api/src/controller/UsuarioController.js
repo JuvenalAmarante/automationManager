@@ -1,6 +1,8 @@
 const { Op } = require('sequelize');
 const Usuario = require('../models/Usuario');
 const connection = require('../database');
+const Automacao = require('../models/Automacao');
+const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 
 class UsuarioController {
   async buscarUsuarioPorUsuario(usuario) {
@@ -64,7 +66,9 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -97,7 +101,9 @@ class UsuarioController {
         data: usuarios,
       });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -124,7 +130,9 @@ class UsuarioController {
         data: usuario,
       });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -199,7 +207,103 @@ class UsuarioController {
 
       await transaction.commit();
 
-      res.status(201).json({
+      res.status(200).json({
+        success: true,
+        message: 'Usuário atualizado com sucesso!',
+      });
+    } catch (error) {
+      await transaction.rollback();
+
+      console.log(error.message);
+
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  }
+
+  async listarAutomacoesVinculadas(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Usuário não encontrado' });
+
+    try {
+      const usuarioSalvo = await Usuario.findByPk(id, {
+        include: 'Automacoes',
+      });
+
+      if (!usuarioSalvo)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Usuário não encontrado' });
+
+      res.status(200).json({
+        success: true,
+        data:
+          usuarioSalvo.dataValues.Automacoes.map((automacao) => automacao.id) ||
+          [],
+      });
+    } catch (error) {
+      console.log(error.message);
+
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  }
+
+  async atualizarAutomacoesVinculadas(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Usuário não encontrado' });
+
+    const { automacoes_ids } = req.body;
+
+    if (!automacoes_ids)
+      return res
+        .status(400)
+        .json({ success: false, message: 'Campos inválidos' });
+
+    const transaction = await connection.transaction();
+
+    try {
+      const usuarioSalvo = await Usuario.findByPk(id);
+
+      if (!usuarioSalvo)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Usuário não encontrado' });
+
+      await UsuarioTemAutomacao.destroy({
+        where: {
+          usuario_id: id,
+        },
+        transaction,
+      });
+      
+      for await (const automacao_id of automacoes_ids) {
+        await UsuarioTemAutomacao.create(
+          {
+            usuario_id: id,
+            automacao_id: automacao_id,
+          },
+          {
+            fields: ['usuario_id', 'automacao_id'],
+            
+            transaction,
+          }
+        );
+      }
+
+      await transaction.commit();
+
+      res.status(200).json({
         success: true,
         message: 'Usuário atualizado com sucesso!',
       });

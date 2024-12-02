@@ -115,6 +115,29 @@ module.exports = {
       },
     });
 
+    await queryInterface.createTable('usuarios_tem_automacoes', {
+      automacao_id: {
+        primaryKey: true,
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'automacoes', key: 'id' },
+      },
+      usuario_id: {
+        primaryKey: true,
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'usuarios', key: 'id' },
+      },
+      criado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      atualizado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+
     await queryInterface.createTable('parametros_automacoes', {
       id: {
         type: Sequelize.INTEGER,
@@ -147,7 +170,6 @@ module.exports = {
         allowNull: false,
       },
     });
-
 
     await queryInterface.createTable('parametros', {
       id: {
@@ -248,6 +270,7 @@ module.exports = {
     await queryInterface.dropTable('agendamentos');
     await queryInterface.dropTable('parametros');
     await queryInterface.dropTable('parametros_automacoes');
+    await queryInterface.dropTable('usuarios_tem_automacoes');
     await queryInterface.dropTable('automacoes');
     await queryInterface.dropTable('tipos_agendamentos');
     await queryInterface.dropTable('tipos_parametros');

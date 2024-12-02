@@ -1,0 +1,35 @@
+<div *ngIf="!isLoading" nz-form nzLayout="vertical" nzNoColon>
+	<nz-row nzGutter="16">
+		<ng-container *ngFor="let error of errorList">
+			<nz-col nzSpan="24">
+				<nz-alert
+					style="margin-bottom: 12px"
+					nzShowIcon
+					nzType="error"
+					nzCloseable
+					nzMessage="{{ error }}"
+					(nzOnClose)="closeErrorAlert(error)"
+				></nz-alert>
+			</nz-col>
+		</ng-container>
+
+		<nz-col nzSpan="24">
+			<nz-transfer
+				style="width: 100%"
+				[nzDataSource]="automationsList"
+				nzShowSearch
+				[nzShowSelectAll]="false"
+				[nzListStyle]="{ width: '100%', overflow: 'auto', maxHeight: '32em' }"
+				nzSearchPlaceholder="Digite o nome da automação"
+				[nzTitles]="['Disponíveis', 'Vinculadas']"
+				nzItemsUnit="automações"
+				nzItemUnit="automações"
+			></nz-transfer>
+		</nz-col>
+	</nz-row>
+</div>
+
+<div *ngIf="isLoading">
+	<nz-skeleton [nzActive]="true"> </nz-skeleton>
+	<nz-skeleton [nzActive]="true"> </nz-skeleton>
+</div>

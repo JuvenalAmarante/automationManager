@@ -23,7 +23,7 @@ class FilaController {
       }
 
       this.executando = true;
-      const automacao = this.filaExecucao.shift();
+      const automacao = this.filaExecucao[0];
 
       console.log(`Executando automação: ${automacao.dados.nome}`);
       let comando = `python3 ./src/public/${automacao.dados.arquivo} --id "${automacao.dados.id}"`;
@@ -64,12 +64,28 @@ class FilaController {
           console.log(`Saída de ${automacao.dados.nome}:`, stdout);
         }
 
+        this.filaExecucao.shift();
         this.processarFila();
       });
     } catch (err) {
       console.error(err);
     }
   }
+
+  listar = (req, res) => {
+    try {
+      res.status(200).json({
+        success: true,
+        data: this.filaExecucao.map((item) => ({
+          id: item.dados.id,
+          nome: item.dados.nome,
+          agendamento_id: item.agendamento_id,
+        }))
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 }
 
 module.exports = new FilaController();

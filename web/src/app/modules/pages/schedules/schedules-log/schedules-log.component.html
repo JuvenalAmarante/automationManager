@@ -1,0 +1,35 @@
+<nz-page-header [nzGhost]="false" nzBackIcon>
+	<nz-page-header-title>Logs</nz-page-header-title>
+	<nz-page-header-subtitle>Visualize os logs de execução do agendamento</nz-page-header-subtitle>
+	<nz-page-header-content>
+		<nz-row nzGutter="16">
+			<div nz-col nzSpan="24">
+				<h2 class="form-subtitle">Lista de registros</h2>
+			</div>
+
+			@if (logsList.length) {
+				<nz-list [nzDataSource]="logsList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+					<ng-template #item let-item>
+						<nz-comment nzAuthor="Log de execução" [nzDatetime]="item.criado_em">
+							<nz-avatar nz-comment-avatar [nzIcon]="item.possui_erro ? 'warning' : 'check-circle'" [style]="item.possui_erro ? 'color:#f56a00; background-color:#fde3cf' : 'background-color:#87d068'"></nz-avatar>
+							<nz-comment-content>
+								<p>{{ item.retorno }}</p>
+							</nz-comment-content>
+						</nz-comment>
+					</ng-template>
+				</nz-list>
+			} @else {
+				<nz-col nzSpan="24">
+					<nz-row nzGutter="16">
+						<div nz-col nzSpan="24">
+							<nz-empty [nzNotFoundContent]="null" nzNotFoundImage="simple" style="margin-bottom: -20px" />
+							<nz-row nzJustify="center">
+								<span style="color: rgba(0, 0, 0, 0.25)">Não há nenhum log de execução até o momento</span>
+							</nz-row>
+						</div>
+					</nz-row>
+				</nz-col>
+			}
+		</nz-row>
+	</nz-page-header-content>
+</nz-page-header>

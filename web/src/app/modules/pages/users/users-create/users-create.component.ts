@@ -2,12 +2,9 @@ import { finalize } from 'rxjs';
 import { NgxMaskService } from 'ngx-mask';
 import { Component, OnInit, inject } from '@angular/core';
 import { ApiService } from 'src/app/core/services/api.service';
-import { NZ_MODAL_DATA, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { debounce, normalizeParams } from 'src/app/shared/helpers';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
-import { DefaultResponse, Cargo, Departamentos, Usuario } from 'src/app/shared/types';
-import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
-import { ContactType } from 'src/app/shared/constants/contact-types';
+import { DefaultResponse, Usuario } from 'src/app/shared/types';
 
 type data = { isModal?: boolean; userId?: number; isBiker?: boolean };
 

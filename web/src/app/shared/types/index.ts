@@ -1241,4 +1241,18 @@ export type Usuario = {
 	usuario: string;
 	admin: boolean;
 	ativo: boolean;
-}
+};
+
+export type FilaItem = {
+	id: number;
+	nome: string;
+	agendamento_id: number;
+};
+
+export type LogAgendamento = {
+	id: number;
+	agendamento_id: number;
+	possui_erro: boolean;
+	retorno: string;
+	criado_em: Date | string;
+};

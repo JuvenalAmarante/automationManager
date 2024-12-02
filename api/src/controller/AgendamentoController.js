@@ -9,6 +9,8 @@ const ParametroAutomacao = require('../models/ParametroAutomacao');
 const Parametro = require('../models/Parametro');
 const LogAgendamento = require('../models/LogAgendamento');
 const TipoAgendamento = require('../models/TipoAgendamento');
+const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
+const { Op } = require('sequelize');
 
 class AgendamentoController {
   tarefasAtivas = {};
@@ -44,7 +46,7 @@ class AgendamentoController {
               }
             );
 
-            this.tarefasAtivas[id].stop();
+            this.tarefasAtivas[id]?.stop();
 
             delete this.tarefasAtivas[id];
           }
@@ -62,6 +64,7 @@ class AgendamentoController {
   };
 
   criar = async (req, res) => {
+    const { usuario } = req;
     const { automacao_id, horario, tipo_id } = req.body;
 
     if (!automacao_id || !horario || !tipo_id)
@@ -72,7 +75,28 @@ class AgendamentoController {
     const transaction = await connection.transaction();
 
     try {
-      const automacao = await Automacao.findByPk(automacao_id, {
+      let automacoes_ids = [];
+      if (!usuario.admin) {
+        automacoes_ids = (
+          await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          })
+        ).map((relacao) => relacao.dataValues.automacao_id);
+      }
+
+      let where = {
+        id: automacao_id,
+      };
+
+      if (!usuario.admin)
+        where.id = {
+          [Op.in]: automacoes_ids,
+        };
+
+      const automacao = await Automacao.findOne({
+        where,
         transaction,
       });
 
@@ -131,7 +155,7 @@ class AgendamentoController {
             }
           );
 
-          this.tarefasAtivas[id].stop();
+          this.tarefasAtivas[id]?.stop();
 
           delete this.tarefasAtivas[id];
         }
@@ -148,13 +172,38 @@ class AgendamentoController {
     } catch (error) {
       await transaction.rollback();
 
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   };
 
   listar = async (req, res) => {
+    const { usuario } = req;
     try {
+      let automacoes_ids = [];
+      if (!usuario.admin) {
+        automacoes_ids = (
+          await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          })
+        ).map((relacao) => relacao.dataValues.automacao_id);
+      }
+
+      let where = {
+        excluido: false
+      };
+
+      if (!usuario.admin)
+        where.automacao_id = {
+          [Op.in]: automacoes_ids,
+        };
+
       const agendamentos = await Agendamento.findAll({
+        where,
+        order: [['id', 'DESC']],
         include: [
           {
             model: Automacao,
@@ -175,7 +224,11 @@ class AgendamentoController {
         })),
       });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      console.log(error);
+
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   };
 
@@ -188,7 +241,11 @@ class AgendamentoController {
         .json({ success: false, message: 'Agendamento não encontrado' });
 
     try {
-      const agendamento = await Agendamento.findByPk(id, {
+      const agendamento = await Agendamento.findOne({
+        where: {
+          id,
+          excluido: false,
+        },
         include: [
           {
             model: Automacao,
@@ -214,7 +271,9 @@ class AgendamentoController {
         },
       });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -227,7 +286,11 @@ class AgendamentoController {
         .json({ success: false, message: 'Agendamento não encontrado' });
 
     try {
-      const agendamento = await Agendamento.findByPk(id, {
+      const agendamento = await Agendamento.findOne({
+        where: {
+          id,
+          excluido: false,
+        },
         include: [
           {
             model: Automacao,
@@ -244,11 +307,14 @@ class AgendamentoController {
         where: {
           agendamento_id: id,
         },
+        order: [['id', 'DESC']],
       });
 
       res.status(200).json({ success: true, data: logs });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
 
@@ -270,7 +336,11 @@ class AgendamentoController {
     const transaction = await connection.transaction();
 
     try {
-      let agendamento = await Agendamento.findByPk(id, {
+      let agendamento = await Agendamento.findOne({
+        where: {
+          id,
+          excluido: false,
+        },
         include: [
           {
             model: Automacao,
@@ -333,7 +403,7 @@ class AgendamentoController {
         }
       );
 
-      this.tarefasAtivas[agendamento.id].stop();
+      this.tarefasAtivas[agendamento.id]?.stop();
 
       const tarefa = cron.schedule(horarioFormatado, async () => {
         FilaController.adicionarNaFila(automacao, agendamento.dataValues.id);
@@ -348,7 +418,7 @@ class AgendamentoController {
             }
           );
 
-          this.tarefasAtivas[id].stop();
+          this.tarefasAtivas[id]?.stop();
 
           delete this.tarefasAtivas[id];
         }
@@ -365,7 +435,43 @@ class AgendamentoController {
     } catch (error) {
       await transaction.rollback();
 
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  };
+
+  deletar = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Agendamento não encontrado' });
+
+    try {
+      const agendamento = await Agendamento.findByPk(id);
+
+      if (!agendamento)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Agendamento não encontrado' });
+
+      await Agendamento.update({ excluido: true }, { where: { id } });
+
+      if (this.tarefasAtivas[id]) {
+        this.tarefasAtivas[id]?.stop();
+
+        delete this.tarefasAtivas[id];
+
+        console.log(`Agendamento ${id} excluído.`);
+      }
+
+      res.status(200).json({ message: 'Agendamento excluído.' });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   };
 
@@ -388,7 +494,7 @@ class AgendamentoController {
       await Agendamento.update({ ativo: false }, { where: { id } });
 
       if (this.tarefasAtivas[id]) {
-        this.tarefasAtivas[id].stop();
+        this.tarefasAtivas[id]?.stop();
 
         delete this.tarefasAtivas[id];
 
@@ -397,7 +503,9 @@ class AgendamentoController {
 
       res.status(200).json({ message: 'Agendamento cancelado.' });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   };
 }
