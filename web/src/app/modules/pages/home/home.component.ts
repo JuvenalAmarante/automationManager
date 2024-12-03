@@ -1,7 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ApexAxisChartSeries, ApexNonAxisChartSeries, ApexXAxis, ChartComponent } from 'ng-apexcharts';
-import { ApiService } from 'src/app/core/services/api.service';
-import { DefaultResponse, Profile } from 'src/app/shared/types';
+import { Component, OnInit } from '@angular/core';
+import { Profile } from 'src/app/shared/types';
 
 @Component({
 	selector: 'app-home',

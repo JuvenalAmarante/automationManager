@@ -4,7 +4,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { ApiService } from 'src/app/core/services/api.service';
 import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
 import { normalizeParams } from 'src/app/shared/helpers';
-import { Cargo, DefaultResponse, Usuario } from 'src/app/shared/types';
+import { DefaultResponse, Usuario } from 'src/app/shared/types';
 import { UsersCreateComponent } from './users-create/users-create.component';
 import { UsersDetailsComponent } from './users-details/users-details.component';
 import { UsersAutomationComponent } from './users-automation/users-automation.component';
@@ -33,11 +33,6 @@ export class UsersComponent implements OnInit {
 	}
 
 	dataList: Usuario[] = [];
-
-	isLoadingOcupation: boolean = false;
-	ocupationsList: Cargo[] = [];
-
-	isLoadingDepartment: boolean = false;
 
 	ngOnInit(): void {
 		this.paginate(1);
