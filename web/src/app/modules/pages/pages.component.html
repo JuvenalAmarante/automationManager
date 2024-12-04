@@ -1,22 +1,31 @@
 <nz-layout class="app-layout">
 	<nz-sider class="menu-sidebar" nzCollapsible nzWidth="256px" [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
 		<div [class]="'sidebar-logo ' + (!isCollapsed ? '' : 'minimized')">
-			<img [src]="'assets/img/logo.svg'" alt="logo" />
+			<img [src]="'assets/img/logo-branca.svg'" alt="logo" />
 		</div>
-		<ul class="menu-items" nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-			<li nz-menu-item nz-tooltip nzTooltipPlacement="right" routerLinkActive [routerLinkActiveOptions]="{ exact: true }" #rtla="routerLinkActive" [nzSelected]="rtla.isActive">
+		<ul class="menu" nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+			<li
+				nz-menu-item
+				nz-tooltip
+				nzTooltipPlacement="right"
+				routerLinkActive
+				[routerLinkActiveOptions]="{ exact: true }"
+				#rtla="routerLinkActive"
+				[nzSelected]="rtla.isActive"
+			>
 				<span nz-icon nzType="home"></span>
 				<span><a routerLink="/app/home">Home</a></span>
 			</li>
 			<ng-container *ngFor="let item of menu">
 				<li *ngIf="!item.items?.length" nz-menu-item nz-tooltip nzTooltipPlacement="right">
 					<span nz-icon [nzType]="item.icon"></span>
-					<span
-						><a [routerLink]="item.url">{{ item.label }}</a></span
-					>
+					<span>
+						<a [routerLink]="item.url">{{ item.label }}</a>
+					</span>
 				</li>
-				<li *ngIf="item.items?.length" nz-submenu [nzTitle]="item.label" [nzIcon]="item.icon" [nzOpen]="item.isActive">
-					<ul *ngFor="let sub of item.items">
+
+				<li *ngIf="item.items?.length" nz-submenu class="submenu" [nzTitle]="item.label" [nzIcon]="item.icon" [nzOpen]="item.isActive">
+					<ul class="submenu-list" *ngFor="let sub of item.items">
 						<li nz-menu-item routerLinkActive [routerLinkActiveOptions]="{ exact: true }" #rtla="routerLinkActive" [nzSelected]="rtla.isActive">
 							<a [routerLink]="sub.url">{{ sub.label }}</a>
 						</li>
@@ -41,7 +50,7 @@
 					<div nz-col nz-row nzJustify="center" nzAlign="middle" nz-dropdown [nzDropdownMenu]="profile_menu">
 						<nz-avatar
 							[ngStyle]="{
-								'background-color': status ? '#87d068' : '#dedede'
+								'background-color': status ? '#87d068' : '#dedede',
 							}"
 							nzIcon="user"
 						></nz-avatar>
@@ -58,10 +67,10 @@
 									font-weight: 500;
 								"
 							>
-							Avanço
-						</h3>
-						<a *ngIf="profile" nz-button nzType="link" class="profile" nzPlacement="bottomRight" style="line-height: 1">
-							{{ profile.nome }} 
+								Avanço
+							</h3>
+							<a *ngIf="profile" nz-button nzType="link" class="profile" nzPlacement="bottomRight" style="line-height: 1">
+								{{ profile.nome }}
 							</a>
 							<nz-dropdown-menu #profile_menu="nzDropdownMenu">
 								<ul nz-menu>
@@ -84,4 +93,3 @@
 		</ng-template>
 	</nz-layout>
 </nz-layout>
-

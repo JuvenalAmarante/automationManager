@@ -22,13 +22,19 @@ export class AutomationsCreateComponent implements OnInit {
 	typesList: TipoParametro[] = [];
 
 	fileList: NzUploadFile[] = [];
+	complementFileList: NzUploadFile[] = [];
 
 	errorList: string[] = [];
 
-	constructor(private readonly fb: UntypedFormBuilder, private readonly api: ApiService, private readonly router: Router) {
+	constructor(
+		private readonly fb: UntypedFormBuilder,
+		private readonly api: ApiService,
+		private readonly router: Router,
+	) {
 		this.automationForm = this.fb.group({
 			nome: [null, [Validators.required]],
 			arquivo: [null, [Validators.required]],
+			complementos: [null, [Validators.required]],
 		});
 	}
 
@@ -63,15 +69,25 @@ export class AutomationsCreateComponent implements OnInit {
 		return false;
 	};
 
+	beforeComplementUpload = (file: NzUploadFile): boolean => {
+		this.complementFileList = [...this.complementFileList, file];
+		this.automationForm.patchValue({ complementos: this.complementFileList });
+
+		return false;
+	};
+
 	createAutomation(): void {
 		this.isSaving = true;
 		const form = new FormData();
 
 		form.append('nome', this.automationForm.value.nome);
 		form.append('arquivo', this.automationForm.value.arquivo);
-		this.parametersList.forEach(parameter => {
+		this.parametersList.forEach((parameter) => {
 			form.append('parametros[]', JSON.stringify(parameter));
-		})
+		});
+		this.automationForm.value.complementos.forEach((parameter: any) => {
+			form.append('complementos', parameter);
+		});
 
 		this.api
 			.post('/automacoes', form)
@@ -85,8 +101,8 @@ export class AutomationsCreateComponent implements OnInit {
 					this.goBack();
 				},
 				error: (err) => {
-					this.errorList = [err.error.message]
-				}
+					this.errorList = [err.error.message];
+				},
 			});
 	}
 

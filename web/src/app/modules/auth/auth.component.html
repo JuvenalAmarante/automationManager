@@ -1,13 +1,18 @@
-<div nz-row style="height: 100%" nzAlign="middle" nzJustify="center">
+<div nz-row style="height: 100%; background-color: #018ef7; color: #ffffff" nzAlign="middle" nzJustify="center">
 	<div nz-col nzXs="20" nzSm="24" nzMd="7">
 		<form nz-form [formGroup]="validateForm" nzLayout="vertical" class="login-form" (ngSubmit)="login()">
 			<div nz-row nzJustify="center" class="login-logo">
-				<img src="assets/img/logo.svg" width="350" class="" alt="logo" />
+				<img src="assets/img/logo-branca.svg" width="350" class="" alt="logo" />
 			</div>
 			<h1 class="title primary">Bem vindo(a)!</h1>
 			<p class="login-info-lable">Por gentileza, efetue o login para prosseguir.</p>
 			<nz-form-item>
-				<nz-form-label nzNoColon>Usuário</nz-form-label>
+				<nz-form-label nzNoColon >
+					<label style="color: #ffffff">
+
+						Usuário
+					</label>
+				</nz-form-label>
 				<nz-form-control nzErrorTip="Por favor insira o seu nome de usuário!">
 					<nz-input-group nzSize="large" nzPrefixIcon="user">
 						<input type="text" nz-input formControlName="usuario" placeholder="Digite o nome de usuário" />
@@ -15,7 +20,12 @@
 				</nz-form-control>
 			</nz-form-item>
 			<nz-form-item>
-				<nz-form-label nzNoColon>Senha</nz-form-label>
+				<nz-form-label nzNoColon >
+					<label style="color: #ffffff">
+
+						Senha
+					</label>
+				</nz-form-label>
 				<nz-form-control Infração="Por favor insira a senha!">
 					<nz-input-group nzSize="large" nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
 						<input [type]="passwordVisible ? 'text' : 'password'" nz-input formControlName="senha" placeholder="Digite a senha" />
@@ -33,12 +43,12 @@
 					class="login-form-forgot"
 					nz-tooltip
 					nzTooltipTitle="Caso enfrente qualquer problema relacionado à senha, entre em contato com o admininstrador do sistema."
-					nzTooltipColor="#114c78"
+					nzTooltipColor="#ffffff"
 				>
 					Não lembra a senha?
 				</a>
 			</div>
-			<button nz-button nzType="primary" nzSize="large" nzBlock [nzLoading]="isLogging">
+			<button class="button" nz-button nzType="primary" nzSize="large" nzBlock [nzLoading]="isLogging">
 				<span nz-icon nzType="login" nzTheme="outline"></span>
 				{{ isLogging ? 'Acessando' : 'Acessar' }}
 			</button>

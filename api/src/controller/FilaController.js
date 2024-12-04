@@ -26,7 +26,7 @@ class FilaController {
       const automacao = this.filaExecucao[0];
 
       console.log(`Executando automação: ${automacao.dados.nome}`);
-      let comando = `python3 ./src/public/${automacao.dados.arquivo} --id "${automacao.dados.id}"`;
+      let comando = `python ./src/public/${automacao.dados.arquivo} --id "${automacao.dados.id}"`;
 
       await LogAgendamento.create({
         possui_erro: false,

@@ -1,3 +1,5 @@
+const utf8 = require('utf8');
+const fs = require('fs');
 const multer = require('multer');
 const Automacao = require('../models/Automacao');
 const connection = require('../database');
@@ -11,24 +13,31 @@ const { Op, where } = require('sequelize');
 class AutomacaoController {
   async criar(req, res) {
     try {
-      let nomeArquivo = '';
+      let nomeArquivo = 'index.py';
+      let nomePasta = '';
       const storage = multer.diskStorage({
         destination: function (req, file, callback) {
-          callback(null, `./src/public`);
+          if (file.fieldname !== 'complementos')
+            nomePasta = `${Date.now()}-${Math.round(
+              Math.random() * 1e9
+            )}`;
+
+          if (!fs.existsSync(`./src/public/${nomePasta}`)) {
+            fs.mkdirSync(`./src/public/${nomePasta}`);
+          }
+
+          callback(null, `./src/public/${nomePasta}`);
         },
         filename: function (req, file, callback) {
-          nomeArquivo =
-            file.fieldname +
-            '-' +
-            Date.now() +
-            '-' +
-            Math.round(Math.random() * 1e9);
-
-          callback(null, nomeArquivo);
+          if (file.fieldname !== 'complementos') callback(null, nomeArquivo);
+          else callback(null, utf8.decode(file.originalname));
         },
       });
 
-      const upload = multer({ storage }).single('arquivo');
+      const upload = multer({ storage }).fields([
+        { name: 'arquivo', maxCount: 1 },
+        { name: 'complementos' },
+      ]);
 
       upload(req, res, async function (err) {
         const transaction = await connection.transaction();
@@ -43,6 +52,7 @@ class AutomacaoController {
 
           if (
             !nome ||
+            !nomePasta ||
             !nomeArquivo ||
             (parametros && !Array.isArray(parametros))
           )
@@ -81,7 +91,7 @@ class AutomacaoController {
           const automacao = await Automacao.create(
             {
               nome,
-              arquivo: nomeArquivo,
+              arquivo: `${nomePasta}/${nomeArquivo}`,
             },
             {
               transaction,
@@ -205,7 +215,7 @@ class AutomacaoController {
     if (!id || isNaN(+id))
       return res
         .status(400)
-        .json({ success: false, message: 'Agendamento não encontrado' });
+        .json({ success: false, message: 'Automação não encontrada' });
 
     const { parametros } = req.body;
 
@@ -251,21 +261,25 @@ class AutomacaoController {
               break;
             }
 
-            if (parametroSalvo.dataValues.id == 2) {
+            if (parametroSalvo.dataValues.tipo_parametro_id == 2) {
               parametro[parametroSalvo.dataValues.nome] = (
                 '0'.repeat(parametroSalvo.dataValues.qtd_digitos) +
                 parametro[parametroSalvo.dataValues.nome]
               ).slice(-parametroSalvo.dataValues.qtd_digitos);
             }
 
-            if ([3, 4, 5, 6, 7].includes(parametroSalvo.dataValues.id)) {
+            if (
+              [3, 4, 5, 6, 7].includes(
+                parametroSalvo.dataValues.tipo_parametro_id
+              )
+            ) {
               const date = new Date(parametro[parametroSalvo.dataValues.nome]);
 
               const dia = date.getDate();
               const mes = date.getMonth() + 1;
               const ano = date.getFullYear();
 
-              switch (parametroSalvo.dataValues.id) {
+              switch (parametroSalvo.dataValues.tipo_parametro_id) {
                 case 3:
                   parametro[parametroSalvo.dataValues.nome] = `${dia}`;
                   break;
@@ -414,16 +428,20 @@ class AutomacaoController {
         const dados = JSON.parse(parametro.dataValues.valor);
 
         for (const parametroCadastrado of listaParametros) {
-          if (parametroCadastrado.dataValues.id == 2) {
+          if (parametroCadastrado.dataValues.tipo_parametro_id == 2) {
             dados[parametroCadastrado.dataValues.nome] = parseInt(
               dados[parametroCadastrado.dataValues.nome]
             );
           }
 
-          if ([3, 4, 5, 6, 7].includes(parametroCadastrado.dataValues.id)) {
+          if (
+            [3, 4, 5, 6, 7].includes(
+              parametroCadastrado.dataValues.tipo_parametro_id
+            )
+          ) {
             const date = dados[parametroCadastrado.dataValues.nome].split('/');
 
-            switch (parametroCadastrado.dataValues.id) {
+            switch (parametroCadastrado.dataValues.tipo_parametro_id) {
               case 3:
                 dados[parametroCadastrado.dataValues.nome] = new Date(
                   2024,

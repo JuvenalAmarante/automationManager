@@ -32,13 +32,32 @@
 					</nz-form-item>
 				</nz-col>
 
-				<nz-col nzSpan="24">
-					<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
-						<button nz-button type="button">
-							<span nz-icon nzType="upload"></span>
-							Selecione o arquivo
-						</button>
-					</nz-upload>
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label nzRequired>Arquivo da automação</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira o arquivo da automação">
+							<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+								<button nz-button type="button">
+									<span nz-icon nzType="upload"></span>
+									Selecione o arquivo
+								</button>
+							</nz-upload>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label>Arquivos de complemento</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira os arquivos de complemento da automação">
+							<nz-upload [(nzFileList)]="complementFileList" [nzBeforeUpload]="beforeComplementUpload" nzMultiple>
+								<button nz-button type="button">
+									<span nz-icon nzType="upload"></span>
+									Selecione o arquivo
+								</button>
+							</nz-upload>
+						</nz-form-control>
+					</nz-form-item>
 				</nz-col>
 
 				<nz-col nzSpan="24" style="margin-top: 16px">
@@ -109,7 +128,7 @@
 						}
 
 						<nz-col nzSpan="2">
-							<button type="button" nz-button nzType="link" (click)="removeParameter($index)" nzDanger style="margin-top: 32px;">
+							<button type="button" nz-button nzType="link" (click)="removeParameter($index)" nzDanger style="margin-top: 32px">
 								<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
 							</button>
 						</nz-col>
