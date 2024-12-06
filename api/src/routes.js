@@ -47,10 +47,11 @@ router.get(
   verificarAutenticacao,
   TipoAgendamentoController.listar
 );
-router.get(
-  '/agendamentos/fila',
+router.get('/agendamentos/fila', verificarAutenticacao, FilaController.listar);
+router.post(
+  '/agendamentos/fila/:id',
   verificarAutenticacao,
-  FilaController.listar
+  FilaController.encerrarProcesso
 );
 router.patch(
   '/agendamentos/:id',
@@ -74,11 +75,7 @@ router.delete(
 );
 
 // Automações
-router.get(
-  '/automacoes',
-  verificarAutenticacao,
-  AutomacaoController.listar
-);
+router.get('/automacoes', verificarAutenticacao, AutomacaoController.listar);
 router.get(
   '/automacoes/tipos-parametros',
   verificarAutenticacao,
@@ -89,6 +86,11 @@ router.get(
   '/automacoes/:id',
   verificarAutenticacao,
   AutomacaoController.listarDetalhes
+);
+router.get(
+  '/automacoes/:id/parametros',
+  verificarAutenticacao,
+  AutomacaoController.listarParametros
 );
 router.patch(
   '/automacoes/:id/parametros',
@@ -147,6 +149,9 @@ router.patch(
 );
 
 // Parâmetros
-router.get('/parametros/automacoes/:id', AutomacaoController.listarParametros);
+router.get(
+  '/parametros/automacoes/:id',
+  AutomacaoController.listarParametrosFormatados
+);
 
 module.exports = router;

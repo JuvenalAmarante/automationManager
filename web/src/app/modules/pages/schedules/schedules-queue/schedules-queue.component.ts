@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { finalize } from 'rxjs';
 import { ApiService } from 'src/app/core/services/api.service';
 import { DefaultResponse, FilaItem } from 'src/app/shared/types';
@@ -10,10 +11,13 @@ import { DefaultResponse, FilaItem } from 'src/app/shared/types';
 })
 export class SchedulesQueueComponent implements OnInit {
 	isLoading = false;
+	isLoadingRemove = false;
 	queueList: FilaItem[] = [];
 	dateSync: Date = new Date();
 
-	constructor(private readonly api: ApiService) {}
+	constructor(private readonly api: ApiService,
+		private readonly messageService: NzMessageService,
+	) {}
 
 	ngOnInit(): void {
 		this.loadQueue();
@@ -32,6 +36,25 @@ export class SchedulesQueueComponent implements OnInit {
 			.subscribe({
 				next: (res: DefaultResponse<FilaItem[]>) => {
 					this.queueList = res.data;
+				},
+			});
+	}
+
+	removeQueueItem(id: number) {
+		this.isLoadingRemove = true;
+		this.api
+			.post(`/agendamentos/fila/${id}`, {})
+			.pipe(
+				finalize(() => {
+					this.isLoadingRemove = false;
+				}),
+			)
+			.subscribe({
+				next: (res: DefaultResponse<null>) => {
+					this.loadQueue()
+				},
+				error: (err) => {
+					this.messageService.error(err.error.message);
 				},
 			});
 	}

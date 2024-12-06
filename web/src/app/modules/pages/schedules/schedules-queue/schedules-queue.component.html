@@ -6,7 +6,9 @@
 			<div nz-col nzSpan="24">
 				<h2 class="form-subtitle">
 					Processos em andamento
-					<strong style="font-size: 12px; font-weight: normal; margin-left: 16px; color: rgba(0, 0, 0, 0.45)">Atualizado em: {{ dateSync | date: 'dd/MM/yyyy HH:mm:ss' }}</strong>
+					<strong style="font-size: 12px; font-weight: normal; margin-left: 16px; color: rgba(0, 0, 0, 0.45)"
+						>Atualizado em: {{ dateSync | date: 'dd/MM/yyyy HH:mm:ss' }}</strong
+					>
 				</h2>
 			</div>
 
@@ -14,9 +16,25 @@
 				<nz-col nzSpan="24">
 					<nz-timeline>
 						@for (queueItem of queueList; track $index) {
-							<nz-timeline-item [nzColor]="$index == 0 ? 'green' : 'blue'" [nzDot]="$index == 0 ? dotTemplateSync : dotTemplateClock"
-								>Agendamento {{ queueItem.agendamento_id }}: {{ queueItem.nome }}</nz-timeline-item
-							>
+							<nz-timeline-item [nzColor]="$index == 0 ? 'green' : 'blue'" [nzDot]="$index == 0 ? dotTemplateSync : dotTemplateClock">
+								<div nz-row nzAlign="middle" nzJustify="space-between">
+									<div nz-col nzSpan="23">Agendamento {{ queueItem.agendamento_id }}: {{ queueItem.nome }}</div>
+									<div nz-col nzSpan="1">
+										<a
+											nz-button
+											nzType="link"
+											nz-popconfirm
+											nzPopconfirmTitle="Você deseja realmente remover esse item da fila?"
+											(nzOnConfirm)="removeQueueItem(queueItem.id)"
+											nzPopconfirmPlacement="topLeft"
+											[nzLoading]="isLoadingRemove"
+											nzDanger
+										>
+											<span nz-icon nzType="close-circle" nzTheme="outline" nzDanger> </span>
+										</a>
+									</div>
+								</div>
+							</nz-timeline-item>
 
 							<ng-template #dotTemplateClock>
 								<span nz-icon nzType="clock-circle-o" style="font-size: 16px"></span>

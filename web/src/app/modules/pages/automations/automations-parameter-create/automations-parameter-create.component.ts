@@ -77,7 +77,7 @@ export class AutomationsParameterCreateComponent implements OnInit {
 	loadAutomationValues(id: number): void {
 		this.isLoadingAutomationDetails = true;
 		this.api
-			.get(`/parametros/automacoes/${id}`)
+			.get(`/automacoes/${id}/parametros`)
 			.pipe(
 				finalize(() => {
 					this.isLoadingAutomationDetails = false;
@@ -134,5 +134,9 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 	closeErrorAlert(error: string) {
 		this.errorList = this.errorList.filter((err) => err !== error);
+	}
+
+	onChange(texto: string) {
+		console.log(texto)
 	}
 }

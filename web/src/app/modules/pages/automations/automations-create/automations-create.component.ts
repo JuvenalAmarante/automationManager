@@ -34,7 +34,7 @@ export class AutomationsCreateComponent implements OnInit {
 		this.automationForm = this.fb.group({
 			nome: [null, [Validators.required]],
 			arquivo: [null, [Validators.required]],
-			complementos: [null, [Validators.required]],
+			complementos: [null],
 		});
 	}
 
@@ -85,7 +85,7 @@ export class AutomationsCreateComponent implements OnInit {
 		this.parametersList.forEach((parameter) => {
 			form.append('parametros[]', JSON.stringify(parameter));
 		});
-		this.automationForm.value.complementos.forEach((parameter: any) => {
+		this.automationForm.value.complementos?.forEach((parameter: any) => {
 			form.append('complementos', parameter);
 		});
 

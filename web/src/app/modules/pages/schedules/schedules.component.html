@@ -23,7 +23,13 @@
 						<td>{{ data.id }}</td>
 						<td>{{ data.Automacao.nome }}</td>
 						<td>{{ data.TipoAgendamento.nome }}</td>
-						<td nzAlign="center">{{ data.proxima_execucao | date: 'dd/MM/yyyy HH:mm' }}</td>
+						<td nzAlign="center">
+							@if(data.proxima_execucao) {
+								{{ data.proxima_execucao | date: 'dd/MM/yyyy HH:mm' }}
+							} @else {
+								----
+							}
+						</td>
 						<td nzAlign="center">
 							<a nz-button nzType="link" [routerLink]="['logs/' + data.id]"><span nz-icon nzType="file-search" nzTheme="outline"></span></a>
 							<nz-divider nzType="vertical"></nz-divider>

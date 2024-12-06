@@ -193,7 +193,7 @@ class AgendamentoController {
       }
 
       let where = {
-        excluido: false
+        excluido: false,
       };
 
       if (!usuario.admin)
@@ -218,9 +218,10 @@ class AgendamentoController {
         success: true,
         data: agendamentos.map((agendamento) => ({
           ...agendamento.dataValues,
-          proxima_execucao: parser
-            .parseExpression(agendamento.dataValues.horario)
-            .next(),
+          proxima_execucao:
+            agendamento.dataValues.ativo
+              ? parser.parseExpression(agendamento.dataValues.horario).next()
+              : null,
         })),
       });
     } catch (error) {
@@ -472,6 +473,43 @@ class AgendamentoController {
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  };
+
+  deletarPorAutomacao = async (automacao_id) => {
+    try {
+      const agendamentos = await Agendamento.findAll({
+        where: {
+          automacao_id,
+        },
+      });
+
+      const agendamentos_ids = agendamentos.map(
+        (agendamento) => agendamento.dataValues.id
+      );
+
+      await Agendamento.update(
+        { excluido: true },
+        {
+          where: {
+            id: {
+              [Op.in]: agendamentos_ids,
+            },
+          },
+        }
+      );
+
+      Object.keys(this.tarefasAtivas).forEach((key) => {
+        if (agendamentos_ids.includes(+key)) {
+          this.tarefasAtivas[key]?.stop();
+
+          delete this.tarefasAtivas[key];
+
+          console.log(`Agendamento ${key} excluído.`);
+        }
+      });
+    } catch (error) {
+      throw error;
     }
   };
 

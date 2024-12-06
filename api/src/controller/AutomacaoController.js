@@ -9,6 +9,7 @@ const Parametro = require('../models/Parametro');
 const Usuario = require('../models/Usuario');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 const { Op, where } = require('sequelize');
+const AgendamentoController = require('./AgendamentoController');
 
 class AutomacaoController {
   async criar(req, res) {
@@ -18,9 +19,7 @@ class AutomacaoController {
       const storage = multer.diskStorage({
         destination: function (req, file, callback) {
           if (file.fieldname !== 'complementos')
-            nomePasta = `${Date.now()}-${Math.round(
-              Math.random() * 1e9
-            )}`;
+            nomePasta = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
           if (!fs.existsSync(`./src/public/${nomePasta}`)) {
             fs.mkdirSync(`./src/public/${nomePasta}`);
@@ -60,6 +59,22 @@ class AutomacaoController {
               .status(400)
               .json({ success: false, message: 'Campos inválidos' });
 
+          let automacao = await Automacao.findOne({
+            where: {
+              nome: nome.trim(),
+              excluido: false,
+            },
+            transaction,
+          });
+
+          if (automacao)
+            return res
+              .status(400)
+              .json({
+                success: false,
+                message: 'Nome inválido',
+              });
+
           if (parametros) {
             let contador = 0;
 
@@ -88,9 +103,9 @@ class AutomacaoController {
                 .json({ success: false, message: 'Campos inválidos' });
           }
 
-          const automacao = await Automacao.create(
+          automacao = await Automacao.create(
             {
-              nome,
+              nome: nome.trim(),
               arquivo: `${nomePasta}/${nomeArquivo}`,
             },
             {
@@ -275,8 +290,8 @@ class AutomacaoController {
             ) {
               const date = new Date(parametro[parametroSalvo.dataValues.nome]);
 
-              const dia = date.getDate();
-              const mes = date.getMonth() + 1;
+              const dia = ('0'.repeat(2) + date.getDate()).slice(2);
+              const mes = ('0'.repeat(2) + date.getMonth() + 1).slice(2);
               const ano = date.getFullYear();
 
               switch (parametroSalvo.dataValues.tipo_parametro_id) {
@@ -373,6 +388,8 @@ class AutomacaoController {
           .json({ success: false, message: 'Automação não encontrada' });
 
       await Automacao.update({ excluido: true }, { where: { id } });
+
+      await AgendamentoController.deletarPorAutomacao(id)
 
       res
         .status(200)
@@ -486,6 +503,40 @@ class AutomacaoController {
         }
 
         return dados;
+      });
+
+      res.status(200).json({ success: true, data: parametros });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  }
+
+  async listarParametrosFormatados(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Automação não encontrada' });
+
+    try {
+      const automacao = await Automacao.findByPk(id);
+
+      if (!automacao)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
+
+      const parametrosSalvos = await Parametro.findAll({
+        where: {
+          automacao_id: id,
+        },
+      });
+
+      const parametros = parametrosSalvos.map((parametro) => {
+        return JSON.parse(parametro.dataValues.valor);
       });
 
       res.status(200).json({ success: true, data: parametros });
