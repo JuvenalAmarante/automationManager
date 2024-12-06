@@ -1,6 +1,6 @@
 <nz-page-header [nzGhost]="false" nzBackIcon>
-	<nz-page-header-title>Cadastrar</nz-page-header-title>
-	<nz-page-header-subtitle>Crie novos agendamentos</nz-page-header-subtitle>
+	<nz-page-header-title>{{scheduleDetails ? "Editar" : "Cadastrar"}}</nz-page-header-title>
+	<nz-page-header-subtitle>{{scheduleDetails? "Atualize os dados do seu agendamento" : "Crie novos agendamentos"}}</nz-page-header-subtitle>
 	<nz-page-header-content>
 		<form nz-form nzLayout="vertical" nzNoColon [formGroup]="scheduleForm" (ngSubmit)="handleSubmit()">
 			<nz-row nzGutter="16">

@@ -17,6 +17,11 @@ const routes: Routes = [
 		canActivate: [AdminAuthGuard],
 	},
 	{
+		path: 'editar/:id',
+		component: AutomationsCreateComponent,
+		canActivate: [AdminAuthGuard],
+	},
+	{
 		path: 'parametros',
 		component: AutomationsParameterCreateComponent,
 	},

@@ -1,6 +1,6 @@
 <nz-page-header [nzGhost]="false" nzBackIcon>
-	<nz-page-header-title>Cadastrar</nz-page-header-title>
-	<nz-page-header-subtitle>Crie novas automações</nz-page-header-subtitle>
+	<nz-page-header-title>{{ automationDetails ? 'Editar' : 'Cadastrar' }}</nz-page-header-title>
+	<nz-page-header-subtitle>{{ automationDetails ? 'Atualize os dados da sua automação' : 'Crie novas automaçoes' }}</nz-page-header-subtitle>
 	<nz-page-header-content>
 		<form nz-form nzLayout="vertical" nzNoColon [formGroup]="automationForm" (ngSubmit)="handleSubmit()">
 			<nz-row nzGutter="16">
@@ -32,33 +32,35 @@
 					</nz-form-item>
 				</nz-col>
 
-				<nz-col nzSpan="12">
-					<nz-form-item>
-						<nz-form-label nzRequired>Arquivo da automação</nz-form-label>
-						<nz-form-control nzErrorTip="Por favor, insira o arquivo da automação">
-							<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
-								<button nz-button type="button">
-									<span nz-icon nzType="upload"></span>
-									Selecione o arquivo
-								</button>
-							</nz-upload>
-						</nz-form-control>
-					</nz-form-item>
-				</nz-col>
+				@if (!automationDetails) {
+					<nz-col nzSpan="12">
+						<nz-form-item>
+							<nz-form-label nzRequired>Arquivo da automação</nz-form-label>
+							<nz-form-control nzErrorTip="Por favor, insira o arquivo da automação">
+								<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+									<button nz-button type="button">
+										<span nz-icon nzType="upload"></span>
+										Selecione o arquivo
+									</button>
+								</nz-upload>
+							</nz-form-control>
+						</nz-form-item>
+					</nz-col>
 
-				<nz-col nzSpan="12">
-					<nz-form-item>
-						<nz-form-label>Arquivos de complemento</nz-form-label>
-						<nz-form-control nzErrorTip="Por favor, insira os arquivos de complemento da automação">
-							<nz-upload [(nzFileList)]="complementFileList" [nzBeforeUpload]="beforeComplementUpload" nzMultiple>
-								<button nz-button type="button">
-									<span nz-icon nzType="upload"></span>
-									Selecione o arquivo
-								</button>
-							</nz-upload>
-						</nz-form-control>
-					</nz-form-item>
-				</nz-col>
+					<nz-col nzSpan="12">
+						<nz-form-item>
+							<nz-form-label>Arquivos de complemento</nz-form-label>
+							<nz-form-control nzErrorTip="Por favor, insira os arquivos de complemento da automação">
+								<nz-upload [(nzFileList)]="complementFileList" [nzBeforeUpload]="beforeComplementUpload" nzMultiple>
+									<button nz-button type="button">
+										<span nz-icon nzType="upload"></span>
+										Selecione o arquivo
+									</button>
+								</nz-upload>
+							</nz-form-control>
+						</nz-form-item>
+					</nz-col>
+				}
 
 				<nz-col nzSpan="24" style="margin-top: 16px">
 					<nz-row nzJustify="space-between">

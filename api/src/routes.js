@@ -87,6 +87,12 @@ router.get(
   verificarAutenticacao,
   AutomacaoController.listarDetalhes
 );
+router.patch(
+  '/automacoes/:id',
+  verificarAutenticacao,
+  verificarAdmin,
+  AutomacaoController.atualizar
+);
 router.get(
   '/automacoes/:id/parametros',
   verificarAutenticacao,

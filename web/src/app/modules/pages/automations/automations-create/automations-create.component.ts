@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ApiService } from 'src/app/core/services/api.service';
-import { DefaultResponse, TipoParametro } from 'src/app/shared/types';
+import { Automacao, DefaultResponse, TipoParametro } from 'src/app/shared/types';
 import { normalizeParams } from 'src/app/shared/helpers';
 import { finalize } from 'rxjs';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
 	selector: 'app-automations-create',
@@ -24,12 +24,16 @@ export class AutomationsCreateComponent implements OnInit {
 	fileList: NzUploadFile[] = [];
 	complementFileList: NzUploadFile[] = [];
 
+	isLoadingDetails = false;
+	automationDetails?: Automacao;
+
 	errorList: string[] = [];
 
 	constructor(
 		private readonly fb: UntypedFormBuilder,
 		private readonly api: ApiService,
 		private readonly router: Router,
+		private readonly activatedRoute: ActivatedRoute,
 	) {
 		this.automationForm = this.fb.group({
 			nome: [null, [Validators.required]],
@@ -40,6 +44,10 @@ export class AutomationsCreateComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.loadTypes();
+
+		this.activatedRoute.params.subscribe((params) => {
+			if (params['id']) this.loadAutomationDetail(+params['id']);
+		});
 	}
 
 	loadTypes(): void {
@@ -58,8 +66,37 @@ export class AutomationsCreateComponent implements OnInit {
 			});
 	}
 
+	loadAutomationDetail(id: number): void {
+		this.isLoadingDetails = true;
+		this.api
+			.get(`/automacoes/${id}`)
+			.pipe(
+				finalize(() => {
+					this.isLoadingDetails = false;
+				}),
+			)
+			.subscribe({
+				next: (res: DefaultResponse<Automacao>) => {
+					this.automationForm.patchValue({
+						nome: res.data.nome,
+						arquivo: res.data.arquivo,
+					});
+
+					if (res.data.parametros)
+						this.parametersList = res.data.parametros.map((parametro) => ({
+							nome: parametro.nome,
+							qtd_digitos: parametro.qtd_digitos,
+							tipo_parametro_id: parametro.tipo_parametro_id,
+						}));
+
+					this.automationDetails = res.data;
+				},
+			});
+	}
+
 	async handleSubmit() {
-		this.createAutomation();
+		if(this.automationDetails) return this.updateAutomation()
+		return this.createAutomation();
 	}
 
 	beforeUpload = (file: NzUploadFile): boolean => {
@@ -106,6 +143,25 @@ export class AutomationsCreateComponent implements OnInit {
 			});
 	}
 
+	updateAutomation(): void {
+		this.isSaving = true;
+		this.api
+			.patch(`/automacoes/${this.automationDetails?.id}`, { nome: this.automationForm.value.nome, parametros: this.parametersList })
+			.pipe(
+				finalize(() => {
+					this.isSaving = false;
+				}),
+			)
+			.subscribe({
+				next: (res: DefaultResponse<null | undefined>) => {
+					this.goBack();
+				},
+				error: (err) => {
+					this.errorList = [err.error.message];
+				},
+			});
+	}
+	
 	goBack() {
 		this.router.navigate(['/app/automacoes']);
 	}

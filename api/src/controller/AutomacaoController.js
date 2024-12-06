@@ -68,12 +68,10 @@ class AutomacaoController {
           });
 
           if (automacao)
-            return res
-              .status(400)
-              .json({
-                success: false,
-                message: 'Nome inválido',
-              });
+            return res.status(400).json({
+              success: false,
+              message: 'Nome inválido',
+            });
 
           if (parametros) {
             let contador = 0;
@@ -224,6 +222,132 @@ class AutomacaoController {
     }
   }
 
+  async atualizar(req, res) {
+    const { id } = req.params;
+
+    if (!id || isNaN(+id))
+      return res
+        .status(400)
+        .json({ success: false, message: 'Automação não encontrada' });
+
+    const transaction = await connection.transaction();
+
+    try {
+      let automacao = await Automacao.findByPk(id, {
+        transaction,
+      });
+
+      if (!automacao)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Automação não encontrada' });
+
+      const { nome, parametros } = req.body;
+
+      if (!nome || (parametros && !Array.isArray(parametros)))
+        return res
+          .status(400)
+          .json({ success: false, message: 'Campos inválidos' });
+
+      automacao = await Automacao.findOne({
+        where: {
+          id: {
+            [Op.not]: id,
+          },
+          nome: nome.trim(),
+          excluido: false,
+        },
+        transaction,
+      });
+
+      if (automacao)
+        return res.status(400).json({
+          success: false,
+          message: 'Nome inválido',
+        });
+
+      if (parametros) {
+        let contador = 0;
+
+        for await (const parametro of parametros) {
+          if (
+            !parametro.nome ||
+            !parametro.tipo_parametro_id ||
+            (parametro.tipo_parametro_id == 2 && !parametro.qtd_digitos)
+          )
+            break;
+
+          const tipo = await TipoParametro.findByPk(
+            parametro.tipo_parametro_id
+          );
+
+          if (!tipo) break;
+
+          contador++;
+        }
+
+        if (contador != parametros.length)
+          return res
+            .status(400)
+            .json({ success: false, message: 'Campos inválidos' });
+      }
+
+      await Automacao.update(
+        {
+          nome: nome.trim(),
+        },
+        {
+          where: {
+            id,
+          },
+          transaction,
+        }
+      );
+
+      await ParametroAutomacao.destroy({
+        where: {
+          automacao_id: id,
+        },
+      });
+
+      let parametrosSalvos = [];
+      if (parametros) {
+        for await (const parametro of parametros) {
+          const parametroSalvo = await ParametroAutomacao.create(
+            {
+              nome: parametro.nome,
+              automacao_id: id,
+              tipo_parametro_id: parametro.tipo_parametro_id,
+              qtd_digitos: parametro.qtd_digitos || null,
+            },
+            {
+              transaction,
+            }
+          );
+
+          parametrosSalvos.push(parametroSalvo);
+        }
+      }
+
+      res.status(201).json({
+        success: true,
+        message: 'Automação salva com sucesso!',
+      });
+
+      await transaction.commit();
+    } catch (error) {
+      console.log(
+        '🚀 ~ AutomacaoController ~ atualizar ~ error:',
+        error.message
+      );
+      await transaction.rollback();
+
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  }
+
   atualizarParametros = async (req, res) => {
     const { id } = req.params;
 
@@ -289,9 +413,9 @@ class AutomacaoController {
               )
             ) {
               const date = new Date(parametro[parametroSalvo.dataValues.nome]);
-
+              
               const dia = ('0'.repeat(2) + date.getDate()).slice(2);
-              const mes = ('0'.repeat(2) + date.getMonth() + 1).slice(2);
+              const mes = ('0'.repeat(2) + (date.getMonth() + 1)).slice(2);
               const ano = date.getFullYear();
 
               switch (parametroSalvo.dataValues.tipo_parametro_id) {
@@ -389,7 +513,7 @@ class AutomacaoController {
 
       await Automacao.update({ excluido: true }, { where: { id } });
 
-      await AgendamentoController.deletarPorAutomacao(id)
+      await AgendamentoController.deletarPorAutomacao(id);
 
       res
         .status(200)

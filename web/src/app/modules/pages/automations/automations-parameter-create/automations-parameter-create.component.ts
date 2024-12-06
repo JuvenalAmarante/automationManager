@@ -69,7 +69,7 @@ export class AutomationsParameterCreateComponent implements OnInit {
 			.subscribe({
 				next: (res: DefaultResponse<Automacao>) => {
 					this.automationSelected = res.data;
-					this.loadAutomationValues(id)
+					this.loadAutomationValues(id);
 				},
 			});
 	}
@@ -85,7 +85,21 @@ export class AutomationsParameterCreateComponent implements OnInit {
 			)
 			.subscribe({
 				next: (res: DefaultResponse<Record<string, any>[]>) => {
-					this.parametersValues = res.data;
+					let listParamets: string[] = [];
+
+					if (this.automationSelected?.parametros) {
+						listParamets = this.automationSelected?.parametros?.map((parameter) => parameter.nome);
+					}
+
+					this.parametersValues = res.data.map((item) => {
+						if (this.automationSelected?.parametros) {
+							Object.keys(item).forEach((key) => {
+								if (!listParamets.includes(key)) delete item[key];
+							});
+						}
+
+						return item;
+					});
 				},
 			});
 	}
@@ -137,6 +151,6 @@ export class AutomationsParameterCreateComponent implements OnInit {
 	}
 
 	onChange(texto: string) {
-		console.log(texto)
+		console.log(texto);
 	}
 }

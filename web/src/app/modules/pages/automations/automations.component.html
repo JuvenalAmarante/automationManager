@@ -2,10 +2,11 @@
 	<nz-page-header-title>Automações</nz-page-header-title>
 	<nz-page-header-subtitle>Verifique ou crie novas automações</nz-page-header-subtitle>
 	<nz-page-header-extra>
-		@if(profile?.admin){
-		<nz-space>
-			<a nz-button nzType="primary" [routerLink]="['criar']"><span nz-icon nzType="plus" nzTheme="outline"></span>Cadastrar</a> </nz-space
-		>}
+		@if (profile?.admin) {
+			<nz-space>
+				<a nz-button nzType="primary" [routerLink]="['criar']"><span nz-icon nzType="plus" nzTheme="outline"></span>Cadastrar</a>
+			</nz-space>
+		}
 	</nz-page-header-extra>
 	<nz-page-header-content>
 		<nz-table #dynamicTable [nzData]="dataList" [nzLoading]="isLoading">
@@ -20,8 +21,10 @@
 				<ng-container *ngFor="let data of dynamicTable.data">
 					<tr>
 						<td>{{ data.nome }}</td>
-						<td nzAlign="center">{{ data.criado_em | date : 'dd/MM/yyyy' }}</td>
+						<td nzAlign="center">{{ data.criado_em | date: 'dd/MM/yyyy' }}</td>
 						<td nzAlign="center">
+							<a nz-button nzType="link" [routerLink]="['editar/' + data.id]"><span nz-icon nzType="edit" nzTheme="outline"></span></a>
+							<nz-divider nzType="vertical"></nz-divider>
 							<a
 								nz-button
 								nzType="link"
