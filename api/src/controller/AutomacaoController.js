@@ -414,8 +414,8 @@ class AutomacaoController {
             ) {
               const date = new Date(parametro[parametroSalvo.dataValues.nome]);
               
-              const dia = ('0'.repeat(2) + date.getDate()).slice(2);
-              const mes = ('0'.repeat(2) + (date.getMonth() + 1)).slice(2);
+              const dia = ('0'.repeat(2) + date.getDate()).slice(-2);
+              const mes = ('0'.repeat(2) + (date.getMonth() + 1)).slice(-2);
               const ano = date.getFullYear();
 
               switch (parametroSalvo.dataValues.tipo_parametro_id) {

@@ -1,7 +1,7 @@
-const utf8 = require('utf8');
 const { v4 } = require('uuid');
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const LogAgendamento = require('../models/LogAgendamento');
+const path = require('path');
 
 class FilaController {
   filaExecucao = [];
@@ -29,10 +29,12 @@ class FilaController {
 
       const nomeAutomacao = `${automacao.dados.arquivo}`.split('/');
 
+      const nomePasta = path.join(__dirname, '..', 'public', nomeAutomacao.shift());
+
       console.log(`Executando automação: ${automacao.dados.nome}`);
-      let comando = `cd ./src/public/${nomeAutomacao.shift()} && python ${nomeAutomacao.join(
-        '/'
-      )} --id "${automacao.dados.id}"`;
+
+      const pythonScript = `${nomePasta}/index.py`;
+      const args = ['--id', automacao.dados.id];
 
       await LogAgendamento.create({
         possui_erro: false,
@@ -42,43 +44,62 @@ class FilaController {
 
       const abortSignal = new AbortController();
 
-      exec(
-        comando,
-        { windowsHide: true, signal: abortSignal.signal },
-        async (error, stdout, stderr) => {
-          if (error) {
-            await LogAgendamento.create({
-              possui_erro: true,
-              agendamento_id: automacao.agendamento_id,
-              retorno: `Erro ao executar ${automacao.dados.nome}:\n\n${error.message}`,
-            });
+      const processo = spawn('python3', [pythonScript, ...args], {
+        windowsHide: true,
+        signal: abortSignal.signal,
+      });
 
-            console.error(
-              `Erro ao executar ${automacao.dados.nome}:`,
-              error.message
-            );
-          } else if (stderr) {
-            await LogAgendamento.create({
-              possui_erro: true,
-              agendamento_id: automacao.agendamento_id,
-              retorno: `Erro na automação ${automacao.dados.nome}:\n\n${stderr}`,
-            });
+      let stdout = '';
+      let stderr = '';
 
-            console.error(`Erro no automação ${automacao.dados.nome}:`, stderr);
-          } else {
-            await LogAgendamento.create({
-              possui_erro: false,
-              agendamento_id: automacao.agendamento_id,
-              retorno: `Fim da execução\n\n${stdout}`,
-            });
+      processo.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
 
-            console.log(`Saída de ${automacao.dados.nome}:`, stdout);
-          }
+      processo.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
 
-          this.filaExecucao.shift();
-          this.processarFila();
+      processo.on('close', async (code) => {
+        if (code !== 0 || stderr) {
+          const erroMsg = stderr || `Erro com código de saída ${code}`;
+
+          await LogAgendamento.create({
+            possui_erro: true,
+            agendamento_id: automacao.agendamento_id,
+            retorno: `Erro na automação ${automacao.dados.nome}:\n\n${erroMsg}`,
+          });
+
+          console.error(`Erro na automação ${automacao.dados.nome}:`, erroMsg);
+        } else {
+          await LogAgendamento.create({
+            possui_erro: false,
+            agendamento_id: automacao.agendamento_id,
+            retorno: `Fim da execução\n\n${stdout}`,
+          });
+
+          console.log(`Saída de ${automacao.dados.nome}:`, stdout);
         }
-      );
+
+        this.filaExecucao.shift();
+        this.processarFila();
+      });
+
+      processo.on('error', async (error) => {
+        await LogAgendamento.create({
+          possui_erro: true,
+          agendamento_id: automacao.agendamento_id,
+          retorno: `Erro ao executar ${automacao.dados.nome}:\n\n${error.message}`,
+        });
+
+        console.error(
+          `Erro ao executar ${automacao.dados.nome}:`,
+          error.message
+        );
+
+        this.filaExecucao.shift();
+        this.processarFila();
+      });
 
       this.filaExecucao[0].abortSignal = abortSignal;
     } catch (err) {
