@@ -34,6 +34,12 @@ class AutenticacaoController {
         },
       });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Autenticacao',
+        funcao: 'login',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });

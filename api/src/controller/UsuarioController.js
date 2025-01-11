@@ -67,6 +67,12 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
+      await LogErro.create({
+        modulo: 'Usuario',
+        funcao: 'criar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -102,6 +108,12 @@ class UsuarioController {
         data: usuarios,
       });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Usuario',
+        funcao: 'listar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -131,6 +143,12 @@ class UsuarioController {
         data: usuario,
       });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Usuario',
+        funcao: 'listarDetalhes',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -215,7 +233,11 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
-      console.log(error.message);
+      await LogErro.create({
+        modulo: 'Usuario',
+        funcao: 'atualizar',
+        retorno: error.message,
+      });
 
       res
         .status(500)
@@ -248,7 +270,11 @@ class UsuarioController {
           [],
       });
     } catch (error) {
-      console.log(error.message);
+      await LogErro.create({
+        modulo: 'Usuario',
+        funcao: 'listarAutomacoesVinculadas',
+        retorno: error.message,
+      });
 
       res
         .status(500)
@@ -311,7 +337,11 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
-      console.log(error.message);
+      await LogErro.create({
+        modulo: 'Usuario',
+        funcao: 'atualizarAutomacoesVinculadas',
+        retorno: error.message,
+      });
 
       res
         .status(500)

@@ -29,7 +29,12 @@ class FilaController {
 
       const nomeAutomacao = `${automacao.dados.arquivo}`.split('/');
 
-      const nomePasta = path.join(__dirname, '..', 'public', nomeAutomacao.shift());
+      const nomePasta = path.join(
+        __dirname,
+        '..',
+        'public',
+        nomeAutomacao.shift()
+      );
 
       console.log(`Executando automação: ${automacao.dados.nome}`);
 
@@ -102,12 +107,17 @@ class FilaController {
       });
 
       this.filaExecucao[0].abortSignal = abortSignal;
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      await LogErro.create({
+        modulo: 'Fila',
+        funcao: 'processarFila',
+        retorno: error.message,
+      });
     }
   }
 
   encerrarProcesso = async (req, res) => {
+    const { usuario } = req;
     const { id } = req.params;
 
     if (!id)
@@ -123,6 +133,21 @@ class FilaController {
         .json({ success: false, message: 'Item não encontrado' });
 
     if (this.filaExecucao[indexItemFila]) {
+      if (!usuario.admin) {
+        automacoes_ids = (
+          await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          })
+        ).map((relacao) => relacao.dataValues.automacao_id);
+
+        if (!automacoes_ids.includes(this.filaExecucao[indexItemFila].dados.id))
+          return res
+            .status(400)
+            .json({ success: false, message: 'Ação não permitida' });
+      }
+
       if (this.filaExecucao[indexItemFila].abortSignal) {
         this.filaExecucao[indexItemFila].abortSignal.abort();
       } else {
@@ -136,7 +161,7 @@ class FilaController {
     });
   };
 
-  listar = (req, res) => {
+  listar = async (req, res) => {
     try {
       res.status(200).json({
         success: true,
@@ -146,8 +171,12 @@ class FilaController {
           agendamento_id: item.agendamento_id,
         })),
       });
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      await LogErro.create({
+        modulo: 'Fila',
+        funcao: 'listar',
+        retorno: error.message,
+      });
     }
   };
 }

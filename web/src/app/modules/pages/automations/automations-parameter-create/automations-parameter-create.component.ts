@@ -16,6 +16,7 @@ import { nextDay, differenceInCalendarDays } from 'date-fns';
 export class AutomationsParameterCreateComponent implements OnInit {
 	scheduleForm: FormGroup;
 	isSaving = false;
+	isVisible = false;
 
 	isLoadingAutomations = false;
 	automationsList: Automacao[] = [];
@@ -24,6 +25,8 @@ export class AutomationsParameterCreateComponent implements OnInit {
 	automationSelected?: Automacao;
 
 	parametersValues: Record<string, any>[] = [];
+
+	parameterSelected?: { index: number; key: string };
 
 	errorList: string[] = [];
 
@@ -131,6 +134,8 @@ export class AutomationsParameterCreateComponent implements OnInit {
 		const value: Record<string, any> = {};
 		this.automationSelected?.parametros?.forEach((parameter) => {
 			value[parameter.nome] = null;
+
+			if (parameter.tipo_parametro_id == 8) value[parameter.nome] = [];
 		});
 
 		this.parametersValues = [...this.parametersValues, value];
@@ -152,5 +157,39 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 	onChange(texto: string) {
 		console.log(texto);
+	}
+
+	showModal(index: number, key: string): void {
+		this.isVisible = true;
+
+		this.parameterSelected = {
+			index,
+			key,
+		};
+	}
+
+	handleCancel(): void {
+		this.isVisible = false;
+	}
+
+	handleOk(): void {
+		this.isVisible = false;
+	}
+
+	addItemParameterValue() {
+		if (this.parameterSelected) {
+			this.parametersValues[this.parameterSelected.index][this.parameterSelected.key] = [
+				...this.parametersValues[this.parameterSelected.index][this.parameterSelected.key],
+				'',
+			];
+		}
+	}
+
+	removeItemParameterValue(index: number) {
+		if (this.parameterSelected) {
+			const newList = this.parametersValues[this.parameterSelected.index][this.parameterSelected.key].filter((item: string, idx: number) => idx != index);
+
+			this.parametersValues[this.parameterSelected.index][this.parameterSelected.key] = newList;
+		}
 	}
 }

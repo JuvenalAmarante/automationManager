@@ -11,6 +11,7 @@ const TipoAgendamento = require('../models/TipoAgendamento');
 const Parametro = require('../models/Parametro');
 const LogAgendamento = require('../models/LogAgendamento');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
+const LogErro = require('../models/LogErro');
 
 const connection = new Sequelize(configDB);
 
@@ -23,6 +24,7 @@ ParametroAutomacao.init(connection);
 Parametro.init(connection);
 Agendamento.init(connection);
 LogAgendamento.init(connection);
+LogErro.init(connection);
 
 Usuario.belongsToMany(Automacao, { as: 'Automacoes', through: 'usuarios_tem_automacoes' });
 

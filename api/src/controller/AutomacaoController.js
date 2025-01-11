@@ -147,6 +147,12 @@ class AutomacaoController {
         }
       });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'criar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -183,7 +189,12 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: automacoes });
     } catch (error) {
-      console.log(error);
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'listar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -216,6 +227,12 @@ class AutomacaoController {
         .status(200)
         .json({ success: true, data: { ...automacao.dataValues, parametros } });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'listarDetalhes',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -336,11 +353,13 @@ class AutomacaoController {
 
       await transaction.commit();
     } catch (error) {
-      console.log(
-        '🚀 ~ AutomacaoController ~ atualizar ~ error:',
-        error.message
-      );
       await transaction.rollback();
+
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'atualizar',
+        retorno: error.message,
+      });
 
       res
         .status(500)
@@ -489,6 +508,12 @@ class AutomacaoController {
     } catch (error) {
       await transaction.rollback();
 
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'atualizarParametros',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -519,6 +544,12 @@ class AutomacaoController {
         .status(200)
         .json({ success: true, message: 'Automação deletada com sucesso' });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'deletar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -531,6 +562,12 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: tipos });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'listarTiposParametros',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -631,6 +668,12 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: parametros });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'listarParametros',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -665,6 +708,12 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: parametros });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Automacao',
+        funcao: 'listarParametrosFormatados',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });

@@ -48,6 +48,12 @@ module.exports = {
           criado_em: new Date(),
           atualizado_em: new Date(),
         },
+        {
+          id: 8,
+          nome: 'Lista de valores',
+          criado_em: new Date(),
+          atualizado_em: new Date(),
+        },
       ],
       {}
     );

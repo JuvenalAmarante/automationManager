@@ -183,7 +183,7 @@ module.exports = {
         references: { model: 'automacoes', key: 'id' },
       },
       valor: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(2000),
         allowNull: false,
       },
       criado_em: {
@@ -263,6 +263,35 @@ module.exports = {
         allowNull: false,
       },
     });
+
+    await queryInterface.createTable('logs_erros', {
+      id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      modulo: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      funcao: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      retorno: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      criado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      atualizado_em: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
   },
 
   async down(queryInterface, Sequelize) {
@@ -275,5 +304,6 @@ module.exports = {
     await queryInterface.dropTable('tipos_agendamentos');
     await queryInterface.dropTable('tipos_parametros');
     await queryInterface.dropTable('usuarios');
+    await queryInterface.dropTable('logs_erros');
   },
 };

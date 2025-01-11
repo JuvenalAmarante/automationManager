@@ -11,6 +11,7 @@ const LogAgendamento = require('../models/LogAgendamento');
 const TipoAgendamento = require('../models/TipoAgendamento');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 const { Op } = require('sequelize');
+const LogErro = require('../models/LogErro');
 
 class AgendamentoController {
   tarefasAtivas = {};
@@ -60,6 +61,12 @@ class AgendamentoController {
       }
     } catch (error) {
       console.error('Erro ao configurar agendamentos:', error.message);
+
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'configurar',
+        retorno: error.message,
+      });
     }
   };
 
@@ -172,6 +179,12 @@ class AgendamentoController {
     } catch (error) {
       await transaction.rollback();
 
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'criar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -180,6 +193,7 @@ class AgendamentoController {
 
   listar = async (req, res) => {
     const { usuario } = req;
+
     try {
       let automacoes_ids = [];
       if (!usuario.admin) {
@@ -218,14 +232,17 @@ class AgendamentoController {
         success: true,
         data: agendamentos.map((agendamento) => ({
           ...agendamento.dataValues,
-          proxima_execucao:
-            agendamento.dataValues.ativo
-              ? parser.parseExpression(agendamento.dataValues.horario).next()
-              : null,
+          proxima_execucao: agendamento.dataValues.ativo
+            ? parser.parseExpression(agendamento.dataValues.horario).next()
+            : null,
         })),
       });
     } catch (error) {
-      console.log(error);
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'listar',
+        retorno: error.message,
+      });
 
       res
         .status(500)
@@ -272,6 +289,12 @@ class AgendamentoController {
         },
       });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'listarDetalhes',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -313,6 +336,12 @@ class AgendamentoController {
 
       res.status(200).json({ success: true, data: logs });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'listarLogs',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -436,6 +465,12 @@ class AgendamentoController {
     } catch (error) {
       await transaction.rollback();
 
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'atualizar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -470,6 +505,12 @@ class AgendamentoController {
 
       res.status(200).json({ message: 'Agendamento excluído.' });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'deletar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
@@ -509,6 +550,12 @@ class AgendamentoController {
         }
       });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'deletarPorAutomacao',
+        retorno: error.message,
+      });
+
       throw error;
     }
   };
@@ -541,6 +588,12 @@ class AgendamentoController {
 
       res.status(200).json({ message: 'Agendamento cancelado.' });
     } catch (error) {
+      await LogErro.create({
+        modulo: 'Agendamento',
+        funcao: 'cancelar',
+        retorno: error.message,
+      });
+
       res
         .status(500)
         .json({ success: false, message: 'Ocorreu um erro interno' });
