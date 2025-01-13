@@ -1,8 +1,9 @@
 const { Op } = require('sequelize');
 const Usuario = require('../models/Usuario');
-const connection = require('../database');
+const { connection } = require('../database');
 const Automacao = require('../models/Automacao');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
+const LogErro = require('../models/LogErro');
 
 class UsuarioController {
   async buscarUsuarioPorUsuario(usuario) {
@@ -67,11 +68,19 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
-      await LogErro.create({
-        modulo: 'Usuario',
-        funcao: 'criar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Usuario',
+          funcao: 'criar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -108,11 +117,19 @@ class UsuarioController {
         data: usuarios,
       });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Usuario',
-        funcao: 'listar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Usuario',
+          funcao: 'listar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -143,11 +160,19 @@ class UsuarioController {
         data: usuario,
       });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Usuario',
-        funcao: 'listarDetalhes',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Usuario',
+          funcao: 'listarDetalhes',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -233,11 +258,19 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
-      await LogErro.create({
-        modulo: 'Usuario',
-        funcao: 'atualizar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Usuario',
+          funcao: 'atualizar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -270,11 +303,19 @@ class UsuarioController {
           [],
       });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Usuario',
-        funcao: 'listarAutomacoesVinculadas',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Usuario',
+          funcao: 'listarAutomacoesVinculadas',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -313,7 +354,7 @@ class UsuarioController {
         },
         transaction,
       });
-      
+
       for await (const automacao_id of automacoes_ids) {
         await UsuarioTemAutomacao.create(
           {
@@ -322,7 +363,7 @@ class UsuarioController {
           },
           {
             fields: ['usuario_id', 'automacao_id'],
-            
+
             transaction,
           }
         );
@@ -337,11 +378,19 @@ class UsuarioController {
     } catch (error) {
       await transaction.rollback();
 
-      await LogErro.create({
-        modulo: 'Usuario',
-        funcao: 'atualizarAutomacoesVinculadas',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Usuario',
+          funcao: 'atualizarAutomacoesVinculadas',
+          retorno: error.message,
+        });
 
       res
         .status(500)

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config/enviroment');
 const UsuarioController = require('./UsuarioController');
+const LogErro = require('../models/LogErro');
 
 class AutenticacaoController {
   async login(req, res) {
@@ -34,11 +35,19 @@ class AutenticacaoController {
         },
       });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Autenticacao',
-        funcao: 'login',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Autenticacao',
+          funcao: 'login',
+          retorno: error.message,
+        });
 
       res
         .status(500)

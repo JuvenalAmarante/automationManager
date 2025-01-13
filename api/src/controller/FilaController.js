@@ -2,6 +2,7 @@ const { v4 } = require('uuid');
 const { spawn } = require('child_process');
 const LogAgendamento = require('../models/LogAgendamento');
 const path = require('path');
+const LogErro = require('../models/LogErro');
 
 class FilaController {
   filaExecucao = [];
@@ -108,11 +109,19 @@ class FilaController {
 
       this.filaExecucao[0].abortSignal = abortSignal;
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Fila',
-        funcao: 'processarFila',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Fila',
+          funcao: 'processarFila',
+          retorno: error.message,
+        });
     }
   }
 
@@ -172,11 +181,19 @@ class FilaController {
         })),
       });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Fila',
-        funcao: 'listar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Ocorreu ao se conectar com o banco de dados',
+          });
+      else
+        await LogErro.create({
+          modulo: 'Fila',
+          funcao: 'listar',
+          retorno: error.message,
+        });
     }
   };
 }

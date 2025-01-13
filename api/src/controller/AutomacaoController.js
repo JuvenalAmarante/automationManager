@@ -2,14 +2,15 @@ const utf8 = require('utf8');
 const fs = require('fs');
 const multer = require('multer');
 const Automacao = require('../models/Automacao');
-const connection = require('../database');
+const { connection } = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const TipoParametro = require('../models/TipoParametro');
 const Parametro = require('../models/Parametro');
 const Usuario = require('../models/Usuario');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
-const { Op, where } = require('sequelize');
+const { Op, where, Sequelize } = require('sequelize');
 const AgendamentoController = require('./AgendamentoController');
+const LogErro = require('../models/LogErro');
 
 class AutomacaoController {
   async criar(req, res) {
@@ -147,11 +148,17 @@ class AutomacaoController {
         }
       });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'criar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'criar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -189,11 +196,17 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: automacoes });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'listar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'listar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -227,11 +240,17 @@ class AutomacaoController {
         .status(200)
         .json({ success: true, data: { ...automacao.dataValues, parametros } });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'listarDetalhes',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'listarDetalhes',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -355,11 +374,17 @@ class AutomacaoController {
     } catch (error) {
       await transaction.rollback();
 
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'atualizar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'atualizar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -432,7 +457,7 @@ class AutomacaoController {
               )
             ) {
               const date = new Date(parametro[parametroSalvo.dataValues.nome]);
-              
+
               const dia = ('0'.repeat(2) + date.getDate()).slice(-2);
               const mes = ('0'.repeat(2) + (date.getMonth() + 1)).slice(-2);
               const ano = date.getFullYear();
@@ -508,11 +533,17 @@ class AutomacaoController {
     } catch (error) {
       await transaction.rollback();
 
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'atualizarParametros',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'atualizarParametros',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -544,11 +575,17 @@ class AutomacaoController {
         .status(200)
         .json({ success: true, message: 'Automação deletada com sucesso' });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'deletar',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'deletar',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -562,11 +599,17 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: tipos });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'listarTiposParametros',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'listarTiposParametros',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -668,11 +711,17 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: parametros });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'listarParametros',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'listarParametros',
+          retorno: error.message,
+        });
 
       res
         .status(500)
@@ -708,11 +757,17 @@ class AutomacaoController {
 
       res.status(200).json({ success: true, data: parametros });
     } catch (error) {
-      await LogErro.create({
-        modulo: 'Automacao',
-        funcao: 'listarParametrosFormatados',
-        retorno: error.message,
-      });
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'listarParametrosFormatados',
+          retorno: error.message,
+        });
 
       res
         .status(500)
