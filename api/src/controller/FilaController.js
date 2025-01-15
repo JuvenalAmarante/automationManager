@@ -48,11 +48,8 @@ class FilaController {
         retorno: 'Início da execução',
       });
 
-      const abortSignal = new AbortController();
-
       const processo = spawn('python3', [pythonScript, ...args], {
         windowsHide: true,
-        signal: abortSignal.signal,
       });
 
       let stdout = '';
@@ -73,7 +70,7 @@ class FilaController {
           await LogAgendamento.create({
             possui_erro: true,
             agendamento_id: automacao.agendamento_id,
-            retorno: `Erro na automação ${automacao.dados.nome}:\n\n${erroMsg}`,
+            retorno: `Erro na automação ${automacao.dados.nome}:\n\n${stdout}\n\n${erroMsg}`,
           });
 
           console.error(`Erro na automação ${automacao.dados.nome}:`, erroMsg);
@@ -95,7 +92,7 @@ class FilaController {
         await LogAgendamento.create({
           possui_erro: true,
           agendamento_id: automacao.agendamento_id,
-          retorno: `Erro ao executar ${automacao.dados.nome}:\n\n${error.message}`,
+          retorno: `Erro ao executar ${automacao.dados.nome}:\n\n${stdout}\n\n${error.message}`,
         });
 
         console.error(
@@ -107,15 +104,13 @@ class FilaController {
         this.processarFila();
       });
 
-      this.filaExecucao[0].abortSignal = abortSignal;
+      this.filaExecucao[0].processo = processo;
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Fila',
@@ -157,8 +152,8 @@ class FilaController {
             .json({ success: false, message: 'Ação não permitida' });
       }
 
-      if (this.filaExecucao[indexItemFila].abortSignal) {
-        this.filaExecucao[indexItemFila].abortSignal.abort();
+      if (this.filaExecucao[indexItemFila].processo) {
+        this.filaExecucao[indexItemFila].processo.kill('SIGINT');
       } else {
         this.filaExecucao.splice(indexItemFila, 1);
       }
@@ -182,12 +177,10 @@ class FilaController {
       });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Fila',

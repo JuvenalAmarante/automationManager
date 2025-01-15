@@ -5,8 +5,6 @@ const Automacao = require('../models/Automacao');
 const Agendamento = require('../models/Agendamento');
 const FilaController = require('./FilaController');
 const Connection = require('../database');
-const ParametroAutomacao = require('../models/ParametroAutomacao');
-const Parametro = require('../models/Parametro');
 const LogAgendamento = require('../models/LogAgendamento');
 const TipoAgendamento = require('../models/TipoAgendamento');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
@@ -75,12 +73,10 @@ class AgendamentoController {
       console.error('Erro ao configurar agendamentos:', error.message);
 
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -99,7 +95,7 @@ class AgendamentoController {
         .status(400)
         .json({ success: false, message: 'Campos inválidos' });
 
-    const transaction = await connection.transaction();
+    const transaction = await Connection.connection.transaction();
 
     try {
       let automacoes_ids = [];
@@ -200,12 +196,10 @@ class AgendamentoController {
       await transaction.rollback();
 
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -267,12 +261,10 @@ class AgendamentoController {
       });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -326,12 +318,10 @@ class AgendamentoController {
       });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -381,12 +371,10 @@ class AgendamentoController {
       res.status(200).json({ success: true, data: logs });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -415,7 +403,7 @@ class AgendamentoController {
         .status(400)
         .json({ success: false, message: 'Campos inválidos' });
 
-    const transaction = await connection.transaction();
+    const transaction = await Connection.connection.transaction();
 
     try {
       let agendamento = await Agendamento.findOne({
@@ -518,12 +506,10 @@ class AgendamentoController {
       await transaction.rollback();
 
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -566,12 +552,10 @@ class AgendamentoController {
       res.status(200).json({ message: 'Agendamento excluído.' });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -619,12 +603,10 @@ class AgendamentoController {
       });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',
@@ -665,12 +647,10 @@ class AgendamentoController {
       res.status(200).json({ message: 'Agendamento cancelado.' });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Ocorreu ao se conectar com o banco de dados',
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
       else
         await LogErro.create({
           modulo: 'Agendamento',

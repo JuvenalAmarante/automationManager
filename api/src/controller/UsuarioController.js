@@ -1,7 +1,6 @@
 const { Op } = require('sequelize');
 const Usuario = require('../models/Usuario');
 const { connection } = require('../database');
-const Automacao = require('../models/Automacao');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 const LogErro = require('../models/LogErro');
 

@@ -6,9 +6,8 @@ const { connection } = require('../database');
 const ParametroAutomacao = require('../models/ParametroAutomacao');
 const TipoParametro = require('../models/TipoParametro');
 const Parametro = require('../models/Parametro');
-const Usuario = require('../models/Usuario');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
-const { Op, where, Sequelize } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const AgendamentoController = require('./AgendamentoController');
 const LogErro = require('../models/LogErro');
 
