@@ -48,8 +48,9 @@ class FilaController {
         retorno: 'Início da execução',
       });
 
-      const processo = spawn('python3', [pythonScript, ...args], {
-        windowsHide: true,
+      const processo = spawn('python', ['-u', pythonScript, ...args], {
+        windowsHide: false,
+        signal: abortSignal.signal,
       });
 
       let stdout = '';
