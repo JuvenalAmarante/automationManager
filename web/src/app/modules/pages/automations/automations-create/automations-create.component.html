@@ -32,35 +32,52 @@
 					</nz-form-item>
 				</nz-col>
 
-				@if (!automationDetails) {
-					<nz-col nzSpan="12">
-						<nz-form-item>
-							<nz-form-label nzRequired>Arquivo da automação</nz-form-label>
-							<nz-form-control nzErrorTip="Por favor, insira o arquivo da automação">
-								<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
-									<button nz-button type="button">
-										<span nz-icon nzType="upload"></span>
-										Selecione o arquivo
-									</button>
-								</nz-upload>
-							</nz-form-control>
-						</nz-form-item>
-					</nz-col>
-
-					<nz-col nzSpan="12">
-						<nz-form-item>
-							<nz-form-label>Arquivos de complemento</nz-form-label>
-							<nz-form-control nzErrorTip="Por favor, insira os arquivos de complemento da automação">
-								<nz-upload [(nzFileList)]="complementFileList" [nzBeforeUpload]="beforeComplementUpload" nzMultiple>
-									<button nz-button type="button">
-										<span nz-icon nzType="upload"></span>
-										Selecione o arquivo
-									</button>
-								</nz-upload>
-							</nz-form-control>
-						</nz-form-item>
+				@if (automationDetails) {
+					<nz-col nzSpan="24" style="margin-bottom: 16px;">
+						<nz-alert
+							nzType="warning"
+							nzMessage="Atenção"
+							nzDescription="Ao alterar o arquivo da automação, deve ser enviado todos os arquivos complementares da automação"
+							nzShowIcon
+						></nz-alert>
 					</nz-col>
 				}
+
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label [nzRequired]="!automationDetails">Arquivo da automação</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira o arquivo da automação">
+							<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+								<button nz-button type="button">
+									<span nz-icon nzType="upload"></span>
+									@if (!automationDetails) {
+										Selecione o arquivo
+									} @else {
+										Alterar arquivo
+									}
+								</button>
+							</nz-upload>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
+
+				<nz-col nzSpan="12">
+					<nz-form-item>
+						<nz-form-label>Arquivos de complemento</nz-form-label>
+						<nz-form-control nzErrorTip="Por favor, insira os arquivos de complemento da automação">
+							<nz-upload [(nzFileList)]="complementFileList" [nzBeforeUpload]="beforeComplementUpload" nzMultiple>
+								<button nz-button type="button">
+									<span nz-icon nzType="upload"></span>
+									@if (!automationDetails) {
+										Selecione o(s) arquivo(s)
+									} @else {
+										Alterar arquivos
+									}
+								</button>
+							</nz-upload>
+						</nz-form-control>
+					</nz-form-item>
+				</nz-col>
 
 				<nz-col nzSpan="24" style="margin-top: 16px">
 					<nz-row nzJustify="space-between">

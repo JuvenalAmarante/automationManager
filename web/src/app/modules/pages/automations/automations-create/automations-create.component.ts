@@ -95,7 +95,7 @@ export class AutomationsCreateComponent implements OnInit {
 	}
 
 	async handleSubmit() {
-		if(this.automationDetails) return this.updateAutomation()
+		if (this.automationDetails) return this.updateAutomation();
 		return this.createAutomation();
 	}
 
@@ -145,8 +145,23 @@ export class AutomationsCreateComponent implements OnInit {
 
 	updateAutomation(): void {
 		this.isSaving = true;
+		const form = new FormData();
+
+		form.append('nome', this.automationForm.value.nome);
+		this.parametersList.forEach((parameter) => {
+			form.append('parametros[]', JSON.stringify(parameter));
+		});
+
+		if (this.fileList.length) {
+			form.append('arquivo', this.automationForm.value.arquivo);
+
+			this.automationForm.value.complementos?.forEach((parameter: any) => {
+				form.append('complementos', parameter);
+			});
+		}
+
 		this.api
-			.patch(`/automacoes/${this.automationDetails?.id}`, { nome: this.automationForm.value.nome, parametros: this.parametersList })
+			.patch(`/automacoes/${this.automationDetails?.id}`, form)
 			.pipe(
 				finalize(() => {
 					this.isSaving = false;
@@ -161,7 +176,7 @@ export class AutomationsCreateComponent implements OnInit {
 				},
 			});
 	}
-	
+
 	goBack() {
 		this.router.navigate(['/app/automacoes']);
 	}

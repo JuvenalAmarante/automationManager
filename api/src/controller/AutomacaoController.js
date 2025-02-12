@@ -1,5 +1,6 @@
 const utf8 = require('utf8');
 const fs = require('fs');
+const fsp = require('fs/promises');
 const multer = require('multer');
 const Automacao = require('../models/Automacao');
 const { connection } = require('../database');
@@ -268,15 +269,6 @@ class AutomacaoController {
     const transaction = await connection.transaction();
 
     try {
-      let automacao = await Automacao.findByPk(id, {
-        transaction,
-      });
-
-      if (!automacao)
-        return res
-          .status(400)
-          .json({ success: false, message: 'Automação não encontrada' });
-
       const { nome, parametros } = req.body;
 
       if (!nome || (parametros && !Array.isArray(parametros)))
@@ -284,7 +276,7 @@ class AutomacaoController {
           .status(400)
           .json({ success: false, message: 'Campos inválidos' });
 
-      automacao = await Automacao.findOne({
+      let automacao = await Automacao.findOne({
         where: {
           id: {
             [Op.not]: id,
@@ -390,6 +382,86 @@ class AutomacaoController {
         .json({ success: false, message: 'Ocorreu um erro interno' });
     }
   }
+
+  atualizarNovo = async (req, res) => {
+    try {
+      const upload = multer().fields([
+        { name: 'arquivo', maxCount: 1 },
+        { name: 'complementos' },
+      ]);
+
+      upload(req, res, async (err) => {
+        const { id } = req.params;
+
+        let automacao = await Automacao.findByPk(id);
+
+        if (!automacao)
+          return res
+            .status(400)
+            .json({ success: false, message: 'Automação não encontrada' });
+
+        if (!req.files['arquivo']) return this.atualizar(req, res);
+
+        let nomeArquivo = 'index.py';
+        let nomePasta = `${automacao.arquivo}`.split('/')[0];
+
+        if (!fs.existsSync(`./src/public/old`)) {
+          fs.mkdirSync(`./src/public/old`);
+        }
+
+        if (!fs.existsSync(`./src/public/old/${nomePasta}`)) {
+          fs.mkdirSync(`./src/public/old/${nomePasta}`);
+        }
+
+        const nomePastaMover = `v${(await fsp.readdir(`./src/public/old/${nomePasta}/`)).length + 1}`;
+
+        if (!fs.existsSync(`./src/public/old/${nomePasta}/${nomePastaMover}`)) {
+          fs.mkdirSync(`./src/public/old/${nomePasta}/${nomePastaMover}`);
+        }
+
+        for (const file of await fsp.readdir(`./src/public/${nomePasta}`)) {
+          await fsp.rename(
+            `./src/public/${nomePasta}/${file}`,
+            `./src/public/old/${nomePasta}/${nomePastaMover}/${file}`
+          );
+        }
+
+        for (const file of req.files['arquivo']) {
+          await fsp.writeFile(
+            utf8.decode(`./src/public/${nomePasta}/${nomeArquivo}`),
+            file.buffer
+          );
+        }
+
+        if (req.files['complementos']) {
+          for (const file of req.files['complementos']) {
+            await fsp.writeFile(
+              utf8.decode(`./src/public/${nomePasta}/${file.originalname}`),
+              file.buffer
+            );
+          }
+        }
+
+        return this.atualizar(req, res);
+      });
+    } catch (error) {
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Automacao',
+          funcao: 'criar',
+          retorno: error.message,
+        });
+
+      res
+        .status(500)
+        .json({ success: false, message: 'Ocorreu um erro interno' });
+    }
+  };
 
   atualizarParametros = async (req, res) => {
     const { id } = req.params;
