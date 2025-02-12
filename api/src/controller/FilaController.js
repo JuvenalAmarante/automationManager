@@ -4,7 +4,6 @@ const LogAgendamento = require('../models/LogAgendamento');
 const path = require('path');
 const LogErro = require('../models/LogErro');
 const { Sequelize } = require('sequelize');
-const readline = require('readline');
 
 class FilaController {
   filaExecucao = [];
@@ -52,6 +51,10 @@ class FilaController {
 
       const processo = spawn('python', ['-u', pythonScript, ...args], {
         windowsHide: false,
+        env: {
+          ...process.env,
+          PYTHONIOENCODING: 'utf8',
+        },
       });
 
       let stdout = '';
