@@ -3,6 +3,8 @@ const { spawn } = require('child_process');
 const LogAgendamento = require('../models/LogAgendamento');
 const path = require('path');
 const LogErro = require('../models/LogErro');
+const { Sequelize } = require('sequelize');
+const readline = require('readline');
 
 class FilaController {
   filaExecucao = [];
@@ -50,7 +52,6 @@ class FilaController {
 
       const processo = spawn('python', ['-u', pythonScript, ...args], {
         windowsHide: false,
-        signal: abortSignal.signal,
       });
 
       let stdout = '';
@@ -65,7 +66,13 @@ class FilaController {
       });
 
       processo.on('close', async (code) => {
-        if (code !== 0 || stderr) {
+        if (code == 1) {
+          await LogAgendamento.create({
+            possui_erro: true,
+            agendamento_id: automacao.agendamento_id,
+            retorno: `Automação ${automacao.dados.nome} foi encerrada:\n\n${stdout}`,
+          });
+        } else if (code !== 0 || stderr) {
           const erroMsg = stderr || `Erro com código de saída ${code}`;
 
           await LogAgendamento.create({
@@ -130,40 +137,61 @@ class FilaController {
         .status(400)
         .json({ success: false, message: 'Item não encontrado' });
 
-    const indexItemFila = this.filaExecucao.findIndex((item) => item.id === id);
+    try {
+      const indexItemFila = this.filaExecucao.findIndex(
+        (item) => item.id === id
+      );
 
-    if (indexItemFila == -1)
-      return res
-        .status(400)
-        .json({ success: false, message: 'Item não encontrado' });
+      if (indexItemFila == -1)
+        return res
+          .status(400)
+          .json({ success: false, message: 'Item não encontrado' });
 
-    if (this.filaExecucao[indexItemFila]) {
-      if (!usuario.admin) {
-        automacoes_ids = (
-          await UsuarioTemAutomacao.findAll({
-            where: {
-              usuario_id: usuario.id,
-            },
-          })
-        ).map((relacao) => relacao.dataValues.automacao_id);
+      if (this.filaExecucao[indexItemFila]) {
+        if (!usuario.admin) {
+          automacoes_ids = (
+            await UsuarioTemAutomacao.findAll({
+              where: {
+                usuario_id: usuario.id,
+              },
+            })
+          ).map((relacao) => relacao.dataValues.automacao_id);
 
-        if (!automacoes_ids.includes(this.filaExecucao[indexItemFila].dados.id))
-          return res
-            .status(400)
-            .json({ success: false, message: 'Ação não permitida' });
+          if (
+            !automacoes_ids.includes(this.filaExecucao[indexItemFila].dados.id)
+          )
+            return res
+              .status(400)
+              .json({ success: false, message: 'Ação não permitida' });
+        }
+
+        if (this.filaExecucao[indexItemFila].processo) {
+          // process.kill(this.filaExecucao[indexItemFila].processo.pid, 'SIGINT')
+          const pid = this.filaExecucao[indexItemFila].processo.pid;
+
+          spawn('taskkill', ['/PID', pid, '/T', '/F']);
+        } else {
+          this.filaExecucao.splice(indexItemFila, 1);
+        }
       }
 
-      if (this.filaExecucao[indexItemFila].processo) {
-        this.filaExecucao[indexItemFila].processo.kill('SIGINT');
-      } else {
-        this.filaExecucao.splice(indexItemFila, 1);
-      }
+      res.status(200).json({
+        success: true,
+        message: 'Item removido da fila com sucesso',
+      });
+    } catch (error) {
+      if (error instanceof Sequelize.ConnectionError)
+        return res.status(500).json({
+          success: false,
+          message: 'Ocorreu ao se conectar com o banco de dados',
+        });
+      else
+        await LogErro.create({
+          modulo: 'Fila',
+          funcao: 'processarFila',
+          retorno: error.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      message: 'Item removido da fila com sucesso',
-    });
   };
 
   listar = async (req, res) => {
