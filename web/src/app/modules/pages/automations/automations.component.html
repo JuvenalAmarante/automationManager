@@ -12,6 +12,7 @@
 		<nz-table #dynamicTable [nzData]="dataList" [nzLoading]="isLoading">
 			<thead>
 				<tr>
+					<th>Código</th>
 					<th>Nome da automação</th>
 					<th nzAlign="center">Criado em</th>
 					<th nzAlign="center">Ações</th>
@@ -20,6 +21,7 @@
 			<tbody>
 				<ng-container *ngFor="let data of dynamicTable.data">
 					<tr>
+						<td>{{ data.id }}</td>
 						<td>{{ data.nome }}</td>
 						<td nzAlign="center">{{ data.criado_em | date: 'dd/MM/yyyy' }}</td>
 						<td nzAlign="center">

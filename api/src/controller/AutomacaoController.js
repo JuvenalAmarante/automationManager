@@ -119,7 +119,7 @@ class AutomacaoController {
 
               const parametroSalvo = await ParametroAutomacao.create(
                 {
-                  nome: parametro.nome,
+                  nome: parametro.nome.trim(),
                   automacao_id: automacao.id,
                   tipo_parametro_id: parametro.tipo_parametro_id,
                   qtd_digitos: parametro.qtd_digitos || null,
@@ -271,7 +271,7 @@ class AutomacaoController {
     try {
       const { nome, parametros } = req.body;
 
-      if (!nome || (parametros && !Array.isArray(parametros)))
+      if (!nome || (parametros && parametros.lenght !== undefined))
         return res
           .status(400)
           .json({ success: false, message: 'Campos inválidos' });
@@ -295,8 +295,9 @@ class AutomacaoController {
 
       if (parametros) {
         let contador = 0;
+        for await (const parametroJSON of Object.values(parametros)) {
+          const parametro = JSON.parse(parametroJSON);
 
-        for await (const parametro of parametros) {
           if (
             !parametro.nome ||
             !parametro.tipo_parametro_id ||
@@ -339,10 +340,12 @@ class AutomacaoController {
 
       let parametrosSalvos = [];
       if (parametros) {
-        for await (const parametro of parametros) {
+        for await (const parametroJSON of parametros) {
+          const parametro = JSON.parse(parametroJSON);
+
           const parametroSalvo = await ParametroAutomacao.create(
             {
-              nome: parametro.nome,
+              nome: parametro.nome.trim(),
               automacao_id: id,
               tipo_parametro_id: parametro.tipo_parametro_id,
               qtd_digitos: parametro.qtd_digitos || null,
@@ -413,7 +416,9 @@ class AutomacaoController {
           fs.mkdirSync(`./src/public/old/${nomePasta}`);
         }
 
-        const nomePastaMover = `v${(await fsp.readdir(`./src/public/old/${nomePasta}/`)).length + 1}`;
+        const nomePastaMover = `v${
+          (await fsp.readdir(`./src/public/old/${nomePasta}/`)).length + 1
+        }`;
 
         if (!fs.existsSync(`./src/public/old/${nomePasta}/${nomePastaMover}`)) {
           fs.mkdirSync(`./src/public/old/${nomePasta}/${nomePastaMover}`);
