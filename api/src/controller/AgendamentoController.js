@@ -115,6 +115,7 @@ class AgendamentoController {
 
       if (!usuario.admin)
         where.id = {
+          [Op.eq]: automacao_id,
           [Op.in]: automacoes_ids,
         };
 
@@ -389,6 +390,7 @@ class AgendamentoController {
   }
 
   atualizar = async (req, res) => {
+    const { usuario } = req;
     const { id } = req.params;
 
     if (!id || isNaN(+id))
@@ -424,7 +426,29 @@ class AgendamentoController {
           .status(400)
           .json({ success: false, message: 'Agendamento não encontrado' });
 
-      const automacao = await Automacao.findByPk(automacao_id, {
+      let automacoes_ids = [];
+      if (!usuario.admin) {
+        automacoes_ids = (
+          await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          })
+        ).map((relacao) => relacao.dataValues.automacao_id);
+      }
+
+      let where = {
+        id: automacao_id,
+      };
+
+      if (!usuario.admin)
+        where.id = {
+          [Op.eq]: automacao_id,
+          [Op.in]: automacoes_ids,
+        };
+
+      const automacao = await Automacao.findOne({
+        where,
         transaction,
       });
 
@@ -524,6 +548,7 @@ class AgendamentoController {
   };
 
   deletar = async (req, res) => {
+    const { usuario } = req;
     const { id } = req.params;
 
     if (!id || isNaN(+id))
@@ -532,7 +557,30 @@ class AgendamentoController {
         .json({ success: false, message: 'Agendamento não encontrado' });
 
     try {
-      const agendamento = await Agendamento.findByPk(id);
+      let automacoes_ids = [];
+      if (!usuario.admin) {
+        automacoes_ids = (
+          await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          })
+        ).map((relacao) => relacao.dataValues.automacao_id);
+      }
+
+      let where = {
+        id,
+      };
+
+      if (!usuario.admin)
+        where = {
+          id,
+          automacao_id: [automacoes_ids],
+        };
+
+      const agendamento = await Agendamento.findOne({
+        where,
+      });
 
       if (!agendamento)
         return res
