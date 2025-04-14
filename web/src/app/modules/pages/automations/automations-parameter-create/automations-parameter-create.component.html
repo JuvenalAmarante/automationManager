@@ -50,9 +50,25 @@
 
 				@if (automationSelected?.parametros?.length) {
 					@if (automationSelected?.parametros?.length) {
-						<nz-col nzSpan="24">
+						<nz-col nzSpan="12">
 							<nz-row nzJustify="space-between">
 								<h2 class="form-subtitle">Parâmetros</h2>
+							</nz-row>
+						</nz-col>
+
+						<nz-col nzSpan="12">
+							<nz-row nzJustify="end">
+								<button
+									nz-button
+									nzType="default"
+									type="button"
+									nz-tooltip
+									nzTooltipTitle="Importar dados de uma planilha"
+									(click)="showModalImport()"
+								>
+									<span nz-icon nzType="file-excel" nzTheme="outline"></span>
+									Importar
+								</button>
 							</nz-row>
 						</nz-col>
 
@@ -268,7 +284,7 @@
 	</nz-page-header-content>
 </nz-page-header>
 
-<nz-modal [(nzVisible)]="isVisible" nzTitle="The first Modal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+<nz-modal [(nzVisible)]="isVisible" nzTitle="Adicionar itens" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
 	<ng-container *nzModalContent>
 		@if (parameterSelected) {
 			@if (parametersValues[parameterSelected.index + (this.parameterSelected.page - 1) * 20][parameterSelected.key].length) {
@@ -354,5 +370,25 @@
 				</nz-col>
 			}
 		}
+	</ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isVisibleImport" nzTitle="Importar dados" (nzOnCancel)="handleImportCancel()" (nzOnOk)="handleImportOk()" [nzOkLoading]="isLoading">
+	<ng-container *nzModalContent>
+		<nz-row nzGutter="16">
+			<nz-col nzSpan="24" style="margin-bottom: 16px">
+				<nz-alert nzType="warning" nzMessage="Atenção" nzDescription="Ao importar os dados, os dados já cadastrados serão substituidos" nzShowIcon>
+				</nz-alert>
+			</nz-col>
+
+			<nz-col nzSpan="24">
+				<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" nzAccept=".xlsx" >
+					<button nz-button type="button">
+						<span nz-icon nzType="upload"></span>
+						Selecione o arquivo
+					</button>
+				</nz-upload>
+			</nz-col>
+		</nz-row>
 	</ng-container>
 </nz-modal>

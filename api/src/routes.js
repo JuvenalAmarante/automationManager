@@ -91,7 +91,7 @@ router.patch(
   '/automacoes/:id',
   verificarAutenticacao,
   verificarAdmin,
-  AutomacaoController.atualizarNovo
+  AutomacaoController.atualizar
 );
 router.get(
   '/automacoes/:id/parametros',

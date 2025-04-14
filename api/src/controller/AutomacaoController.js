@@ -258,7 +258,7 @@ class AutomacaoController {
     }
   }
 
-  async atualizar(req, res) {
+  async atualizarAutomacao(req, res) {
     const { id } = req.params;
 
     if (!id || isNaN(+id))
@@ -336,6 +336,14 @@ class AutomacaoController {
         where: {
           automacao_id: id,
         },
+        transaction,
+      });
+
+      await Parametro.destroy({
+        where: {
+          automacao_id: id,
+        },
+        transaction,
       });
 
       let parametrosSalvos = [];
@@ -359,7 +367,7 @@ class AutomacaoController {
         }
       }
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         message: 'Automação salva com sucesso!',
       });
@@ -386,7 +394,7 @@ class AutomacaoController {
     }
   }
 
-  atualizarNovo = async (req, res) => {
+  atualizar = async (req, res) => {
     try {
       const upload = multer().fields([
         { name: 'arquivo', maxCount: 1 },
@@ -403,7 +411,7 @@ class AutomacaoController {
             .status(400)
             .json({ success: false, message: 'Automação não encontrada' });
 
-        if (!req.files['arquivo']) return this.atualizar(req, res);
+        if (!req.files['arquivo']) return this.atualizarAutomacao(req, res);
 
         let nomeArquivo = 'index.py';
         let nomePasta = `${automacao.arquivo}`.split('/')[0];
@@ -447,7 +455,7 @@ class AutomacaoController {
           }
         }
 
-        return this.atualizar(req, res);
+        return this.atualizarAutomacao(req, res);
       });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)

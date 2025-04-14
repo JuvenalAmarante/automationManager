@@ -3,10 +3,11 @@ import { FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ApiService } from 'src/app/core/services/api.service';
 import { Agendamento, Automacao, DefaultResponse, TipoAgendamento, TipoParametro } from 'src/app/shared/types';
 import { normalizeParams } from 'src/app/shared/helpers';
-import { finalize } from 'rxjs';
+import { finalize, Observable, Observer } from 'rxjs';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextDay, differenceInCalendarDays } from 'date-fns';
+import * as XLSX from 'xlsx';
 
 @Component({
 	selector: 'app-automations-parameter-create',
@@ -17,6 +18,12 @@ export class AutomationsParameterCreateComponent implements OnInit {
 	scheduleForm: FormGroup;
 	isSaving = false;
 	isVisible = false;
+	isVisibleImport = false;
+	isLoading = false;
+
+	fileList: NzUploadFile[] = [];
+
+	sheet: Record<string, any>[] = [];
 
 	isLoadingAutomations = false;
 	automationsList: Automacao[] = [];
@@ -159,6 +166,10 @@ export class AutomationsParameterCreateComponent implements OnInit {
 		console.log(texto);
 	}
 
+	showModalImport() {
+		this.isVisibleImport = true;
+	}
+
 	showModal(index: number, page: number, key: string): void {
 		this.isVisible = true;
 
@@ -175,6 +186,16 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 	handleOk(): void {
 		this.isVisible = false;
+	}
+
+	handleImportCancel(): void {
+		this.isVisibleImport = false;
+	}
+
+	handleImportOk(): void {
+		this.isLoading = true;
+
+		this.loadSheet();
 	}
 
 	addItemParameterValue() {
@@ -194,5 +215,112 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 			this.parametersValues[this.parameterSelected.index + (this.parameterSelected.page - 1) * 20][this.parameterSelected.key] = newList;
 		}
+	}
+
+	beforeUpload = (file: NzUploadFile): boolean => {
+		this.fileList = [file];
+
+		const reader = new FileReader();
+
+		reader.onload = () => {
+			const arrayBuffer: any = reader.result;
+			const data = new Uint8Array(arrayBuffer);
+			const arr = new Array();
+			for (var i = 0; i != data.length; ++i) arr[i] = String.fromCharCode(data[i]);
+			var bstr = arr.join('');
+
+			const workbook = XLSX.read(bstr, { type: 'binary' });
+			const first_sheet_name = workbook.SheetNames[0];
+			const worksheet = workbook.Sheets[first_sheet_name];
+
+			this.sheet = XLSX.utils.sheet_to_json(worksheet, {
+				raw: true,
+			});
+			console.log('🚀 ~ AutomationsParameterCreateComponent ~ workbook:', this.sheet);
+		};
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		reader.readAsArrayBuffer(file as any);
+
+		return false;
+	};
+
+	excelDateToJSDate(serial: number) {
+		const utc_days = Math.floor(serial - 25569);
+		const utc_value = utc_days * 86400;
+		const milisecondsPerHour = 3600000;
+		const date_info = new Date(utc_value * 1000 + 3 * milisecondsPerHour);
+		return date_info;
+	}
+
+	loadSheet() {
+		if (this.automationSelected?.parametros) {
+			let namesList: string[] = this.automationSelected.parametros.map((parametro) => parametro.nome);
+
+			this.parametersValues = this.sheet.map((item) => {
+				const obj: Record<string, string | number | Date | Array<string>> = {};
+
+				Object.keys(item).forEach((key) => {
+					if (this.automationSelected && this.automationSelected.parametros) {
+						const indexKey = namesList.indexOf(key.trim());
+
+						if (indexKey != -1) {
+							const value = item[key.trim()];
+							const date = new Date();
+							let formatedValue: string | number | Date | Array<string>;
+
+							switch (this.automationSelected.parametros[indexKey].tipo_parametro_id) {
+								case 1:
+									formatedValue = value;
+									break;
+								case 2:
+									if (typeof value == 'string' && !isNaN(+value)) formatedValue = +value;
+									else formatedValue = value;
+									break;
+								case 3:
+									if (value > 0) {
+										date.setDate(value);
+										formatedValue = date;
+									} else formatedValue = '';
+									break;
+								case 4:
+									if (value > 0) {
+										date.setMonth(value - 1);
+										formatedValue = date;
+									} else formatedValue = '';
+									break;
+								case 5:
+									if (value > 0) {
+										date.setFullYear(value);
+										formatedValue = date;
+									} else formatedValue = '';
+									break;
+								case 6:
+									if (typeof value == 'number') formatedValue = this.excelDateToJSDate(value);
+									else formatedValue = value;
+									break;
+								case 7:
+									if (typeof value == 'number') formatedValue = this.excelDateToJSDate(value);
+									else formatedValue = value;
+									break;
+								case 8:
+									formatedValue = value.split(',').map((item: string) => item.trim());
+									break;
+								default:
+									formatedValue = value;
+									break;
+							}
+
+							if (formatedValue) obj[key] = formatedValue;
+						}
+					}
+				});
+
+				return obj;
+			});
+		}
+
+		this.isLoading = false;
+		this.isVisibleImport = false;
 	}
 }
