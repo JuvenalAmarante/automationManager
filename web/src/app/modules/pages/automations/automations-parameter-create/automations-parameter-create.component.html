@@ -156,7 +156,7 @@
 																	nz-button
 																	nzType="default"
 																	type="button"
-																	(click)="showModal(indexValue, parameter.nome)"
+																	(click)="showModal(indexValue, dynamicTable.nzPageIndex, parameter.nome)"
 																>
 																	<span nz-icon nzType="edit" nzTheme="outline"></span>
 																	<span>{{
@@ -271,11 +271,11 @@
 <nz-modal [(nzVisible)]="isVisible" nzTitle="The first Modal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
 	<ng-container *nzModalContent>
 		@if (parameterSelected) {
-			@if (parametersValues[parameterSelected.index][parameterSelected.key].length) {
+			@if (parametersValues[parameterSelected.index + (this.parameterSelected.page - 1) * 20][parameterSelected.key].length) {
 				<nz-table
 					#dynamicTable
 					nzSize="small"
-					[nzData]="parametersValues[parameterSelected.index][parameterSelected.key]"
+					[nzData]="parametersValues[parameterSelected.index + (this.parameterSelected.page - 1) * 20][parameterSelected.key]"
 					[nzPageSize]="20"
 					[nzLoading]="isSaving"
 					[nzHideOnSinglePage]="true"
@@ -294,18 +294,14 @@
 										nz-input
 										type="text"
 										placeholder="Digite o valor do campo"
-										[(ngModel)]="parametersValues[parameterSelected.index][parameterSelected.key][$index]"
+										[(ngModel)]="
+											parametersValues[parameterSelected.index + (this.parameterSelected.page - 1) * 20][parameterSelected.key][$index]
+										"
 										[ngModelOptions]="{ standalone: true }"
 									/>
 								</td>
 								<td nzAlign="center">
-									<a
-										nz-button
-										nzType="link"
-										nzSize="small"
-										(click)="removeItemParameterValue($index)"
-										nzDanger
-									>
+									<a nz-button nzType="link" nzSize="small" (click)="removeItemParameterValue($index)" nzDanger>
 										<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
 									</a>
 								</td>

@@ -26,7 +26,7 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 	parametersValues: Record<string, any>[] = [];
 
-	parameterSelected?: { index: number; key: string };
+	parameterSelected?: { index: number; page: number; key: string };
 
 	errorList: string[] = [];
 
@@ -159,11 +159,12 @@ export class AutomationsParameterCreateComponent implements OnInit {
 		console.log(texto);
 	}
 
-	showModal(index: number, key: string): void {
+	showModal(index: number, page: number, key: string): void {
 		this.isVisible = true;
 
 		this.parameterSelected = {
 			index,
+			page,
 			key,
 		};
 	}
@@ -178,8 +179,8 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 	addItemParameterValue() {
 		if (this.parameterSelected) {
-			this.parametersValues[this.parameterSelected.index][this.parameterSelected.key] = [
-				...this.parametersValues[this.parameterSelected.index][this.parameterSelected.key],
+			this.parametersValues[this.parameterSelected.index + (this.parameterSelected.page - 1) * 20][this.parameterSelected.key] = [
+				...this.parametersValues[this.parameterSelected.index + (this.parameterSelected.page - 1) * 20][this.parameterSelected.key],
 				'',
 			];
 		}
@@ -187,9 +188,11 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 	removeItemParameterValue(index: number) {
 		if (this.parameterSelected) {
-			const newList = this.parametersValues[this.parameterSelected.index][this.parameterSelected.key].filter((item: string, idx: number) => idx != index);
+			const newList = this.parametersValues[this.parameterSelected.index + (this.parameterSelected.page - 1) * 20][this.parameterSelected.key].filter(
+				(item: string, idx: number) => idx != index,
+			);
 
-			this.parametersValues[this.parameterSelected.index][this.parameterSelected.key] = newList;
+			this.parametersValues[this.parameterSelected.index + (this.parameterSelected.page - 1) * 20][this.parameterSelected.key] = newList;
 		}
 	}
 }
