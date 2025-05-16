@@ -269,6 +269,8 @@ export class AutomationsParameterCreateComponent implements OnInit {
 							const date = new Date();
 							let formatedValue: string | number | Date | Array<string>;
 
+							const valueDateSplitted = value.split('/');
+
 							switch (this.automationSelected.parametros[indexKey].tipo_parametro_id) {
 								case 2:
 									if (typeof value == 'string' && !isNaN(+value)) formatedValue = +value;
@@ -294,11 +296,25 @@ export class AutomationsParameterCreateComponent implements OnInit {
 									break;
 								case 6:
 									if (typeof value == 'number') formatedValue = this.excelDateToJSDate(value);
-									else formatedValue = value;
+									else if (typeof value == 'string') {
+										if (valueDateSplitted.length == 3 && ![...valueDateSplitted].some((a) => Number.isNaN(+a))) {
+											date.setDate(+valueDateSplitted[0]);
+											date.setMonth(+valueDateSplitted[1] - 1);
+											date.setFullYear(+valueDateSplitted[2]);
+											formatedValue = date;
+										} else formatedValue = '';
+									} else formatedValue = value;
 									break;
 								case 7:
 									if (typeof value == 'number') formatedValue = this.excelDateToJSDate(value);
-									else formatedValue = value;
+									else if (typeof value == 'string') {
+										if (valueDateSplitted.length == 2 && ![...valueDateSplitted].some((a) => Number.isNaN(+a))) {
+											date.setDate(13);
+											date.setMonth(+valueDateSplitted[0] - 1);
+											date.setFullYear(+valueDateSplitted[1]);
+											formatedValue = date;
+										} else formatedValue = '';
+									} else formatedValue = value;
 									break;
 								case 8:
 									formatedValue = value.split(',').map((item: string) => item.trim());
