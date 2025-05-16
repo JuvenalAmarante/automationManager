@@ -15,8 +15,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class AutomationsCreateComponent implements OnInit {
 	automationForm: FormGroup;
 	isSaving = false;
+	isVisible = false;
 
-	parametersList: { nome: string; tipo_parametro_id: number; qtd_digitos?: number }[] = [];
+	parameterSelected?: { index: number };
+
+	parametersList: {
+		nome: string;
+		tipo_parametro_id: number;
+		qtd_digitos?: number;
+		opcoes: string[];
+	}[] = [];
 
 	isLoadingTypes = false;
 	typesList: TipoParametro[] = [];
@@ -87,6 +95,7 @@ export class AutomationsCreateComponent implements OnInit {
 							nome: parametro.nome,
 							qtd_digitos: parametro.qtd_digitos,
 							tipo_parametro_id: parametro.tipo_parametro_id,
+							opcoes: parametro.opcoes || []
 						}));
 
 					this.automationDetails = res.data;
@@ -119,9 +128,11 @@ export class AutomationsCreateComponent implements OnInit {
 
 		form.append('nome', this.automationForm.value.nome);
 		form.append('arquivo', this.automationForm.value.arquivo);
+		
 		this.parametersList.forEach((parameter) => {
 			form.append('parametros[]', JSON.stringify(parameter));
 		});
+
 		this.automationForm.value.complementos?.forEach((parameter: any) => {
 			form.append('complementos', parameter);
 		});
@@ -189,10 +200,43 @@ export class AutomationsCreateComponent implements OnInit {
 		this.parametersList.push({
 			nome: '',
 			tipo_parametro_id: 0,
+			opcoes: []
 		});
 	}
 
 	removeParameter(index: number) {
 		this.parametersList.splice(index, 1);
+	}
+
+	handleCancel(): void {
+		this.isVisible = false;
+	}
+
+	handleOk(): void {
+		this.isVisible = false;
+	}
+
+	showModal(index: number): void {
+		this.isVisible = true;
+
+		this.parameterSelected = {
+			index,
+		};
+	}
+
+	addItemParameterValue() {
+		if (this.parameterSelected) {
+			if (this.parametersList[this.parameterSelected.index].opcoes)
+				this.parametersList[this.parameterSelected.index].opcoes = [...this.parametersList[this.parameterSelected.index].opcoes!, ''];
+			else this.parametersList[this.parameterSelected.index].opcoes = [''];
+		}
+	}
+
+	removeItemParameterValue(index: number) {
+		if (this.parameterSelected) {
+			const newList = this.parametersList[this.parameterSelected.index].opcoes?.filter((item: string, idx: number) => idx != index);
+
+			this.parametersList[this.parameterSelected.index].opcoes = newList;
+		}
 	}
 }

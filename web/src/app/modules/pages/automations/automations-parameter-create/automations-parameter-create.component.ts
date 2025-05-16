@@ -270,9 +270,6 @@ export class AutomationsParameterCreateComponent implements OnInit {
 							let formatedValue: string | number | Date | Array<string>;
 
 							switch (this.automationSelected.parametros[indexKey].tipo_parametro_id) {
-								case 1:
-									formatedValue = value;
-									break;
 								case 2:
 									if (typeof value == 'string' && !isNaN(+value)) formatedValue = +value;
 									else formatedValue = value;

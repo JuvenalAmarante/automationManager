@@ -11,6 +11,7 @@ const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 const { Op, Sequelize } = require('sequelize');
 const AgendamentoController = require('./AgendamentoController');
 const LogErro = require('../models/LogErro');
+const ParametroOpcao = require('../models/ParametroOpcao');
 
 class AutomacaoController {
   async criar(req, res) {
@@ -112,7 +113,6 @@ class AutomacaoController {
             }
           );
 
-          let parametrosSalvos = [];
           if (parametros) {
             for await (const data of parametros) {
               const parametro = JSON.parse(data);
@@ -129,7 +129,26 @@ class AutomacaoController {
                 }
               );
 
-              parametrosSalvos.push(parametroSalvo);
+              if (parametro.tipo_parametro_id == 9) {
+                for await (const opcao of parametro.opcoes) {
+                  console.log({
+                    valor: opcao,
+                    valores: parametro.opcoes,
+                    parametro_automacao_id: parametroSalvo.id,
+                    a: parametro.tipo_parametro_id,
+                  });
+                  await ParametroOpcao.create(
+                    {
+                      valor: opcao,
+                      parametro_automacao_id: parametroSalvo.id,
+                    },
+                    {
+                      transaction,
+                    }
+                  );
+                }
+                console.log('FOI');
+              }
             }
           }
 
@@ -141,6 +160,18 @@ class AutomacaoController {
           await transaction.commit();
         } catch (error) {
           await transaction.rollback();
+
+          if (error instanceof Sequelize.ConnectionError)
+            return res.status(500).json({
+              success: false,
+              message: 'Ocorreu ao se conectar com o banco de dados',
+            });
+          else
+            await LogErro.create({
+              modulo: 'Automacao',
+              funcao: 'criar',
+              retorno: error.message,
+            });
 
           res
             .status(500)
@@ -236,9 +267,31 @@ class AutomacaoController {
         },
       });
 
-      res
-        .status(200)
-        .json({ success: true, data: { ...automacao.dataValues, parametros } });
+      let parametrosSalvos = parametros.map(
+        (parametro) => parametro.dataValues
+      );
+
+      let index = 0;
+      for await (const parametro of parametrosSalvos) {
+        if (parametro.tipo_parametro_id == 9) {
+          const options = await ParametroOpcao.findAll({
+            where: {
+              parametro_automacao_id: parametro.id,
+            },
+          });
+
+          parametrosSalvos[index].opcoes = options.map(
+            (option) => option.dataValues.valor
+          );
+        }
+
+        index++;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: { ...automacao.dataValues, parametros: parametrosSalvos },
+      });
     } catch (error) {
       if (error instanceof Sequelize.ConnectionError)
         return res.status(500).json({
@@ -332,6 +385,22 @@ class AutomacaoController {
         }
       );
 
+      const parametrosMultiplaEscolha = await ParametroAutomacao.findAll({
+        where: {
+          tipo_parametro_id: 9,
+        },
+        transaction,
+      });
+
+      for await (const parametro of parametrosMultiplaEscolha) {
+        await ParametroOpcao.destroy({
+          where: {
+            parametro_automacao_id: parametro.dataValues.id,
+          },
+          transaction,
+        });
+      }
+
       await ParametroAutomacao.destroy({
         where: {
           automacao_id: id,
@@ -346,7 +415,6 @@ class AutomacaoController {
         transaction,
       });
 
-      let parametrosSalvos = [];
       if (parametros) {
         for await (const parametroJSON of parametros) {
           const parametro = JSON.parse(parametroJSON);
@@ -363,7 +431,19 @@ class AutomacaoController {
             }
           );
 
-          parametrosSalvos.push(parametroSalvo);
+          if (parametro.tipo_parametro_id == 9) {
+            for await (const opcao of parametro.opcoes) {
+              await ParametroOpcao.create(
+                {
+                  valor: opcao,
+                  parametro_automacao_id: parametroSalvo.dataValues.id,
+                },
+                {
+                  transaction,
+                }
+              );
+            }
+          }
         }
       }
 
@@ -590,11 +670,9 @@ class AutomacaoController {
         transaction,
       });
 
-      let parametrosSalvos = [];
-
       if (parametros) {
         for await (const parametro of parametros) {
-          const parametroSalvo = await Parametro.create(
+          await Parametro.create(
             {
               valor: JSON.stringify(parametro),
               automacao_id: id,
@@ -603,8 +681,6 @@ class AutomacaoController {
               transaction,
             }
           );
-
-          parametrosSalvos.push(parametroSalvo);
         }
       }
 

@@ -53,6 +53,7 @@ export type Automacao = {
 		nome: string;
 		tipo_parametro_id: number;
 		qtd_digitos?: number;
+		opcoes?: string[]
 	}[];
 	criado_em: Date;
 	atualizado_em: Date;

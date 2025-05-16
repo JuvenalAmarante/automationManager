@@ -180,6 +180,23 @@
 																	}}</span>
 																</button>
 															}
+															@case (9) {
+																	<nz-form-control nzErrorTip="Selecione a opção">
+																		<nz-input-group style="border: 0; padding: 0; margin: 0">
+																			<nz-select
+																				nzMode="default"
+																				nzPlaceHolder="Selecione o tipo"
+																				nzShowSearch
+																				[(ngModel)]="data[parameter.nome]"
+																				[ngModelOptions]="{ standalone: true }"
+																			>
+																				<ng-container *ngFor="let option of parameter.opcoes">
+																					<nz-option [nzValue]="option" [nzLabel]="option"></nz-option>
+																				</ng-container>
+																			</nz-select>
+																		</nz-input-group>
+																	</nz-form-control>
+															}
 														}
 													</td>
 												}
@@ -382,7 +399,7 @@
 			</nz-col>
 
 			<nz-col nzSpan="24">
-				<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" nzAccept=".xlsx" >
+				<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" nzAccept=".xlsx">
 					<button nz-button type="button">
 						<span nz-icon nzType="upload"></span>
 						Selecione o arquivo

@@ -33,7 +33,7 @@
 				</nz-col>
 
 				@if (automationDetails) {
-					<nz-col nzSpan="24" style="margin-bottom: 16px;">
+					<nz-col nzSpan="24" style="margin-bottom: 16px">
 						<nz-alert
 							nzType="warning"
 							nzMessage="Atenção"
@@ -104,7 +104,7 @@
 							</nz-form-item>
 						</nz-col>
 
-						<nz-col [nzSpan]="parametersList[$index].tipo_parametro_id === 2 ? 5 : 10">
+						<nz-col [nzSpan]="[2, 9].includes(parametersList[$index].tipo_parametro_id) ? 5 : 10">
 							<nz-form-item>
 								<nz-form-label nzRequired>Tipo</nz-form-label>
 								<nz-form-control nzErrorTip="Informe o tipo">
@@ -146,6 +146,22 @@
 							</nz-col>
 						}
 
+						@if (parametersList[$index].tipo_parametro_id === 9) {
+							<nz-col nzSpan="5">
+								<nz-form-item>
+									<nz-form-label nzRequired>Selecione as opções</nz-form-label>
+									<nz-form-control>
+										<button nz-button nzType="default" type="button" (click)="showModal($index)">
+											<span nz-icon nzType="edit" nzTheme="outline"></span>
+											<span>{{
+												parametersList[$index].opcoes ? parametersList[$index].opcoes.length + ' item(s)' : 'Editar itens'
+											}}</span>
+										</button>
+									</nz-form-control>
+								</nz-form-item>
+							</nz-col>
+						}
+
 						<nz-col nzSpan="2">
 							<button type="button" nz-button nzType="link" (click)="removeParameter($index)" nzDanger style="margin-top: 32px">
 								<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
@@ -177,3 +193,90 @@
 		</form>
 	</nz-page-header-content>
 </nz-page-header>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="Adicionar itens" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+	<ng-container *nzModalContent>
+		@if (parameterSelected) {
+			@if (parametersList[parameterSelected.index].opcoes.length) {
+				<nz-table
+					#dynamicTable
+					nzSize="small"
+					[nzData]="parametersList[parameterSelected.index].opcoes"
+					[nzPageSize]="20"
+					[nzLoading]="isSaving"
+					[nzHideOnSinglePage]="true"
+				>
+					<thead>
+						<tr>
+							<th nzAlign="center">Valor</th>
+							<th nzWidth="14%" nzAlign="center" nzEllipsis>Ações</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for (data of dynamicTable.data; track $index) {
+								<tr>
+									<td nzAlign="center">
+										<input
+											nz-input
+											type="text"
+											placeholder="Digite o valor do campo"
+											[(ngModel)]="parametersList[parameterSelected.index].opcoes[$index]"
+											[ngModelOptions]="{ standalone: true }"
+										/>
+									</td>
+									<td nzAlign="center">
+										<a nz-button nzType="link" nzSize="small" (click)="removeItemParameterValue($index)" nzDanger>
+											<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
+										</a>
+									</td>
+								</tr>
+						}
+					</tbody>
+				</nz-table>
+
+				<nz-col nzSpan="24" style="margin-top: 16px; margin-bottom: 16px">
+					<nz-row nzJustify="center">
+						<button
+							nz-button
+							style="margin-left: 15px"
+							nzType="default"
+							type="button"
+							nz-tooltip
+							nzTooltipTitle="Adiciona um novo item"
+							(click)="addItemParameterValue()"
+						>
+							<span nz-icon nzType="plus" nzTheme="outline"></span>
+							Adicionar
+						</button>
+					</nz-row>
+				</nz-col>
+			} @else {
+				<nz-col nzSpan="24">
+					<nz-row nzGutter="16">
+						<div nz-col nzSpan="24">
+							<nz-empty [nzNotFoundContent]="null" nzNotFoundImage="simple" style="margin-bottom: -20px" />
+							<nz-row nzJustify="center">
+								<span style="color: rgba(0, 0, 0, 0.25)">Não há itens adicionados</span>
+							</nz-row>
+						</div>
+						<div nz-col nzSpan="24" style="margin-top: 16px">
+							<nz-row nzJustify="center">
+								<button
+									nz-button
+									nzType="default"
+									type="button"
+									nz-tooltip
+									nzTooltipTitle="Adiciona um novo item"
+									(click)="addItemParameterValue()"
+								>
+									<span nz-icon nzType="plus" nzTheme="outline"></span>
+									Adicionar
+								</button>
+							</nz-row>
+						</div>
+					</nz-row>
+				</nz-col>
+			}
+		}
+	</ng-container>
+</nz-modal>

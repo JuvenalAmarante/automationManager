@@ -12,6 +12,7 @@ const Parametro = require('../models/Parametro');
 const LogAgendamento = require('../models/LogAgendamento');
 const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 const LogErro = require('../models/LogErro');
+const ParametroOpcao = require('../models/ParametroOpcao');
 
 class Connection {
   connection;
@@ -21,21 +22,6 @@ class Connection {
     this.connection = new Sequelize(configDB);
 
     this.validar();
-
-    // this.connection.query = async function() {
-    //   try {
-    //     return await Sequelize.prototype.query.apply(this, arguments);
-    //   } catch (err) {
-    //     if (err instanceof Sequelize.ConnectionError) {
-    //       console.log('deu ruim')
-    //     } else if (err instanceof Sequelize.TimeoutError) { 
-    //       console.log('deu timeout')
-    //       // Do something
-    //     } else {
-    //       throw err;
-    //     }
-    //   }
-    // };
   }
 
   validar = () => {
@@ -73,6 +59,7 @@ class Connection {
     Agendamento.init(this.connection);
     LogAgendamento.init(this.connection);
     LogErro.init(this.connection);
+    ParametroOpcao.init(this.connection);
 
     Usuario.belongsToMany(Automacao, {
       as: 'Automacoes',
@@ -90,6 +77,7 @@ class Connection {
       through: 'usuarios_tem_automacoes',
     });
 
+    ParametroAutomacao.hasMany(ParametroOpcao);
     ParametroAutomacao.belongsTo(TipoParametro, {
       foreignKey: {
         name: 'tipo_parametro_id',
@@ -122,7 +110,13 @@ class Connection {
         name: 'agendamento_id',
       },
     });
-  }
+
+    ParametroOpcao.belongsTo(ParametroAutomacao, {
+      foreignKey: {
+        name: 'parametro_automacao_id',
+      },
+    });
+  };
 }
 
 module.exports = new Connection();
