@@ -1,6 +1,7 @@
 const { v4 } = require('uuid');
 const { spawn } = require('child_process');
 const LogAgendamento = require('../models/LogAgendamento');
+const UsuarioTemAutomacao = require('../models/UsuarioTemAutomacao');
 const path = require('path');
 const LogErro = require('../models/LogErro');
 const { Sequelize } = require('sequelize');
@@ -10,7 +11,12 @@ class FilaController {
   executando = false;
 
   adicionarNaFila(dados, agendamento_id) {
-    this.filaExecucao.push({ id: v4(), dados, agendamento_id });
+    this.filaExecucao.push({
+      id: v4(),
+      dados,
+      agendamento_id,
+      adicionado_em: new Date(),
+    });
     console.log(`Automacao "${dados.nome}" adicionado à fila.`);
 
     if (!this.executando) {
@@ -49,6 +55,8 @@ class FilaController {
         retorno: 'Início da execução',
       });
 
+      this.filaExecucao[0].executado_em = new Date();
+
       const processo = spawn('python', ['-u', pythonScript, ...args], {
         windowsHide: false,
         env: {
@@ -69,7 +77,7 @@ class FilaController {
       });
 
       processo.on('close', async (code) => {
-        if (code == 1) {
+        if (code == 1 && !stderr) {
           await LogAgendamento.create({
             possui_erro: true,
             agendamento_id: automacao.agendamento_id,
@@ -151,14 +159,18 @@ class FilaController {
           .json({ success: false, message: 'Item não encontrado' });
 
       if (this.filaExecucao[indexItemFila]) {
+        let automacoes_ids = [];
+
         if (!usuario.admin) {
-          automacoes_ids = (
-            await UsuarioTemAutomacao.findAll({
-              where: {
-                usuario_id: usuario.id,
-              },
-            })
-          ).map((relacao) => relacao.dataValues.automacao_id);
+          const automacoesUsuario = await UsuarioTemAutomacao.findAll({
+            where: {
+              usuario_id: usuario.id,
+            },
+          });
+
+          automacoes_ids = automacoesUsuario.map(
+            (relacao) => relacao.dataValues.automacao_id
+          );
 
           if (
             !automacoes_ids.includes(this.filaExecucao[indexItemFila].dados.id)
@@ -205,6 +217,8 @@ class FilaController {
           id: item.id,
           nome: item.dados.nome,
           agendamento_id: item.agendamento_id,
+          adicionado_em: item.adicionado_em,
+          executado_em: item.executado_em,
         })),
       });
     } catch (error) {

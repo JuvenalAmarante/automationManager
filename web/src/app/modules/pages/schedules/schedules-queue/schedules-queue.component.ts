@@ -15,7 +15,8 @@ export class SchedulesQueueComponent implements OnInit {
 	queueList: FilaItem[] = [];
 	dateSync: Date = new Date();
 
-	constructor(private readonly api: ApiService,
+	constructor(
+		private readonly api: ApiService,
 		private readonly messageService: NzMessageService,
 	) {}
 
@@ -51,7 +52,7 @@ export class SchedulesQueueComponent implements OnInit {
 			)
 			.subscribe({
 				next: (res: DefaultResponse<null>) => {
-					this.loadQueue()
+					this.loadQueue();
 				},
 				error: (err) => {
 					this.messageService.error(err.error.message);

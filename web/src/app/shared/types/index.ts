@@ -13,7 +13,7 @@ export type GetParams =
 	  }
 	| undefined;
 
-	export type ApiParams =
+export type ApiParams =
 	| {
 			[key: string]: Object | Array<number | string | Object> | number | string | null | undefined;
 	  }
@@ -53,7 +53,7 @@ export type Automacao = {
 		nome: string;
 		tipo_parametro_id: number;
 		qtd_digitos?: number;
-		opcoes?: string[]
+		opcoes?: string[];
 	}[];
 	criado_em: Date;
 	atualizado_em: Date;
@@ -96,6 +96,8 @@ export type FilaItem = {
 	id: number;
 	nome: string;
 	agendamento_id: number;
+	adicionado_em: Date;
+	executado_em?: Date;
 };
 
 export type LogAgendamento = {

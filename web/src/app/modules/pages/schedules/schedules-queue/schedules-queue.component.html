@@ -14,37 +14,64 @@
 
 			@if (queueList.length) {
 				<nz-col nzSpan="24">
-					<nz-timeline>
-						@for (queueItem of queueList; track $index) {
-							<nz-timeline-item [nzColor]="$index == 0 ? 'green' : 'blue'" [nzDot]="$index == 0 ? dotTemplateSync : dotTemplateClock">
-								<div nz-row nzAlign="middle" nzJustify="space-between">
-									<div nz-col nzSpan="23">Agendamento {{ queueItem.agendamento_id }}: {{ queueItem.nome }}</div>
-									<div nz-col nzSpan="1">
+					<nz-table #dynamicTable [nzData]="queueList" [nzLoading]="isLoading">
+						<thead>
+							<tr>
+								<th nzAlign="center">Código</th>
+								<th nzWidth="30%">Automação</th>
+								<th nzAlign="center">Status atual</th>
+								<th nzAlign="center">Adicionado em</th>
+								<th nzAlign="center">Executado em</th>
+								<th nzAlign="center">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (queueItem of dynamicTable.data; track $index) {
+								<tr>
+									<td nzAlign="center">{{ queueItem.agendamento_id}}</td>
+									<td>{{ queueItem.nome }}</td>
+									<td nzAlign="center" [style]="'color: ' + ($index == 0 ? '#52c41a' : '#018ef7')">
+										@if ($index == 0) {
+											<span nz-icon nzType="sync" style="font-size: 16px"></span>
+											Executando
+										} @else {
+											<span nz-icon nzType="clock-circle-o" style="font-size: 16px"></span>
+											Aguardando
+										}
+									</td>
+									<td nzAlign="center">
+										@if (queueItem.adicionado_em) {
+											{{ queueItem.adicionado_em | date: 'dd/MM/yyyy HH:mm' }}
+										} @else {
+											----
+										}
+									</td>
+									<td nzAlign="center">
+										@if (queueItem.executado_em) {
+											{{ queueItem.executado_em | date: 'dd/MM/yyyy HH:mm' }}
+										} @else {
+											----
+										}
+									</td>
+									<td nzAlign="center">
 										<a
 											nz-button
 											nzType="link"
+											[nz-tooltip]="$index == 0 ? 'Parar execução' : 'Remover da fila'"
 											nz-popconfirm
-											nzPopconfirmTitle="Você deseja realmente remover esse item da fila?"
+											[nzPopconfirmTitle]="$index == 0 ? 'Você deseja realmente parar a execução desse item?' : 'Você deseja realmente remover esse item da fila?'"
 											(nzOnConfirm)="removeQueueItem(queueItem.id)"
 											nzPopconfirmPlacement="topLeft"
 											[nzLoading]="isLoadingRemove"
 											nzDanger
 										>
-											<span nz-icon nzType="close-circle" nzTheme="outline" nzDanger> </span>
+											<span nz-icon [nzType]="$index == 0 ? 'close-circle' : 'delete'" nzTheme="outline" nzDanger> </span>
 										</a>
-									</div>
-								</div>
-							</nz-timeline-item>
-
-							<ng-template #dotTemplateClock>
-								<span nz-icon nzType="clock-circle-o" style="font-size: 16px"></span>
-							</ng-template>
-
-							<ng-template #dotTemplateSync>
-								<span nz-icon nzType="sync" style="font-size: 16px"></span>
-							</ng-template>
-						}
-					</nz-timeline>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</nz-table>
 				</nz-col>
 			} @else {
 				<nz-col nzSpan="24">

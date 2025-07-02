@@ -269,7 +269,8 @@ export class AutomationsParameterCreateComponent implements OnInit {
 							const date = new Date();
 							let formatedValue: string | number | Date | Array<string>;
 
-							const valueDateSplitted = value.split('/');
+							let valueDateSplitted: string[] | null = null;
+							if (typeof value == 'string') valueDateSplitted = value.split('/');
 
 							switch (this.automationSelected.parametros[indexKey].tipo_parametro_id) {
 								case 2:
@@ -296,7 +297,7 @@ export class AutomationsParameterCreateComponent implements OnInit {
 									break;
 								case 6:
 									if (typeof value == 'number') formatedValue = this.excelDateToJSDate(value);
-									else if (typeof value == 'string') {
+									else if (valueDateSplitted != null) {
 										if (valueDateSplitted.length == 3 && ![...valueDateSplitted].some((a) => Number.isNaN(+a))) {
 											date.setDate(+valueDateSplitted[0]);
 											date.setMonth(+valueDateSplitted[1] - 1);
@@ -307,7 +308,7 @@ export class AutomationsParameterCreateComponent implements OnInit {
 									break;
 								case 7:
 									if (typeof value == 'number') formatedValue = this.excelDateToJSDate(value);
-									else if (typeof value == 'string') {
+									else if (valueDateSplitted != null) {
 										if (valueDateSplitted.length == 2 && ![...valueDateSplitted].some((a) => Number.isNaN(+a))) {
 											date.setDate(13);
 											date.setMonth(+valueDateSplitted[0] - 1);
