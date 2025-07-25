@@ -20,7 +20,10 @@ export class PagesComponent implements OnInit {
 	menu: MenuItem[] = [];
 	profile?: Profile;
 
-	constructor(private readonly router: Router, private readonly api: ApiService) {}
+	constructor(
+		private readonly router: Router,
+		private readonly api: ApiService,
+	) {}
 
 	ngOnInit(): void {
 		this.status = window.navigator.onLine;
@@ -47,8 +50,8 @@ export class PagesComponent implements OnInit {
 
 				localStorage.setItem('profileData', JSON.stringify(res.data));
 			},
-			error: () => {
-				localStorage.removeItem('access_token');
+			error: (err) => {
+				if (err.status == 401) localStorage.removeItem('access_token');
 			},
 		});
 	}

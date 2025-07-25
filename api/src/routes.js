@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const rateLimit = require('express-rate-limit');
 
 const verificarAutenticacao = require('./middlewares/verificarAutenticacao');
 const verificarAdmin = require('./middlewares/verificarAdmin');
@@ -12,6 +13,18 @@ const TipoAgendamentoController = require('./controller/TipoAgendamentoControlle
 const FilaController = require('./controller/FilaController');
 
 const router = Router();
+
+const throttle = rateLimit({
+  windowMs: 5 * 1000,
+  max: 1,
+  keyGenerator: (req) => {
+    return `${req.ip}:${req.originalUrl}`; // separa o controle por rota
+  },
+  message: {
+    success: false,
+    message: 'Espere alguns segundos antes de tentar novamente.',
+  },
+});
 
 // Autenticação
 router.post('/login', AutenticacaoController.login);
@@ -29,6 +42,7 @@ router.get(
 // Agendamentos
 router.post(
   '/agendamentos',
+  throttle,
   verificarAutenticacao,
   AgendamentoController.criar
 );
@@ -47,14 +61,16 @@ router.get(
   verificarAutenticacao,
   TipoAgendamentoController.listar
 );
-router.get('/agendamentos/fila', verificarAutenticacao, FilaController.listar);
+router.get('/agendamentos/fila', throttle, verificarAutenticacao, FilaController.listar);
 router.post(
   '/agendamentos/fila/:id',
+  throttle,
   verificarAutenticacao,
   FilaController.encerrarProcesso
 );
 router.patch(
   '/agendamentos/:id',
+  throttle,
   verificarAutenticacao,
   AgendamentoController.atualizar
 );
@@ -89,6 +105,7 @@ router.get(
 );
 router.patch(
   '/automacoes/:id',
+  throttle,
   verificarAutenticacao,
   verificarAdmin,
   AutomacaoController.atualizar
@@ -100,11 +117,13 @@ router.get(
 );
 router.patch(
   '/automacoes/:id/parametros',
+  throttle,
   verificarAutenticacao,
   AutomacaoController.atualizarParametros
 );
 router.post(
   '/automacoes',
+  throttle,
   verificarAutenticacao,
   verificarAdmin,
   AutomacaoController.criar
@@ -119,6 +138,7 @@ router.delete(
 // Usuários
 router.post(
   '/usuarios',
+  throttle,
   verificarAutenticacao,
   verificarAdmin,
   UsuarioController.criar
@@ -149,6 +169,7 @@ router.put(
 );
 router.patch(
   '/usuarios/:id',
+  throttle,
   verificarAutenticacao,
   verificarAdmin,
   UsuarioController.atualizar

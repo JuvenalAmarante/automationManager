@@ -199,6 +199,7 @@ class AutomacaoController {
 
   async listar(req, res) {
     const { usuario } = req;
+    const { busca } = req.query;
 
     try {
       let automacoes_ids = [];
@@ -214,7 +215,12 @@ class AutomacaoController {
 
       let where = {
         excluido: false,
+        nome: {
+          [Op.iLike]: `%${busca}%`,
+        },
       };
+
+      if (!busca) delete where.nome;
 
       if (!usuario.admin)
         where.id = {
@@ -223,6 +229,7 @@ class AutomacaoController {
 
       const automacoes = await Automacao.findAll({
         where,
+        order: [['nome', 'ASC']],
       });
 
       res.status(200).json({ success: true, data: automacoes });
@@ -388,6 +395,7 @@ class AutomacaoController {
       const parametrosMultiplaEscolha = await ParametroAutomacao.findAll({
         where: {
           tipo_parametro_id: 9,
+          automacao_id: id,
         },
         transaction,
       });

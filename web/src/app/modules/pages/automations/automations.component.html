@@ -9,6 +9,26 @@
 		}
 	</nz-page-header-extra>
 	<nz-page-header-content>
+		<form nz-row nzGutter="16" nzAlign="bottom" nz-form nzLayout="vertical" [formGroup]="validateForm" (ngSubmit)="submitForm()">
+			<div nz-col nzSpan="20">
+				<nz-form-item>
+					<nz-form-label>Busca</nz-form-label>
+					<nz-form-control [nzValidateStatus]="getFormControlValidationStatus('busca')">
+						<input nz-input formControlName="busca" placeholder="Pesquise pelo nome da automação" />
+					</nz-form-control>
+				</nz-form-item>
+			</div>
+
+			<div nz-col nzSpan="4">
+				<nz-form-item>
+					<button nz-button nzType="primary">
+						<span nz-icon nzType="search"></span>
+						Buscar
+					</button>
+				</nz-form-item>
+			</div>
+		</form>
+
 		<nz-table #dynamicTable [nzData]="dataList" [nzLoading]="isLoading">
 			<thead>
 				<tr>

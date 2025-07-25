@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ApiService } from 'src/app/core/services/api.service';
 import { AutomationsCreateComponent } from './automations-create/automations-create.component';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -7,6 +7,7 @@ import { Automacao, DefaultResponse, Profile } from 'src/app/shared/types';
 import { finalize } from 'rxjs';
 import { PermissionValidateService } from 'src/app/core/services/permission-validate.service';
 import { Router } from '@angular/router';
+import { normalizeParams } from 'src/app/shared/helpers';
 
 @Component({
 	selector: 'app-automations',
@@ -20,17 +21,26 @@ export class AutomationsComponent implements OnInit {
 	profile?: Profile;
 
 	constructor(
+		private readonly fb: FormBuilder,
 		private readonly api: ApiService,
 		private readonly modalService: NzModalService,
 		private readonly permissionService: PermissionValidateService,
-    private readonly router: Router
-	) {}
+		private readonly router: Router,
+	) {
+		this.validateForm = fb.group({
+			busca: [null],
+		});
+	}
 
 	ngOnInit(): void {
 		this.profile = JSON.parse(localStorage.getItem('profileData') || '{}');
-    
-    if(!this.profile?.admin) this.router.navigate(['/app']);
 
+		if (!this.profile?.admin) this.router.navigate(['/app']);
+
+		this.getAutomationsList();
+	}
+
+	submitForm() {
 		this.getAutomationsList();
 	}
 
@@ -39,11 +49,11 @@ export class AutomationsComponent implements OnInit {
 		return control?.dirty && control?.errors ? 'error' : '';
 	}
 
-	getAutomationsList(values?: { busca: string; nac: boolean; ativo: boolean }) {
+	getAutomationsList() {
 		this.isLoading = true;
 
 		this.api
-			.get('/automacoes', values || {})
+			.get('/automacoes', normalizeParams(this.validateForm.value))
 			.pipe(
 				finalize(() => {
 					this.isLoading = false;

@@ -148,8 +148,8 @@ export class AutomationsParameterCreateComponent implements OnInit {
 		this.parametersValues = [...this.parametersValues, value];
 	}
 
-	removeParameterValue(index: number) {
-		const newList = this.parametersValues.filter((item, idx) => idx != index);
+	removeParameterValue(index: number, page: number) {
+		const newList = this.parametersValues.filter((item, idx) => idx != index + (page - 1) * 20);
 
 		this.parametersValues = newList;
 	}
@@ -262,10 +262,10 @@ export class AutomationsParameterCreateComponent implements OnInit {
 
 				Object.keys(item).forEach((key) => {
 					if (this.automationSelected && this.automationSelected.parametros) {
-						const indexKey = namesList.indexOf(key.trim());
+						const indexKey = namesList.indexOf(key.replace(/\s+/g, ''));
 
 						if (indexKey != -1) {
-							const value = item[key.trim()];
+							const value = item[key];
 							const date = new Date();
 							let formatedValue: string | number | Date | Array<string>;
 
@@ -325,7 +325,7 @@ export class AutomationsParameterCreateComponent implements OnInit {
 									break;
 							}
 
-							if (formatedValue) obj[key] = formatedValue;
+							if (formatedValue) obj[key.replace(/\s+/g, '')] = formatedValue;
 						}
 					}
 				});

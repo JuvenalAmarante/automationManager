@@ -208,7 +208,7 @@
 														nz-popconfirm
 														nzPopconfirmTitle="Você deseja realmente excluir esse item?"
 														nzPopconfirmPlacement="topLeft"
-														(nzOnConfirm)="removeParameterValue(indexValue)"
+														(nzOnConfirm)="removeParameterValue(indexValue, dynamicTable.nzPageIndex)"
 														nzDanger
 													>
 														<span nz-icon nzType="delete" nzTheme="outline" nzDanger></span>
